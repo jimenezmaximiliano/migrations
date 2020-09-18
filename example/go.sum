@@ -1,0 +1,6 @@
+github.com/jimenezmaximiliano/very-simple-migrations v0.0.0-20200913075032-d15c65d9006a h1:WXaO4T5SvP5oOm0bRykNXZVyIUiiXDdMeWTBvfggVhA=
+github.com/jimenezmaximiliano/very-simple-migrations v0.0.0-20200913075032-d15c65d9006a/go.mod h1:ysnJgZZd2a+3D9W9AB4Pfey2LaupxlTUVxG62Xi5wms=
+github.com/jimenezmaximiliano/very-simple-migrations v0.0.2 h1:hq0U8TrhCBTmSd/T0GYWjSFOZvccH6kZvD3a9R3S7PI=
+github.com/jimenezmaximiliano/very-simple-migrations v0.0.2/go.mod h1:2OQggp6KYNWhQjvMKDsNStDWEA2XttsRl/FEORIp6CE=
+github.com/mattn/go-sqlite3 v1.14.3 h1:j7a/xn1U6TKA/PHHxqZuzh64CdtRc7rU9M+AvkOl5bA=
+github.com/mattn/go-sqlite3 v1.14.3/go.mod h1:WVKg1VTActs4Qso6iwGbiFih2UIHo0ENGwNd0Lj+XmI=

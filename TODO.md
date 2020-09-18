@@ -5,3 +5,4 @@
 - Write docs
 - Add a feature to load migrations in a custom way (no sql files)
 - Add a feature to create migration files with a numeric prefix
+- Add a feature to pretty print results
