@@ -14,36 +14,46 @@ type MigrationResult struct {
 }
 
 func Run(db *sql.DB, migrationsAbsolutePath string) (MigrationResult, error) {
-	result := MigrationResult{
-		SuccessfulMigrations: make([]string, 0),
-		FailedMigrations: make([]string, 0),
-	}
+	result := getEmptyMigrationResult()
 
 	err := createMigrationsTableIfNeeded(db)
-
 	if err != nil {
 		return result, err
 	}
 
-	migrationFilePaths, err := getMigrationFilePaths(migrationsAbsolutePath)
-
+	migrationFilePathsToRun, err := getMigrationFilePathsToRun(db, migrationsAbsolutePath)
 	if err != nil {
 		return result, err
 	}
-
-	alreadyRunMigrationFilePaths, err := getAlreadyRunMigrationFilePaths(db, migrationsAbsolutePath)
-
-	if err != nil {
-		return result, err
-	}
-
-	migrationFilePathsToRun := getMigrationFilePathsToRun(migrationFilePaths, alreadyRunMigrationFilePaths)
 
 	if len(migrationFilePathsToRun) == 0  {
 		return result, nil
 	}
 
 	return runMigrations(db, migrationFilePathsToRun, result)
+}
+
+func getMigrationFilePathsToRun(db *sql.DB, migrationsAbsolutePath string) ([]string,error) {
+	migrationFilePaths, err := getMigrationFilePaths(migrationsAbsolutePath)
+
+	if err != nil {
+		return []string{}, fmt.Errorf("verySimpleMigrations.getMigrationFilePath (%s)\n%w", migrationsAbsolutePath, err)
+	}
+
+	alreadyRunMigrationFilePaths, err := getAlreadyRunMigrationFilePaths(db, migrationsAbsolutePath)
+
+	if err != nil {
+		return []string{}, fmt.Errorf("verySimpleMigrations.getAlreadyRunMigrations \n%w", err)
+	}
+
+	return filterMigrationFilePaths(migrationFilePaths, alreadyRunMigrationFilePaths), nil
+}
+
+func getEmptyMigrationResult() MigrationResult {
+	return MigrationResult{
+		SuccessfulMigrations: make([]string, 0),
+		FailedMigrations: make([]string, 0),
+	}
 }
 
 func createMigrationsTableIfNeeded(db *sql.DB) error {
@@ -63,17 +73,19 @@ func createMigrationsTableIfNeeded(db *sql.DB) error {
 }
 
 func getMigrationFilePaths(migrationsAbsolutePath string) ([]string, error) {
-	if migrationsAbsolutePath[len(migrationsAbsolutePath)-1:] != "/" {
-		migrationsAbsolutePath += "/"
-	}
-
-	var migrationPaths []string
+	migrationsAbsolutePath = addTrailingSlashIfNeeded(migrationsAbsolutePath)
 
 	files, err := ioutil.ReadDir(migrationsAbsolutePath)
 
 	if err != nil {
-		return migrationPaths, fmt.Errorf("verySimpleMigrations.readMigrationsPath (path: %s) \n%w", migrationsAbsolutePath, err)
+		return []string{}, fmt.Errorf("verySimpleMigrations.readMigrationsPath (path: %s) \n%w", migrationsAbsolutePath, err)
 	}
+
+	return getMigrationPathsFromFiles(files, migrationsAbsolutePath), nil
+}
+
+func getMigrationPathsFromFiles(files []os.FileInfo, migrationsAbsolutePath string) []string {
+	var migrationPaths []string
 
 	for _, file := range files {
 		if isNotASqlFile(file) {
@@ -83,8 +95,14 @@ func getMigrationFilePaths(migrationsAbsolutePath string) ([]string, error) {
 		currentMigrationPath := migrationsAbsolutePath + file.Name()
 		migrationPaths = append(migrationPaths, currentMigrationPath)
 	}
+}
 
-	return migrationPaths, nil
+func addTrailingSlashIfNeeded(path string) string {
+	if path[len(path)-1:] != "/" {
+		return path + "/"
+	}
+
+	return path
 }
 
 func isNotASqlFile(file os.FileInfo) bool {
@@ -95,15 +113,19 @@ func isNotASqlFile(file os.FileInfo) bool {
 }
 
 func getAlreadyRunMigrationFilePaths(db *sql.DB, migrationsAbsolutePath string) ([]string, error) {
-	var migrationsAlreadyRun []string
-
 	rows, err := db.Query("SELECT migration FROM migrations")
 
 	if err != nil {
-		return migrationsAlreadyRun, fmt.Errorf("verySimpleMigrations.getMigrationsFromTheMigrationsTable \n%w", err)
+		return []string{}, fmt.Errorf("verySimpleMigrations.getMigrationsFromTheMigrationsTable \n%w", err)
 	}
 
 	defer rows.Close()
+
+	return getMigrationPathsFromRows(rows, migrationsAbsolutePath)
+}
+
+func getMigrationPathsFromRows(rows *sql.Rows, migrationsAbsolutePath string) ([]string, error) {
+	var migrationsAlreadyRun []string
 
 	for rows.Next() {
 		migrationFileName := ""
@@ -120,7 +142,7 @@ func getAlreadyRunMigrationFilePaths(db *sql.DB, migrationsAbsolutePath string) 
 	return migrationsAlreadyRun, nil
 }
 
-func getMigrationFilePathsToRun(all []string, alreadyRun []string) []string {
+func filterMigrationFilePaths(all []string, alreadyRun []string) []string {
 	var migrationsToRun []string
 
 	for _, migration := range all {
