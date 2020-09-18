@@ -63,6 +63,10 @@ func createMigrationsTableIfNeeded(db *sql.DB) error {
 }
 
 func getMigrationFilePaths(migrationsAbsolutePath string) ([]string, error) {
+	if migrationsAbsolutePath[len(migrationsAbsolutePath)-1:] != "/" {
+		migrationsAbsolutePath += "/"
+	}
+
 	var migrationPaths []string
 
 	files, err := ioutil.ReadDir(migrationsAbsolutePath)
