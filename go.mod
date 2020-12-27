@@ -1,4 +1,4 @@
-module github.com/jimenezmaximiliano/very-simple-migrations
+module github.com/jimenezmaximiliano/migrations
 
 go 1.14
 

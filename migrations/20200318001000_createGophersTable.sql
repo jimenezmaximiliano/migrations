@@ -1,5 +1,0 @@
-CREATE TABLE gophers (
-    id INTEGER PRIMARY KEY AUTOINCREMENT,
-    name TEXT,
-    UNIQUE(name)
-);

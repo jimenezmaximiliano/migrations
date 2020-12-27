@@ -1,10 +1,11 @@
-package dbRepository
+package repositories
 
 import (
 	"database/sql"
 	"fmt"
 )
 
+// DbRepository is an interface to run migrations from sql
 type DbRepository interface {
 	CreateMigrationsTableIfNeeded() error
 	GetAlreadyRunMigrationFilePaths(migrationsDirectoryAbsolutePath string) ([]string, error)
@@ -16,7 +17,8 @@ type dbRepository struct {
 	db *sql.DB
 }
 
-func New(db *sql.DB) DbRepository {
+// NewDbRepository returns an implementation of DbRepository
+func NewDbRepository(db *sql.DB) DbRepository {
 	return dbRepository{
 		db: db,
 	}
@@ -32,7 +34,7 @@ func (repository dbRepository) CreateMigrationsTableIfNeeded() error {
 	_, err := repository.db.Exec(query)
 
 	if err != nil {
-		return fmt.Errorf("verySimpleMigrations.CreateMigrationsTable \n%w", err)
+		return fmt.Errorf("migrations.CreateMigrationsTable \n%w", err)
 	}
 
 	return nil
@@ -42,7 +44,7 @@ func (repository dbRepository) GetAlreadyRunMigrationFilePaths(migrationsDirecto
 	rows, err := repository.db.Query("SELECT migration FROM migrations")
 
 	if err != nil {
-		return []string{}, fmt.Errorf("verySimpleMigrations.getMigrationsFromTheMigrationsTable \n%w", err)
+		return []string{}, fmt.Errorf("migrations.getMigrationsFromTheMigrationsTable \n%w", err)
 	}
 
 	defer rows.Close()
@@ -58,7 +60,7 @@ func getMigrationPathsFromRows(rows *sql.Rows, migrationsDirectoryAbsolutePath s
 		err := rows.Scan(&migrationFileName)
 
 		if err != nil {
-			return migrationsAlreadyRun, fmt.Errorf("verySimpleMigrations.readMigrationRowFromMigrationsTable \n%w", err)
+			return migrationsAlreadyRun, fmt.Errorf("migrations.readMigrationRowFromMigrationsTable \n%w", err)
 		}
 
 		currentMigrationAbsolutePath := migrationsDirectoryAbsolutePath + migrationFileName

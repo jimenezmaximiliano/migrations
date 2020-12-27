@@ -8,3 +8,5 @@
 - Add a feature to pretty print results
 - Check that migration file names are unique
 - Create a migration struct with the full path and the file name
+- Make the MigrationCollection more generic
+- Check where I'm adding context to errors
