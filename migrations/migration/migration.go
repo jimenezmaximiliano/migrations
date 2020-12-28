@@ -1,4 +1,4 @@
-package migrations
+package migration
 
 import (
 	"fmt"
@@ -20,6 +20,8 @@ type Migration interface {
 	GetQuery() string
 	NewAsFailed() Migration
 	NewAsSuccessful() Migration
+	WasSuccessful() bool
+	HasFailed() bool
 }
 
 type migration struct {
@@ -43,6 +45,14 @@ func (migration migration) GetStatus() int8 {
 
 func (migration migration) ShouldBeRun() bool {
 	return migration.status != StatusSuccessful
+}
+
+func (migration migration) WasSuccessful() bool {
+	return migration.status == StatusSuccessful
+}
+
+func (migration migration) HasFailed() bool {
+	return migration.status == StatusFailed
 }
 
 func (migration migration) GetQuery() string {

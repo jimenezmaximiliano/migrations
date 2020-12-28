@@ -3,13 +3,13 @@ package services
 import (
 	"fmt"
 
-	"github.com/jimenezmaximiliano/migrations/migrations"
+	"github.com/jimenezmaximiliano/migrations/migrations/migration"
 	"github.com/jimenezmaximiliano/migrations/migrations/repositories"
 )
 
 // MigrationRunnerService is an interface that handles running migrations
 type MigrationRunnerService interface {
-	RunMigrations() ([]migrations.Migration, error)
+	RunMigrations() (migration.MigrationCollection, error)
 }
 
 type migrationRunnerService struct {
@@ -30,26 +30,26 @@ func NewMigrationRunnerService(
 	}
 }
 
-func (service migrationRunnerService) RunMigrations() ([]migrations.Migration, error) {
+func (service migrationRunnerService) RunMigrations() (migration.MigrationCollection, error) {
 
 	err := service.dbRepository.CreateMigrationsTableIfNeeded()
 	if err != nil {
-		return []migrations.Migration{}, err
+		return migration.MigrationCollection{}, err
 	}
 
-	migrations, err := service.migrationFetcherService.GetMigrations(service.migrationsDirectoryAbsolutePath)
-	migrationsToRun := migrations.GetMigrationsToRun()
+	allMigrations, err := service.migrationFetcherService.GetMigrations(service.migrationsDirectoryAbsolutePath)
+	migrationsToRun := allMigrations.GetMigrationsToRun()
 
 	if len(migrationsToRun) == 0 {
-		return migrationsToRun, nil
+		return migration.MigrationCollection{}, nil
 	}
 
 	return service.runMigrations(migrationsToRun)
 }
 
-func (service migrationRunnerService) runMigrations(migrationsToRun []migrations.Migration) ([]migrations.Migration, error) {
+func (service migrationRunnerService) runMigrations(migrationsToRun []migration.Migration) (migration.MigrationCollection, error) {
 
-	result := migrations.MigrationCollection{}
+	result := migration.MigrationCollection{}
 
 	for _, migration := range migrationsToRun {
 		err := service.dbRepository.RunMigrationQuery(migration.GetQuery())
@@ -57,16 +57,16 @@ func (service migrationRunnerService) runMigrations(migrationsToRun []migrations
 		if err != nil {
 			result.Add(migration.NewAsFailed())
 
-			return result.GetAll(), err
+			return result, err
 		}
 
 		result.Add(migration.NewAsSuccessful())
 		err = service.dbRepository.RegisterRunMigration(migration.GetName())
 
 		if err != nil {
-			return result.GetAll(), fmt.Errorf("migrations.runnerService (absolutePath: %s) %w", migration.GetAbsolutePath(), err)
+			return result, fmt.Errorf("migrations.runnerService (absolutePath: %s) %w", migration.GetAbsolutePath(), err)
 		}
 	}
 
-	return result.GetAll(), nil
+	return result, nil
 }

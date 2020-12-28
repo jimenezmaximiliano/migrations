@@ -1,5 +1,4 @@
 CREATE TABLE gophers (
-    id INTEGER PRIMARY KEY AUTOINCREMENT,
-    name TEXT,
-    UNIQUE(name)
+    id INTEGER PRIMARY KEY AUTO_INCREMENT,
+    name TEXT
 );

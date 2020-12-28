@@ -1,10 +1,13 @@
-package migrations
+package migration
 
 type MigrationCollection struct {
 	migrations map[string]Migration
 }
 
 func (collection *MigrationCollection) Add(migration Migration) {
+	if collection.migrations == nil {
+		collection.migrations = make(map[string]Migration)
+	}
 	collection.migrations[migration.GetAbsolutePath()] = migration
 }
 

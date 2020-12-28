@@ -27,7 +27,7 @@ func NewDbRepository(db *sql.DB) DbRepository {
 func (repository dbRepository) CreateMigrationsTableIfNeeded() error {
 	query := `
 		CREATE TABLE IF NOT EXISTS migrations (
-			id INTEGER PRIMARY KEY AUTOINCREMENT,
+			id INTEGER PRIMARY KEY AUTO_INCREMENT,
 			migration TEXT
 		);`
 

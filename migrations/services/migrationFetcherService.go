@@ -3,13 +3,13 @@ package services
 import (
 	"fmt"
 
-	"github.com/jimenezmaximiliano/migrations/migrations"
+	"github.com/jimenezmaximiliano/migrations/migrations/migration"
 	"github.com/jimenezmaximiliano/migrations/migrations/repositories"
 )
 
 // MigrationFetcherService returns Migrations from a given path
 type MigrationFetcherService interface {
-	GetMigrations(migrationsDirectoryAbsolutePath string) (migrations.MigrationCollection, error)
+	GetMigrations(migrationsDirectoryAbsolutePath string) (migration.MigrationCollection, error)
 }
 
 type migrationFetcherService struct {
@@ -25,20 +25,20 @@ func NewMigrationFetcherService(dbRepository repositories.DbRepository, fileRepo
 	}
 }
 
-func (service migrationFetcherService) GetMigrations(migrationsDirectoryAbsolutePath string) (migrations.MigrationCollection, error) {
+func (service migrationFetcherService) GetMigrations(migrationsDirectoryAbsolutePath string) (migration.MigrationCollection, error) {
 	migrationFilePathsFromFiles, err := service.fileRepository.GetMigrationFilePaths(migrationsDirectoryAbsolutePath)
 
 	if err != nil {
-		return migrations.MigrationCollection{}, fmt.Errorf("migrations.fetcherService (absolutePath: %s) %w", migrationsDirectoryAbsolutePath, err)
+		return migration.MigrationCollection{}, fmt.Errorf("migrations.fetcherService (absolutePath: %s) %w", migrationsDirectoryAbsolutePath, err)
 	}
 
 	runMigrationFilePaths, err := service.dbRepository.GetAlreadyRunMigrationFilePaths(migrationsDirectoryAbsolutePath)
 
 	if err != nil {
-		return migrations.MigrationCollection{}, fmt.Errorf("migrations.fetcherService (absolutePath: %s) %w", migrationsDirectoryAbsolutePath, err)
+		return migration.MigrationCollection{}, fmt.Errorf("migrations.fetcherService (absolutePath: %s) %w", migrationsDirectoryAbsolutePath, err)
 	}
 
-	migrationCollection := migrations.MigrationCollection{}
+	migrationCollection := migration.MigrationCollection{}
 
 	for _, runMigrationFilePath := range runMigrationFilePaths {
 
@@ -48,7 +48,7 @@ func (service migrationFetcherService) GetMigrations(migrationsDirectoryAbsolute
 			return migrationCollection, fmt.Errorf("migrations.fetcherService (absolutePath: %s) %w", runMigrationFilePath, err)
 		}
 
-		migration, err := migrations.NewMigration(runMigrationFilePath, migrationQuery, migrations.StatusSuccessful)
+		migration, err := migration.NewMigration(runMigrationFilePath, migrationQuery, migration.StatusSuccessful)
 
 		if err != nil {
 			return migrationCollection, fmt.Errorf("migrations.fetcherService (absolutePath: %s) %w", runMigrationFilePath, err)
@@ -69,7 +69,7 @@ func (service migrationFetcherService) GetMigrations(migrationsDirectoryAbsolute
 			return migrationCollection, fmt.Errorf("migrations.fetcherService (absolutePath: %s) %w", migrationFilePath, err)
 		}
 
-		migration, err := migrations.NewMigration(migrationFilePath, migrationQuery, migrations.StatusNotRun)
+		migration, err := migration.NewMigration(migrationFilePath, migrationQuery, migration.StatusNotRun)
 
 		if err != nil {
 			return migrationCollection, fmt.Errorf("migrations.fetcherService (absolutePath: %s) %w", migrationFilePath, err)
