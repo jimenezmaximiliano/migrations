@@ -2,6 +2,7 @@ package migration
 
 import (
 	"fmt"
+	"sort"
 	"strings"
 )
 
@@ -22,6 +23,7 @@ type Migration interface {
 	NewAsSuccessful() Migration
 	WasSuccessful() bool
 	HasFailed() bool
+	ShouldBeRunFirst(anotherMigration Migration) bool
 }
 
 type migration struct {
@@ -69,6 +71,17 @@ func (migration migration) NewAsSuccessful() Migration {
 	newMigration, _ := NewMigration(migration.GetAbsolutePath(), migration.GetQuery(), StatusSuccessful)
 
 	return newMigration
+}
+
+func (migration migration) ShouldBeRunFirst(anotherMigration Migration) bool {
+	names := []string{
+		migration.name,
+		anotherMigration.GetName(),
+	}
+
+	sort.Strings(names)
+
+	return names[0] == migration.name
 }
 
 func NewMigration(absolutePath string, query string, status int8) (Migration, error) {

@@ -1,5 +1,9 @@
 package migration
 
+import (
+	"sort"
+)
+
 type MigrationCollection struct {
 	migrations map[string]Migration
 }
@@ -26,6 +30,10 @@ func (collection *MigrationCollection) GetAll() []Migration {
 	for _, migration := range collection.migrations {
 		migrations = append(migrations, migration)
 	}
+
+	sort.Slice(migrations, func(i, j int) bool {
+		return migrations[i].ShouldBeRunFirst(migrations[j])
+	})
 
 	return migrations
 }
