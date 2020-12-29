@@ -25,16 +25,16 @@ func main() {
 
 	migrations, err := m.RunMigrations(db, *migrationsPath)
 
-	if err != nil {
-		fmt.Println("Failed to run migrations")
-		fmt.Printf("%v\n", err)
-	}
-
 	for _, migration := range migrations.GetAll() {
 		if migration.WasSuccessful() {
 			fmt.Printf("[OK] %s\n", migration.GetName())
 			continue
 		}
 		fmt.Printf("[KO] %s\n", migration.GetName())
+	}
+
+	if err != nil {
+		fmt.Println("Failed to run migrations")
+		fmt.Printf("%v\n", err)
 	}
 }

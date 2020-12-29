@@ -8,3 +8,5 @@
 - Add a feature to pretty print results
 - Check that migration file names are unique
 - Check where I'm adding context to errors
+- Fail early if we cannot connect to the db
+- Fail early if the migrations path is invalid

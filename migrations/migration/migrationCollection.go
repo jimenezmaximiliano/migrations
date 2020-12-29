@@ -31,11 +31,15 @@ func (collection *MigrationCollection) GetAll() []Migration {
 		migrations = append(migrations, migration)
 	}
 
+	sortMigrations(migrations)
+
+	return migrations
+}
+
+func sortMigrations(migrations []Migration) {
 	sort.Slice(migrations, func(i, j int) bool {
 		return migrations[i].ShouldBeRunFirst(migrations[j])
 	})
-
-	return migrations
 }
 
 func (collection *MigrationCollection) IsEmpty() bool {
@@ -53,6 +57,8 @@ func (collection *MigrationCollection) GetMigrationsToRun() []Migration {
 
 		migrations = append(migrations, migration)
 	}
+
+	sortMigrations(migrations)
 
 	return migrations
 }
