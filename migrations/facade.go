@@ -10,9 +10,9 @@ import (
 	"github.com/jimenezmaximiliano/migrations/migrations/services"
 )
 
-func RunMigrations(db *sql.DB, migrationsDirectoryAbsolutePath string) (migration.MigrationCollection, error) {
-	fileSystem := adapters.FileSystemAdapter{}
-	dbRepository := repositories.NewDbRepository(db)
+func RunMigrations(DB *sql.DB, migrationsDirectoryAbsolutePath string) (migration.MigrationCollection, error) {
+	fileSystem := adapters.IOUtilAdapter{}
+	dbRepository := repositories.NewDbRepository(DB)
 	fileRepository := repositories.NewFileRepository(fileSystem, fileSystem)
 	migrationFetcher := services.NewFetcherService(dbRepository, fileRepository)
 	migrationRunner := services.NewRunnerService(migrationFetcher, dbRepository, migrationsDirectoryAbsolutePath)
@@ -20,8 +20,28 @@ func RunMigrations(db *sql.DB, migrationsDirectoryAbsolutePath string) (migratio
 	return migrationRunner.RunMigrations()
 }
 
-func DisplayResults(runMigrations migration.MigrationCollection) {
-	displayService := services.NewDisplayService(fmt.Printf)
+type SetupDB func() (*sql.DB, error)
 
-	displayService.DisplayRunMigrations(runMigrations)
+func RunMigrationsCommand(setupDB SetupDB) {
+
+	displayService := services.NewDisplayService(fmt.Printf)
+	commandService := services.NewCommandService(adapters.FlagOptionParser{})
+	arguments := commandService.ParseArguments()
+
+	DB, err := setupDB()
+
+	if err != nil {
+		displayService.DisplaySetupError(err)
+		return
+	}
+
+	fileSystem := adapters.IOUtilAdapter{}
+	dbRepository := repositories.NewDbRepository(DB)
+	fileRepository := repositories.NewFileRepository(fileSystem, fileSystem)
+	migrationFetcher := services.NewFetcherService(dbRepository, fileRepository)
+	migrationRunner := services.NewRunnerService(migrationFetcher, dbRepository, arguments.MigrationsPath)
+
+	result, _ := migrationRunner.RunMigrations()
+
+	displayService.DisplayRunMigrations(result)
 }

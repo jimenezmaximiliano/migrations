@@ -4,19 +4,20 @@ import (
 	"github.com/jimenezmaximiliano/migrations/migrations/migration"
 )
 
-type DisplayService interface {
+type Display interface {
 	DisplayRunMigrations(migrations migration.MigrationCollection)
+	DisplaySetupError(err error)
 }
 
 type Print func(format string, a ...interface{}) (n int, err error)
 
-func NewDisplayService(print Print) DisplayService {
-	return migrationsDisplayService{
+func NewDisplayService(print Print) Display {
+	return displayService{
 		print: print,
 	}
 }
 
-type migrationsDisplayService struct {
+type displayService struct {
 	print Print
 }
 
@@ -27,7 +28,7 @@ const (
 	failedMigration      = "  KO  "
 )
 
-func (service migrationsDisplayService) DisplayRunMigrations(migrations migration.MigrationCollection) {
+func (service displayService) DisplayRunMigrations(migrations migration.MigrationCollection) {
 
 	service.info("Run migrations")
 
@@ -58,14 +59,18 @@ func (service migrationsDisplayService) DisplayRunMigrations(migrations migratio
 	service.print("\n\n")
 }
 
-func (service migrationsDisplayService) info(message string) {
+func (service displayService) DisplaySetupError(err error) {
+	service.print("\nFailed to setup migrations:\n%v\n\n", err)
+}
+
+func (service displayService) info(message string) {
 	service.print(messageFormat, informationalMessage, message)
 }
 
-func (service migrationsDisplayService) success(message string) {
+func (service displayService) success(message string) {
 	service.print(messageFormat, successfulMigration, message)
 }
 
-func (service migrationsDisplayService) failure(message string) {
+func (service displayService) failure(message string) {
 	service.print(messageFormat, failedMigration, message)
 }

@@ -7,25 +7,25 @@ import (
 	"github.com/jimenezmaximiliano/migrations/migrations/repositories"
 )
 
-// FetcherService returns Migrations from a given path
-type FetcherService interface {
+// Fetcher returns Migrations from a given path
+type Fetcher interface {
 	GetMigrations(migrationsDirectoryAbsolutePath string) (migration.MigrationCollection, error)
 }
 
-type migrationFetcherService struct {
+type fetcherService struct {
 	dbRepository   repositories.DbRepository
 	fileRepository repositories.FileRepository
 }
 
 // NewFetcherService returns an implemention of MigrationFetcherService
-func NewFetcherService(dbRepository repositories.DbRepository, fileRepository repositories.FileRepository) FetcherService {
-	return migrationFetcherService{
+func NewFetcherService(dbRepository repositories.DbRepository, fileRepository repositories.FileRepository) Fetcher {
+	return fetcherService{
 		dbRepository:   dbRepository,
 		fileRepository: fileRepository,
 	}
 }
 
-func (service migrationFetcherService) GetMigrations(migrationsDirectoryAbsolutePath string) (migration.MigrationCollection, error) {
+func (service fetcherService) GetMigrations(migrationsDirectoryAbsolutePath string) (migration.MigrationCollection, error) {
 	migrationFilePathsFromFiles, err := service.fileRepository.GetMigrationFilePaths(migrationsDirectoryAbsolutePath)
 
 	if err != nil {

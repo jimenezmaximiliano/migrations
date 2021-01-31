@@ -7,30 +7,30 @@ import (
 	"github.com/jimenezmaximiliano/migrations/migrations/repositories"
 )
 
-// RunnerService is an interface that handles running migrations
-type RunnerService interface {
+// Runner is an interface that handles running migrations
+type Runner interface {
 	RunMigrations() (migration.MigrationCollection, error)
 }
 
-type migrationRunnerService struct {
-	migrationFetcherService         FetcherService
+type runnerService struct {
+	migrationFetcherService         Fetcher
 	dbRepository                    repositories.DbRepository
 	migrationsDirectoryAbsolutePath string
 }
 
 func NewRunnerService(
-	migrationFetcherService FetcherService,
+	migrationFetcherService Fetcher,
 	dbRepository repositories.DbRepository,
-	migrationsDirectoryAbsolutePath string) RunnerService {
+	migrationsDirectoryAbsolutePath string) Runner {
 
-	return migrationRunnerService{
+	return runnerService{
 		migrationFetcherService:         migrationFetcherService,
 		dbRepository:                    dbRepository,
 		migrationsDirectoryAbsolutePath: migrationsDirectoryAbsolutePath,
 	}
 }
 
-func (service migrationRunnerService) RunMigrations() (migration.MigrationCollection, error) {
+func (service runnerService) RunMigrations() (migration.MigrationCollection, error) {
 
 	err := service.dbRepository.CreateMigrationsTableIfNeeded()
 	if err != nil {
@@ -47,7 +47,7 @@ func (service migrationRunnerService) RunMigrations() (migration.MigrationCollec
 	return service.runMigrations(migrationsToRun)
 }
 
-func (service migrationRunnerService) runMigrations(migrationsToRun []migration.Migration) (migration.MigrationCollection, error) {
+func (service runnerService) runMigrations(migrationsToRun []migration.Migration) (migration.MigrationCollection, error) {
 
 	result := migration.MigrationCollection{}
 

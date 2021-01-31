@@ -5,12 +5,17 @@ import (
 	"os"
 )
 
-type FileSystemAdapter struct{}
+type FileSystem interface {
+	ReadDir(dirname string) ([]os.FileInfo, error)
+	ReadFile(filename string) ([]byte, error)
+}
 
-func (adapter FileSystemAdapter) ReadDir(dirname string) ([]os.FileInfo, error) {
+type IOUtilAdapter struct{}
+
+func (adapter IOUtilAdapter) ReadDir(dirname string) ([]os.FileInfo, error) {
 	return ioutil.ReadDir(dirname)
 }
 
-func (adapter FileSystemAdapter) ReadFile(filename string) ([]byte, error) {
+func (adapter IOUtilAdapter) ReadFile(filename string) ([]byte, error) {
 	return ioutil.ReadFile(filename)
 }
