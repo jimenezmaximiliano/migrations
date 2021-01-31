@@ -1,3 +1,6 @@
+# TODO
+
+## 1.0.0
 
 - Clean up the code
 - Write tests
@@ -7,6 +10,10 @@
 - Check where I'm adding context to errors
 - Fail early if we cannot connect to the db
 - Fail early if the migrations path is invalid
-- Add a verbose mode
 - Command status code
+- Include binaries with support for several db drivers
+
+## Future versions
+
+- Add a verbose mode
 - Allow reverting migrations
