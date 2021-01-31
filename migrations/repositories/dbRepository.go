@@ -44,7 +44,7 @@ func (repository dbRepository) GetAlreadyRunMigrationFilePaths(migrationsDirecto
 	rows, err := repository.db.Query("SELECT migration FROM migrations")
 
 	if err != nil {
-		return []string{}, fmt.Errorf("migrations.getMigrationsFromTheMigrationsTable \n%w", err)
+		return nil, fmt.Errorf("migrations.getMigrationsFromTheMigrationsTable \n%w", err)
 	}
 
 	defer rows.Close()

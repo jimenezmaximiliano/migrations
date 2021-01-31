@@ -99,7 +99,13 @@ func NewMigration(absolutePath string, query string, status int8) (Migration, er
 }
 
 func extractFileName(absolutePath string) string {
-	parts := strings.Split(absolutePath, "/")
+	absolutePathParts := strings.Split(absolutePath, "/")
 
-	return parts[len(parts)-1]
+	return getSliceLastElement(absolutePathParts)
+}
+
+func getSliceLastElement(theSlice []string) string {
+	lastIndex := len(theSlice) - 1
+
+	return theSlice[lastIndex]
 }

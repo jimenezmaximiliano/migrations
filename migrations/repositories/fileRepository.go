@@ -39,7 +39,7 @@ func (repository fileRepository) GetMigrationFilePaths(migrationsDirectoryAbsolu
 	migrationFiles, err := repository.directoryReader.ReadDir(migrationsDirectoryAbsolutePath)
 
 	if err != nil {
-		return []string{}, fmt.Errorf("migrations.readMigrationsPath (path: %s) \n%w", migrationsDirectoryAbsolutePath, err)
+		return nil, fmt.Errorf("migrations.readMigrationsPath (path: %s) \n%w", migrationsDirectoryAbsolutePath, err)
 	}
 
 	return getMigrationFilePathsFromFiles(migrationFiles, migrationsDirectoryAbsolutePath), nil

@@ -7,21 +7,21 @@ import (
 	"github.com/jimenezmaximiliano/migrations/migrations/repositories"
 )
 
-// MigrationRunnerService is an interface that handles running migrations
-type MigrationRunnerService interface {
+// RunnerService is an interface that handles running migrations
+type RunnerService interface {
 	RunMigrations() (migration.MigrationCollection, error)
 }
 
 type migrationRunnerService struct {
-	migrationFetcherService         MigrationFetcherService
+	migrationFetcherService         FetcherService
 	dbRepository                    repositories.DbRepository
 	migrationsDirectoryAbsolutePath string
 }
 
-func NewMigrationRunnerService(
-	migrationFetcherService MigrationFetcherService,
+func NewRunnerService(
+	migrationFetcherService FetcherService,
 	dbRepository repositories.DbRepository,
-	migrationsDirectoryAbsolutePath string) MigrationRunnerService {
+	migrationsDirectoryAbsolutePath string) RunnerService {
 
 	return migrationRunnerService{
 		migrationFetcherService:         migrationFetcherService,
