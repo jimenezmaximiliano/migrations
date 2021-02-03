@@ -29,7 +29,6 @@ func RunMigrationsCommand(setupDB SetupDB) {
 	arguments := commandService.ParseArguments()
 
 	DB, err := setupDB()
-
 	if err != nil {
 		displayService.DisplaySetupError(err)
 		return
@@ -41,7 +40,11 @@ func RunMigrationsCommand(setupDB SetupDB) {
 	migrationFetcher := services.NewFetcherService(dbRepository, fileRepository)
 	migrationRunner := services.NewRunnerService(migrationFetcher, dbRepository, arguments.MigrationsPath)
 
-	result, _ := migrationRunner.RunMigrations()
+	result, err := migrationRunner.RunMigrations()
+
+	if err != nil {
+		displayService.DisplayGeneralError(err)
+	}
 
 	displayService.DisplayRunMigrations(result)
 }

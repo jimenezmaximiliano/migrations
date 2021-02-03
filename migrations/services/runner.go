@@ -38,6 +38,10 @@ func (service runnerService) RunMigrations() (migration.MigrationCollection, err
 	}
 
 	allMigrations, err := service.migrationFetcherService.GetMigrations(service.migrationsDirectoryAbsolutePath)
+	if err != nil {
+		return migration.MigrationCollection{}, err
+	}
+
 	migrationsToRun := allMigrations.GetMigrationsToRun()
 
 	if len(migrationsToRun) == 0 {
@@ -57,14 +61,14 @@ func (service runnerService) runMigrations(migrationsToRun []migration.Migration
 		if err != nil {
 			result.Add(migration.NewAsFailed())
 
-			return result, err
+			return result, nil
 		}
 
 		result.Add(migration.NewAsSuccessful())
 		err = service.dbRepository.RegisterRunMigration(migration.GetName())
 
 		if err != nil {
-			return result, fmt.Errorf("migrations.runnerService (absolutePath: %s) %w", migration.GetAbsolutePath(), err)
+			return result, fmt.Errorf("could not register the migration as run (absolutePath: %s) %w", migration.GetAbsolutePath(), err)
 		}
 	}
 

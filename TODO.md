@@ -2,7 +2,6 @@
 
 ## 1.0.0
 
-- RunMigrations should return general errors on the return value and migration specific errors should be in the migration itself
 - Support a trailing slash at the end of the path flag
 - Clean up the code
 - Write tests

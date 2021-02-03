@@ -34,7 +34,7 @@ func (repository dbRepository) CreateMigrationsTableIfNeeded() error {
 	_, err := repository.db.Exec(query)
 
 	if err != nil {
-		return fmt.Errorf("migrations.CreateMigrationsTable \n%w", err)
+		return fmt.Errorf("could not create the migrations table: \n%w", err)
 	}
 
 	return nil

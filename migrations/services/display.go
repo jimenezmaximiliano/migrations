@@ -7,6 +7,7 @@ import (
 type Display interface {
 	DisplayRunMigrations(migrations migration.MigrationCollection)
 	DisplaySetupError(err error)
+	DisplayGeneralError(err error)
 }
 
 type Print func(format string, a ...interface{}) (n int, err error)
@@ -61,6 +62,10 @@ func (service displayService) DisplayRunMigrations(migrations migration.Migratio
 
 func (service displayService) DisplaySetupError(err error) {
 	service.print("\nFailed to setup migrations:\n%v\n\n", err)
+}
+
+func (service displayService) DisplayGeneralError(err error) {
+	service.print("\nAn error occur while running migrations:\n%v\n\n", err)
 }
 
 func (service displayService) info(message string) {
