@@ -3,6 +3,8 @@ package repositories
 import (
 	"fmt"
 	"os"
+
+	"github.com/jimenezmaximiliano/migrations/migrations/helpers"
 )
 
 // DirectoryReader is an interface that handles reading files from directories
@@ -34,7 +36,7 @@ func NewFileRepository(directoryReader DirectoryReader, fileReader FileReader) F
 }
 
 func (repository fileRepository) GetMigrationFilePaths(migrationsDirectoryAbsolutePath string) ([]string, error) {
-	migrationsDirectoryAbsolutePath = addTrailingSlashIfNeeded(migrationsDirectoryAbsolutePath)
+	migrationsDirectoryAbsolutePath = helpers.AddTrailingSlashToPathIfNeeded(migrationsDirectoryAbsolutePath)
 
 	migrationFiles, err := repository.directoryReader.ReadDir(migrationsDirectoryAbsolutePath)
 
@@ -54,15 +56,6 @@ func (repository fileRepository) GetMigrationQuery(migrationAbsolutePath string)
 	}
 
 	return string(query), nil
-}
-
-func addTrailingSlashIfNeeded(path string) string {
-	lastCharacterIndex := len(path) - 1
-	if path[lastCharacterIndex:] != "/" {
-		return path + "/"
-	}
-
-	return path
 }
 
 func getMigrationFilePathsFromFiles(files []os.FileInfo, migrationsDirectoryAbsolutePath string) []string {

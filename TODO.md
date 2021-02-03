@@ -2,7 +2,6 @@
 
 ## 1.0.0
 
-- Support a trailing slash at the end of the path flag
 - Clean up the code
 - Write tests
 - Setup github workflows

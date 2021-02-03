@@ -1,6 +1,9 @@
 package services
 
-import "github.com/jimenezmaximiliano/migrations/migrations/adapters"
+import (
+	"github.com/jimenezmaximiliano/migrations/migrations/adapters"
+	"github.com/jimenezmaximiliano/migrations/migrations/helpers"
+)
 
 type Arguments struct {
 	MigrationsPath string
@@ -23,8 +26,9 @@ type commandService struct {
 func (service commandService) ParseArguments() Arguments {
 	path := service.optionParser.String("path", "", "")
 	service.optionParser.Parse()
+	pathWithTrailingSlash := helpers.AddTrailingSlashToPathIfNeeded(*path)
 
 	return Arguments{
-		MigrationsPath: *path,
+		MigrationsPath: pathWithTrailingSlash,
 	}
 }
