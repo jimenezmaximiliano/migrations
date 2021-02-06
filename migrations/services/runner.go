@@ -7,7 +7,7 @@ import (
 	"github.com/jimenezmaximiliano/migrations/migrations/repositories"
 )
 
-// Runner is an interface that handles running migrations
+// Runner handles running migrations.
 type Runner interface {
 	RunMigrations() (migration.MigrationCollection, error)
 }
@@ -18,6 +18,7 @@ type runnerService struct {
 	migrationsDirectoryAbsolutePath string
 }
 
+// NewRunnerService returns an implementation of Runner
 func NewRunnerService(
 	migrationFetcherService Fetcher,
 	dbRepository repositories.DbRepository,
@@ -30,8 +31,8 @@ func NewRunnerService(
 	}
 }
 
+// RunMigrations runs a collection of migrations checking first if they have been run already
 func (service runnerService) RunMigrations() (migration.MigrationCollection, error) {
-
 	err := service.dbRepository.CreateMigrationsTableIfNeeded()
 	if err != nil {
 		return migration.MigrationCollection{}, err
@@ -57,16 +58,14 @@ func (service runnerService) runMigrations(migrationsToRun []migration.Migration
 
 	for _, migration := range migrationsToRun {
 		err := service.dbRepository.RunMigrationQuery(migration.GetQuery())
-
 		if err != nil {
 			result.Add(migration.NewAsFailed())
 
 			return result, nil
 		}
-
+		
 		result.Add(migration.NewAsSuccessful())
 		err = service.dbRepository.RegisterRunMigration(migration.GetName())
-
 		if err != nil {
 			return result, fmt.Errorf("could not register the migration as run (absolutePath: %s) %w", migration.GetAbsolutePath(), err)
 		}

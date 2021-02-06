@@ -4,55 +4,43 @@ import (
 	"fmt"
 	"os"
 
+	"github.com/jimenezmaximiliano/migrations/migrations/adapters"
 	"github.com/jimenezmaximiliano/migrations/migrations/helpers"
 )
 
-// DirectoryReader is an interface that handles reading files from directories
-type DirectoryReader interface {
-	ReadDir(dirname string) ([]os.FileInfo, error)
-}
-
-type FileReader interface {
-	ReadFile(filename string) ([]byte, error)
-}
-
-// FileRepository is an interface to get migrations files from a given path
+// FileRepository fetches migrations files from a given path.
 type FileRepository interface {
 	GetMigrationFilePaths(migrationsDirectoryAbsolutePath string) ([]string, error)
 	GetMigrationQuery(migrationAbsolutePath string) (string, error)
 }
 
 type fileRepository struct {
-	directoryReader DirectoryReader
-	fileReader      FileReader
+	fileSystem adapters.FileSystem
 }
 
-// NewFileRepository allows you to get an implementation of FileRepository
-func NewFileRepository(directoryReader DirectoryReader, fileReader FileReader) FileRepository {
+// NewFileRepository returns an implementation of FileRepository.
+func NewFileRepository(fileSystem adapters.FileSystem) FileRepository {
 	return fileRepository{
-		directoryReader: directoryReader,
-		fileReader:      fileReader,
+		fileSystem: fileSystem,
 	}
 }
 
+// GetMigrationFilePaths returns the paths of the migrations files on the given directory.
 func (repository fileRepository) GetMigrationFilePaths(migrationsDirectoryAbsolutePath string) ([]string, error) {
 	migrationsDirectoryAbsolutePath = helpers.AddTrailingSlashToPathIfNeeded(migrationsDirectoryAbsolutePath)
-
-	migrationFiles, err := repository.directoryReader.ReadDir(migrationsDirectoryAbsolutePath)
-
+	migrationFiles, err := repository.fileSystem.ReadDir(migrationsDirectoryAbsolutePath)
 	if err != nil {
-		return nil, fmt.Errorf("migrations.readMigrationsPath (path: %s) \n%w", migrationsDirectoryAbsolutePath, err)
+		return nil, fmt.Errorf("could not read files from the migrations directory (path: %s)\n%w", migrationsDirectoryAbsolutePath, err)
 	}
 
 	return getMigrationFilePathsFromFiles(migrationFiles, migrationsDirectoryAbsolutePath), nil
 }
 
+// GetMigrationQuery returns the query for a migration file path.
 func (repository fileRepository) GetMigrationQuery(migrationAbsolutePath string) (string, error) {
-
-	query, err := repository.fileReader.ReadFile(migrationAbsolutePath)
-
+	query, err := repository.fileSystem.ReadFile(migrationAbsolutePath)
 	if err != nil {
-		return "", fmt.Errorf("migrations.getMigrationQuery (path: %s) \n%w", migrationAbsolutePath, err)
+		return "", fmt.Errorf("could not read contents of a migration file (path: %s) \n%w", migrationAbsolutePath, err)
 	}
 
 	return string(query), nil
@@ -60,14 +48,11 @@ func (repository fileRepository) GetMigrationQuery(migrationAbsolutePath string)
 
 func getMigrationFilePathsFromFiles(files []os.FileInfo, migrationsDirectoryAbsolutePath string) []string {
 	var migrationFilePaths []string
-
 	for _, file := range files {
 		if isNotASqlFile(file) {
 			continue
 		}
-
 		currentMigrationAbsolutePath := migrationsDirectoryAbsolutePath + file.Name()
-
 		migrationFilePaths = append(migrationFilePaths, currentMigrationAbsolutePath)
 	}
 

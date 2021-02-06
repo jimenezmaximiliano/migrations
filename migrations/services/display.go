@@ -4,14 +4,17 @@ import (
 	"github.com/jimenezmaximiliano/migrations/migrations/migration"
 )
 
+// Display handles the output of the migrations command.
 type Display interface {
 	DisplayRunMigrations(migrations migration.MigrationCollection)
 	DisplaySetupError(err error)
 	DisplayGeneralError(err error)
 }
 
+// Print outputs a string given a format.
 type Print func(format string, a ...interface{}) (n int, err error)
 
+// NewDisplayService returns an implementation of Display.
 func NewDisplayService(print Print) Display {
 	return displayService{
 		print: print,
@@ -29,25 +32,21 @@ const (
 	failedMigration      = "  KO  "
 )
 
+// DisplayRunMigrations outputs the results of run migrations.
 func (service displayService) DisplayRunMigrations(migrations migration.MigrationCollection) {
-
 	service.info("Run migrations")
-
 	if migrations.IsEmpty() {
 		service.info("No migrations to run")
 		service.info("Done")
 		service.print("\n\n")
 		return
 	}
-
 	migrationProcessHasFailed := false
-
 	for _, migration := range migrations.GetAll() {
 		if migration.WasSuccessful() {
 			service.success(migration.GetName())
 			continue
 		}
-
 		service.failure(migration.GetName())
 		migrationProcessHasFailed = true
 	}
@@ -60,10 +59,12 @@ func (service displayService) DisplayRunMigrations(migrations migration.Migratio
 	service.print("\n\n")
 }
 
+// DisplaySetupError outputs an error that occur during the setup process (before running migrations).
 func (service displayService) DisplaySetupError(err error) {
 	service.print("\nFailed to setup migrations:\n%v\n\n", err)
 }
 
+// DisplayGeneralError outputs an error that occur while running a migration.
 func (service displayService) DisplayGeneralError(err error) {
 	service.print("\nAn error occur while running migrations:\n%v\n\n", err)
 }
