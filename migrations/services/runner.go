@@ -14,26 +14,31 @@ type Runner interface {
 
 type runnerService struct {
 	migrationFetcherService         Fetcher
-	dbRepository                    repositories.DbRepository
+	DBRepository                    repositories.DBRepository
 	migrationsDirectoryAbsolutePath string
 }
 
 // NewRunnerService returns an implementation of Runner
 func NewRunnerService(
 	migrationFetcherService Fetcher,
-	dbRepository repositories.DbRepository,
+	DBRepository repositories.DBRepository,
 	migrationsDirectoryAbsolutePath string) Runner {
 
 	return runnerService{
 		migrationFetcherService:         migrationFetcherService,
-		dbRepository:                    dbRepository,
+		DBRepository:                    DBRepository,
 		migrationsDirectoryAbsolutePath: migrationsDirectoryAbsolutePath,
 	}
 }
 
 // RunMigrations runs a collection of migrations checking first if they have been run already
 func (service runnerService) RunMigrations() (migration.MigrationCollection, error) {
-	err := service.dbRepository.CreateMigrationsTableIfNeeded()
+	err := service.DBRepository.Ping()
+	if err != nil {
+		return migration.MigrationCollection{}, err
+	}
+
+	err = service.DBRepository.CreateMigrationsTableIfNeeded()
 	if err != nil {
 		return migration.MigrationCollection{}, err
 	}
@@ -57,15 +62,15 @@ func (service runnerService) runMigrations(migrationsToRun []migration.Migration
 	result := migration.MigrationCollection{}
 
 	for _, migration := range migrationsToRun {
-		err := service.dbRepository.RunMigrationQuery(migration.GetQuery())
+		err := service.DBRepository.RunMigrationQuery(migration.GetQuery())
 		if err != nil {
 			result.Add(migration.NewAsFailed())
 
 			return result, nil
 		}
-		
+
 		result.Add(migration.NewAsSuccessful())
-		err = service.dbRepository.RegisterRunMigration(migration.GetName())
+		err = service.DBRepository.RegisterRunMigration(migration.GetName())
 		if err != nil {
 			return result, fmt.Errorf("could not register the migration as run (absolutePath: %s) %w", migration.GetAbsolutePath(), err)
 		}

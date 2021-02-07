@@ -11,12 +11,12 @@ type Fetcher interface {
 }
 
 type fetcherService struct {
-	dbRepository   repositories.DbRepository
+	dbRepository   repositories.DBRepository
 	fileRepository repositories.FileRepository
 }
 
 // NewFetcherService returns an implemention of MigrationFetcherService.
-func NewFetcherService(dbRepository repositories.DbRepository, fileRepository repositories.FileRepository) Fetcher {
+func NewFetcherService(dbRepository repositories.DBRepository, fileRepository repositories.FileRepository) Fetcher {
 	return fetcherService{
 		dbRepository:   dbRepository,
 		fileRepository: fileRepository,

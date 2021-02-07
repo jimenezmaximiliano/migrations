@@ -5,23 +5,34 @@ import (
 	"fmt"
 )
 
-// DbRepository runs migration queries and handles the migrations table.
-type DbRepository interface {
+// DBRepository runs migration queries and handles the migrations table.
+type DBRepository interface {
 	CreateMigrationsTableIfNeeded() error
 	GetAlreadyRunMigrationFilePaths(migrationsDirectoryAbsolutePath string) ([]string, error)
 	RunMigrationQuery(query string) error
 	RegisterRunMigration(migrationFileName string) error
+	Ping() error
 }
 
 type dbRepository struct {
-	db *sql.DB
+	DB *sql.DB
 }
 
 // NewDbRepository returns an implementation of DbRepository.
-func NewDbRepository(db *sql.DB) DbRepository {
+func NewDbRepository(DB *sql.DB) DBRepository {
 	return dbRepository{
-		db: db,
+		DB: DB,
 	}
+}
+
+// Ping the DB to check if the connection is working
+func (repository dbRepository) Ping() error {
+	err := repository.DB.Ping()
+	if err == nil {
+		return nil
+	}
+
+	return fmt.Errorf("could not connect to the DB\n%w", err)
 }
 
 // CreateMigrationsTableIfNeeded creates the migrations table used to keep track of already run migrations.
@@ -31,7 +42,7 @@ func (repository dbRepository) CreateMigrationsTableIfNeeded() error {
 			id INTEGER PRIMARY KEY AUTO_INCREMENT,
 			migration TEXT
 		);`
-	_, err := repository.db.Exec(query)
+	_, err := repository.DB.Exec(query)
 	if err != nil {
 		return fmt.Errorf("could not create the migrations table: \n%w", err)
 	}
@@ -41,7 +52,7 @@ func (repository dbRepository) CreateMigrationsTableIfNeeded() error {
 
 // GetAlreadyRunMigrationFilePaths returns a list of migration file paths that have been run already.
 func (repository dbRepository) GetAlreadyRunMigrationFilePaths(migrationsDirectoryAbsolutePath string) ([]string, error) {
-	rows, err := repository.db.Query("SELECT migration FROM migrations")
+	rows, err := repository.DB.Query("SELECT migration FROM migrations")
 	if err != nil {
 		return nil, fmt.Errorf("could not get already run migrations from the migrations table\n%w", err)
 	}
@@ -52,14 +63,14 @@ func (repository dbRepository) GetAlreadyRunMigrationFilePaths(migrationsDirecto
 
 // RunMigrationQuery runs the migration query.
 func (repository dbRepository) RunMigrationQuery(query string) error {
-	_, err := repository.db.Exec(query)
+	_, err := repository.DB.Exec(query)
 
 	return err
 }
 
 // RegisterRunMigration creates a record on the migrations table for a successfully run migration.
 func (repository dbRepository) RegisterRunMigration(migrationFileName string) error {
-	_, err := repository.db.Exec("INSERT INTO migrations (migration) VALUES (?)", migrationFileName)
+	_, err := repository.DB.Exec("INSERT INTO migrations (migration) VALUES (?)", migrationFileName)
 
 	return err
 }
