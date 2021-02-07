@@ -3,7 +3,6 @@
 ## 1.0.0
 
 - Write tests
-- Setup github workflows
 - Include binaries with support for several db drivers
 
 ## Future versions

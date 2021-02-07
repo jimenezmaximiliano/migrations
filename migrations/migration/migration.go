@@ -8,13 +8,13 @@ import (
 
 const (
 	// StatusUnknown represents a migration without a set status (default value).
-	StatusUnknown = 0
+	StatusUnknown int8 = 0
 	// StatusNotRun represents a migration that hasn't been run yet.
-	StatusNotRun = 1
+	StatusNotRun int8 = 1
 	// StatusSuccessful represents a migration that has been run and it was successful.
-	StatusSuccessful = 2
+	StatusSuccessful int8 = 2
 	// StatusFailed represents a migration that has been run and it failed.
-	StatusFailed = -1
+	StatusFailed int8 = -1
 )
 
 // Migration represents a database migration and its state (immutable).
@@ -55,7 +55,7 @@ func (migration migration) GetStatus() int8 {
 
 // ShouldBeRun returns true if the migration has not been run yet.
 func (migration migration) ShouldBeRun() bool {
-	return migration.status != StatusSuccessful
+	return migration.status == StatusNotRun
 }
 
 // WasSuccessful returs true if the current status is StatusSuccessful.
