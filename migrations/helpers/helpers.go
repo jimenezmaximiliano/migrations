@@ -4,7 +4,7 @@ package helpers
 // if there isn't any at the end of it.
 func AddTrailingSlashToPathIfNeeded(path string) string {
 	lastCharacterIndex := len(path) - 1
-	if path[lastCharacterIndex:] != "/" {
+	if lastCharacterIndex < 0 || path[lastCharacterIndex:] != "/" {
 		return path + "/"
 	}
 
