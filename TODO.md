@@ -4,7 +4,6 @@
 
 - Write tests
 - Setup github workflows
-- Command status code
 - Include binaries with support for several db drivers
 
 ## Future versions

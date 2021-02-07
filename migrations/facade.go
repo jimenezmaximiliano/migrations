@@ -3,6 +3,7 @@ package migrations
 import (
 	"database/sql"
 	"fmt"
+	"os"
 
 	"github.com/jimenezmaximiliano/migrations/migrations/adapters"
 	"github.com/jimenezmaximiliano/migrations/migrations/migration"
@@ -27,13 +28,14 @@ type SetupDB func() (*sql.DB, error)
 
 // RunMigrationsCommand runs migrations as a command (it will output the results to stdout).
 func RunMigrationsCommand(setupDB SetupDB) {
-	displayService := services.NewDisplayService(fmt.Printf)
+	displayService := services.NewDisplayService(fmt.Fprintf)
 	commandService := services.NewCommandService(adapters.FlagOptionParser{})
 	arguments := commandService.ParseArguments()
 
 	DB, err := setupDB()
 	if err != nil {
 		displayService.DisplaySetupError(err)
+		os.Exit(1)
 		return
 	}
 
@@ -45,7 +47,10 @@ func RunMigrationsCommand(setupDB SetupDB) {
 	result, err := migrationRunner.RunMigrations()
 	if err != nil {
 		displayService.DisplayGeneralError(err)
+		os.Exit(1)
+		return
 	}
 
 	displayService.DisplayRunMigrations(result)
+	os.Exit(0)
 }
