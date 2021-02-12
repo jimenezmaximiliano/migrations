@@ -1,0 +1,4 @@
+github.com/go-sql-driver/mysql v1.5.0 h1:ozyZYNQW3x3HtqT1jira07DN2PArx2v7/mN66gGcHOs=
+github.com/go-sql-driver/mysql v1.5.0/go.mod h1:DCzpHaOWr8IXmIStZouvnhqoel9Qv2LBy8hT2VhHyBg=
+github.com/jimenezmaximiliano/migrations v0.1.2 h1:rxF9in4kOSZ9q8hITRLOm0R8HyZ+lJw5GNINKcg/IIQ=
+github.com/jimenezmaximiliano/migrations v0.1.2/go.mod h1:jJbnHC2zRdSzJjpEFc56WO05AIpO1OoQf2krB/LuyK0=
