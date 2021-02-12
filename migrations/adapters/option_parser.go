@@ -11,6 +11,9 @@ type OptionParser interface {
 // FlagOptionParser is an implementation of OptionParser using the package flag.
 type FlagOptionParser struct{}
 
+// Ensure FlagOptionParser implements OptionParser
+var _ OptionParser = FlagOptionParser{}
+
 // String defines a string flag with specified name, default value, and usage string.
 // The return value is the address of a string variable that stores the value of the flag.
 func (adapter FlagOptionParser) String(name string, value string, usage string) *string {

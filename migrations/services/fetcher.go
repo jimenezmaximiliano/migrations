@@ -15,6 +15,9 @@ type fetcherService struct {
 	fileRepository repositories.FileRepository
 }
 
+// Ensure fetcherService implements Fetcher
+var _ Fetcher = fetcherService{}
+
 // NewFetcherService returns an implemention of MigrationFetcherService.
 func NewFetcherService(dbRepository repositories.DBRepository, fileRepository repositories.FileRepository) Fetcher {
 	return fetcherService{

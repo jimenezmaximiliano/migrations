@@ -14,6 +14,9 @@ type FileSystem interface {
 // IOUtilAdaper is an implementation of FileSystem using io/ioutil and os.
 type IOUtilAdapter struct{}
 
+// Ensure IOUtilAdapter implements FileSystem
+var _ FileSystem = IOUtilAdapter{}
+
 // ReadDir list the files on a given directory.
 func (adapter IOUtilAdapter) ReadDir(dirname string) ([]os.FileInfo, error) {
 	return ioutil.ReadDir(dirname)

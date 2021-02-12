@@ -18,6 +18,9 @@ type dbRepository struct {
 	db *sql.DB
 }
 
+// Ensure dbRepository implements DBRepository
+var _ DBRepository = dbRepository{}
+
 // NewDbRepository returns an implementation of DbRepository.
 func NewDbRepository(DB *sql.DB) DBRepository {
 	return dbRepository{

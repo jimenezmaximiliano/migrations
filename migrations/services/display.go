@@ -14,6 +14,13 @@ type Display interface {
 	DisplayGeneralError(err error)
 }
 
+type displayService struct {
+	print Print
+}
+
+// Ensure displayService implements Display
+var _ Display = displayService{}
+
 // Print outputs a string given a format.
 type Print func(writer io.Writer, format string, a ...interface{}) (n int, err error)
 
@@ -22,10 +29,6 @@ func NewDisplayService(print Print) Display {
 	return displayService{
 		print: print,
 	}
-}
-
-type displayService struct {
-	print Print
 }
 
 const (

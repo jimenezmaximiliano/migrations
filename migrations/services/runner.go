@@ -18,6 +18,12 @@ type runnerService struct {
 	migrationsDirectoryAbsolutePath string
 }
 
+// Ensure runnerService implements Runner
+var _ Runner = runnerService{}
+
+// Ensure runnerService implements Runner
+var _ Runner = runnerService{}
+
 // NewRunnerService returns an implementation of Runner
 func NewRunnerService(
 	migrationFetcherService Fetcher,

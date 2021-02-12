@@ -18,6 +18,9 @@ type fileRepository struct {
 	fileSystem adapters.FileSystem
 }
 
+// Ensure fileRepository implements FileRepository
+var _ FileRepository = fileRepository{}
+
 // NewFileRepository returns an implementation of FileRepository.
 func NewFileRepository(fileSystem adapters.FileSystem) FileRepository {
 	return fileRepository{

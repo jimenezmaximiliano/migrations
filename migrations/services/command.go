@@ -15,15 +15,18 @@ type Command interface {
 	ParseArguments() Arguments
 }
 
+type commandService struct {
+	optionParser adapters.OptionParser
+}
+
+// Ensure commandService implements Command
+var _ Command = commandService{}
+
 // NewCommandService returns an implementation of Command.
 func NewCommandService(optionParser adapters.OptionParser) Command {
 	return commandService{
 		optionParser: optionParser,
 	}
-}
-
-type commandService struct {
-	optionParser adapters.OptionParser
 }
 
 // ParseArguments parses command line arguments.

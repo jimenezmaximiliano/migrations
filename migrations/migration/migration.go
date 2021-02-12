@@ -38,6 +38,9 @@ type migration struct {
 	query        string
 }
 
+// Ensure migration implements Migration
+var _ Migration = migration{}
+
 // GetAbsolutePath returns the absolute path of the migration file.
 func (migration migration) GetAbsolutePath() string {
 	return migration.absolutePath
