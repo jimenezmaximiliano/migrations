@@ -13,7 +13,7 @@ import (
 
 // RunMigrations runs the migrations using the given DB connection and migrations directory path.
 // Returns a MigrationCollection, to be used programmatically.
-func RunMigrations(DB *sql.DB, migrationsDirectoryAbsolutePath string) (migration.MigrationCollection, error) {
+func RunMigrations(DB *sql.DB, migrationsDirectoryAbsolutePath string) (migration.Collection, error) {
 	fileSystem := adapters.IOUtilAdapter{}
 	dbRepository := repositories.NewDbRepository(DB)
 	fileRepository := repositories.NewFileRepository(fileSystem)

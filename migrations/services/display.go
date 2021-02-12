@@ -9,7 +9,7 @@ import (
 
 // Display handles the output of the migrations command.
 type Display interface {
-	DisplayRunMigrations(migrations migration.MigrationCollection)
+	DisplayRunMigrations(migrations migration.Collection)
 	DisplaySetupError(err error)
 	DisplayGeneralError(err error)
 }
@@ -36,7 +36,7 @@ const (
 )
 
 // DisplayRunMigrations outputs the results of run migrations.
-func (service displayService) DisplayRunMigrations(migrations migration.MigrationCollection) {
+func (service displayService) DisplayRunMigrations(migrations migration.Collection) {
 	service.info("Run migrations")
 	if migrations.IsEmpty() {
 		service.info("No migrations to run")

@@ -7,7 +7,7 @@ import (
 
 // Fetcher fetches Migrations from a given directory.
 type Fetcher interface {
-	GetMigrations(migrationsDirectoryAbsolutePath string) (migration.MigrationCollection, error)
+	GetMigrations(migrationsDirectoryAbsolutePath string) (migration.Collection, error)
 }
 
 type fetcherService struct {
@@ -24,21 +24,21 @@ func NewFetcherService(dbRepository repositories.DBRepository, fileRepository re
 }
 
 // GetMigrations returns a collection of Migrations from a given directory.
-func (service fetcherService) GetMigrations(migrationsDirectoryAbsolutePath string) (migration.MigrationCollection, error) {
+func (service fetcherService) GetMigrations(migrationsDirectoryAbsolutePath string) (migration.Collection, error) {
 	migrationFilePathsFromFiles, runMigrationFilePaths, err := service.
 		readMigrationPathsFromTheFileSystemAndTheDB(migrationsDirectoryAbsolutePath)
 	if err != nil {
-		return migration.MigrationCollection{}, err
+		return migration.Collection{}, err
 	}
 
 	collection, err := service.parseRunMigrationsFromDB(runMigrationFilePaths)
 	if err != nil {
-		return migration.MigrationCollection{}, err
+		return migration.Collection{}, err
 	}
 
 	collection, err = service.parseMigrationsFromFiles(migrationFilePathsFromFiles, collection)
 	if err != nil {
-		return migration.MigrationCollection{}, err
+		return migration.Collection{}, err
 	}
 
 	return collection, nil
@@ -60,8 +60,8 @@ func (service fetcherService) readMigrationPathsFromTheFileSystemAndTheDB(
 	return pathsFromFiles, pathsFromDB, nil
 }
 
-func (service fetcherService) parseRunMigrationsFromDB(filePaths []string) (migration.MigrationCollection, error) {
-	collection := migration.MigrationCollection{}
+func (service fetcherService) parseRunMigrationsFromDB(filePaths []string) (migration.Collection, error) {
+	collection := migration.Collection{}
 	for _, filePath := range filePaths {
 		migrationQuery, err := service.fileRepository.GetMigrationQuery(filePath)
 		if err != nil {
@@ -79,7 +79,7 @@ func (service fetcherService) parseRunMigrationsFromDB(filePaths []string) (migr
 	return collection, nil
 }
 
-func (service fetcherService) parseMigrationsFromFiles(filePaths []string, collection migration.MigrationCollection) (migration.MigrationCollection, error) {
+func (service fetcherService) parseMigrationsFromFiles(filePaths []string, collection migration.Collection) (migration.Collection, error) {
 	for _, migrationFilePath := range filePaths {
 		if collection.ContainsMigrationPath(migrationFilePath) {
 			continue
