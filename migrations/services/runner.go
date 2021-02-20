@@ -3,6 +3,7 @@ package services
 import (
 	"fmt"
 
+	"github.com/jimenezmaximiliano/migrations/migrations/helpers"
 	"github.com/jimenezmaximiliano/migrations/migrations/migration"
 	"github.com/jimenezmaximiliano/migrations/migrations/repositories"
 )
@@ -13,7 +14,7 @@ type Runner interface {
 }
 
 type runnerService struct {
-	migrationFetcherService         Fetcher
+	migrationFetcherService         fetcher
 	dbRepository                    repositories.DBRepository
 	migrationsDirectoryAbsolutePath string
 }
@@ -26,14 +27,14 @@ var _ Runner = runnerService{}
 
 // NewRunnerService returns an implementation of Runner
 func NewRunnerService(
-	migrationFetcherService Fetcher,
+	migrationFetcherService fetcher,
 	DBRepository repositories.DBRepository,
 	migrationsDirectoryAbsolutePath string) Runner {
 
 	return runnerService{
 		migrationFetcherService:         migrationFetcherService,
 		dbRepository:                    DBRepository,
-		migrationsDirectoryAbsolutePath: migrationsDirectoryAbsolutePath,
+		migrationsDirectoryAbsolutePath: helpers.AddTrailingSlashToPathIfNeeded(migrationsDirectoryAbsolutePath),
 	}
 }
 

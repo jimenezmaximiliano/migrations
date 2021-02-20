@@ -5,8 +5,8 @@ import (
 	"github.com/jimenezmaximiliano/migrations/migrations/repositories"
 )
 
-// Fetcher fetches Migrations from a given directory.
-type Fetcher interface {
+// fetcher fetches Migrations from a given directory.
+type fetcher interface {
 	GetMigrations(migrationsDirectoryAbsolutePath string) (migration.Collection, error)
 }
 
@@ -16,10 +16,10 @@ type fetcherService struct {
 }
 
 // Ensure fetcherService implements Fetcher
-var _ Fetcher = fetcherService{}
+var _ fetcher = fetcherService{}
 
 // NewFetcherService returns an implemention of MigrationFetcherService.
-func NewFetcherService(dbRepository repositories.DBRepository, fileRepository repositories.FileRepository) Fetcher {
+func NewFetcherService(dbRepository repositories.DBRepository, fileRepository repositories.FileRepository) fetcher {
 	return fetcherService{
 		dbRepository:   dbRepository,
 		fileRepository: fileRepository,
