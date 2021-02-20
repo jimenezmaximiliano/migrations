@@ -15,7 +15,8 @@ import (
 // Returns a MigrationCollection, to be used programmatically.
 func RunMigrations(DB *sql.DB, migrationsDirectoryAbsolutePath string) (migration.Collection, error) {
 	fileSystem := adapters.IOUtilAdapter{}
-	dbRepository := repositories.NewDbRepository(DB)
+	dbAdapter := adapters.NewDBAdapter(DB)
+	dbRepository := repositories.NewDbRepository(dbAdapter)
 	fileRepository := repositories.NewFileRepository(fileSystem)
 	migrationFetcher := services.NewFetcherService(dbRepository, fileRepository)
 	migrationRunner := services.NewRunnerService(migrationFetcher, dbRepository, migrationsDirectoryAbsolutePath)
@@ -40,7 +41,8 @@ func RunMigrationsCommand(setupDB SetupDB) {
 	}
 
 	fileSystem := adapters.IOUtilAdapter{}
-	dbRepository := repositories.NewDbRepository(DB)
+	dbAdapter := adapters.NewDBAdapter(DB)
+	dbRepository := repositories.NewDbRepository(dbAdapter)
 	fileRepository := repositories.NewFileRepository(fileSystem)
 	migrationFetcher := services.NewFetcherService(dbRepository, fileRepository)
 	migrationRunner := services.NewRunnerService(migrationFetcher, dbRepository, arguments.MigrationsPath)

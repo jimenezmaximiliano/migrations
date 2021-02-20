@@ -1,8 +1,9 @@
 package repositories
 
 import (
-	"database/sql"
 	"fmt"
+
+	"github.com/jimenezmaximiliano/migrations/migrations/adapters"
 )
 
 // DBRepository runs migration queries and handles the migrations table.
@@ -15,16 +16,16 @@ type DBRepository interface {
 }
 
 type dbRepository struct {
-	db *sql.DB
+	db adapters.DB
 }
 
 // Ensure dbRepository implements DBRepository
 var _ DBRepository = dbRepository{}
 
 // NewDbRepository returns an implementation of DbRepository.
-func NewDbRepository(DB *sql.DB) DBRepository {
+func NewDbRepository(db adapters.DB) DBRepository {
 	return dbRepository{
-		db: DB,
+		db: db,
 	}
 }
 
@@ -78,7 +79,7 @@ func (repository dbRepository) RegisterRunMigration(migrationFileName string) er
 	return err
 }
 
-func getMigrationPathsFromRows(rows *sql.Rows, migrationsDirectoryAbsolutePath string) ([]string, error) {
+func getMigrationPathsFromRows(rows adapters.DBRows, migrationsDirectoryAbsolutePath string) ([]string, error) {
 	var migrationsAlreadyRun []string
 	for rows.Next() {
 		migrationFileName := ""
