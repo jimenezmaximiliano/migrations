@@ -1,9 +1,9 @@
 package services
 
 import (
-	"io"
 	"os"
 
+	"github.com/jimenezmaximiliano/migrations/migrations/adapters"
 	"github.com/jimenezmaximiliano/migrations/migrations/migration"
 )
 
@@ -15,19 +15,16 @@ type Display interface {
 }
 
 type displayService struct {
-	print Print
+	printer adapters.Printer
 }
 
-// Ensure displayService implements Display
+// Ensure displayService implements Display.
 var _ Display = displayService{}
 
-// Print outputs a string given a format.
-type Print func(writer io.Writer, format string, a ...interface{}) (n int, err error)
-
 // NewDisplayService returns an implementation of Display.
-func NewDisplayService(print Print) Display {
+func NewDisplayService(printer adapters.Printer) Display {
 	return displayService{
-		print: print,
+		printer: printer,
 	}
 }
 
@@ -44,7 +41,7 @@ func (service displayService) DisplayRunMigrations(migrations migration.Collecti
 	if migrations.IsEmpty() {
 		service.info("No migrations to run")
 		service.info("Done")
-		service.print(os.Stdout, "\n\n")
+		service.printer.Print(os.Stdout, "\n\n")
 		return
 	}
 	migrationProcessHasFailed := false
@@ -62,27 +59,27 @@ func (service displayService) DisplayRunMigrations(migrations migration.Collecti
 	}
 
 	service.info("Done")
-	service.print(os.Stdout, "\n\n")
+	service.printer.Print(os.Stdout, "\n\n")
 }
 
 // DisplaySetupError outputs an error that occur during the setup process (before running migrations).
 func (service displayService) DisplaySetupError(err error) {
-	service.print(os.Stderr, "\nFailed to setup migrations:\n%v\n\n", err)
+	service.printer.Print(os.Stderr, "\nFailed to setup migrations:\n%v\n\n", err)
 }
 
 // DisplayGeneralError outputs an error that occur while running a migration.
 func (service displayService) DisplayGeneralError(err error) {
-	service.print(os.Stderr, "\nAn error occur while running migrations:\n%v\n\n", err)
+	service.printer.Print(os.Stderr, "\nAn error occur while running migrations:\n%v\n\n", err)
 }
 
 func (service displayService) info(message string) {
-	service.print(os.Stdout, messageFormat, informationalMessage, message)
+	service.printer.Print(os.Stdout, messageFormat, informationalMessage, message)
 }
 
 func (service displayService) success(message string) {
-	service.print(os.Stdout, messageFormat, successfulMigration, message)
+	service.printer.Print(os.Stdout, messageFormat, successfulMigration, message)
 }
 
 func (service displayService) failure(message string) {
-	service.print(os.Stderr, messageFormat, failedMigration, message)
+	service.printer.Print(os.Stderr, messageFormat, failedMigration, message)
 }

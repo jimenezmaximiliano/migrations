@@ -2,7 +2,6 @@ package migrations
 
 import (
 	"database/sql"
-	"fmt"
 	"os"
 
 	"github.com/jimenezmaximiliano/migrations/migrations/adapters"
@@ -29,7 +28,8 @@ type SetupDB func() (*sql.DB, error)
 
 // RunMigrationsCommand runs migrations as a command (it will output the results to stdout).
 func RunMigrationsCommand(setupDB SetupDB) {
-	displayService := services.NewDisplayService(fmt.Fprintf)
+	printerAdapter := adapters.PrinterAdapter{}
+	displayService := services.NewDisplayService(printerAdapter)
 	commandService := services.NewCommandService(adapters.FlagOptionParser{})
 	arguments := commandService.ParseArguments()
 
