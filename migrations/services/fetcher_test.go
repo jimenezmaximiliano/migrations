@@ -7,18 +7,25 @@ import (
 	"github.com/jimenezmaximiliano/migrations/mocks"
 )
 
+const migrationsDir = "/tmp/"
+
+const migrationPath1 = "/tmp/1.sql"
+const migrationQuery1 = "SELECT 1"
+const migrationPath2 = "/tmp/2.sql"
+const migrationQuery2 = "SELECT 2"
+
 func TestGettingMigrations(test *testing.T) {
-	const migrationsDir = "/tmp/"
-	const migrationPath = "/tmp/1.sql"
-	const migrationQuery = "SELECT 1"
+
 	dbRepository := &mocks.DBRepository{}
 	dbRepository.On("GetAlreadyRunMigrationFilePaths", migrationsDir).
-		Return(nil, nil)
+		Return([]string{migrationPath1}, nil)
 	fileRepository := &mocks.FileRepository{}
 	fileRepository.On("GetMigrationFilePaths", migrationsDir).
-		Return([]string{migrationPath}, nil)
-	fileRepository.On("GetMigrationQuery", migrationPath).
-		Return(migrationQuery, nil)
+		Return([]string{migrationPath1, migrationPath2}, nil)
+	fileRepository.On("GetMigrationQuery", migrationPath1).
+		Return(migrationQuery1, nil)
+	fileRepository.On("GetMigrationQuery", migrationPath2).
+		Return(migrationQuery2, nil)
 	service := NewFetcherService(dbRepository, fileRepository)
 
 	migrations, err := service.GetMigrations(migrationsDir)
@@ -27,19 +34,19 @@ func TestGettingMigrations(test *testing.T) {
 		test.Error(err)
 	}
 
-	if len(migrations.GetAll()) != 1 {
+	if len(migrations.GetAll()) != 2 {
 		test.Error("Expected only 1 migration in the collection")
 	}
 
 	migrationsToRun := migrations.GetMigrationsToRun()
-	resultMigration := migrationsToRun[0]
+	migrationToRun := migrationsToRun[0]
 
-	if resultMigration.GetAbsolutePath() != migrationPath {
-		test.Errorf("Expected migration absolute path %s but got %s", migrationPath, resultMigration.GetAbsolutePath())
+	if migrationToRun.GetAbsolutePath() != migrationPath2 {
+		test.Errorf("Expected migration absolute path %s but got %s", migrationPath2, migrationToRun.GetAbsolutePath())
 	}
 
-	if resultMigration.GetQuery() != migrationQuery {
-		test.Errorf("Expected migration query %s but got %s", migrationQuery, resultMigration.GetQuery())
+	if migrationToRun.GetQuery() != migrationQuery2 {
+		test.Errorf("Expected migration query %s but got %s", migrationQuery2, migrationToRun.GetQuery())
 	}
 }
 
@@ -66,6 +73,44 @@ func TestGettingMigrationsFailsIfItCannotReadFromTheFileSystem(test *testing.T) 
 	fileRepository := &mocks.FileRepository{}
 	fileRepository.On("GetMigrationFilePaths", migrationsDir).
 		Return(nil, fmt.Errorf("some fs error"))
+	service := NewFetcherService(dbRepository, fileRepository)
+
+	_, err := service.GetMigrations(migrationsDir)
+
+	if err == nil {
+		test.Error(err)
+	}
+}
+
+func TestGettingMigrationsFailsIfAMigrationPathCannotBeRead(test *testing.T) {
+
+	dbRepository := &mocks.DBRepository{}
+	dbRepository.On("GetAlreadyRunMigrationFilePaths", migrationsDir).
+		Return(nil, nil)
+	fileRepository := &mocks.FileRepository{}
+	fileRepository.On("GetMigrationFilePaths", migrationsDir).
+		Return([]string{migrationPath1}, nil)
+	fileRepository.On("GetMigrationQuery", migrationPath1).
+		Return("", fmt.Errorf("cannot read file"))
+	service := NewFetcherService(dbRepository, fileRepository)
+
+	_, err := service.GetMigrations(migrationsDir)
+
+	if err == nil {
+		test.Error(err)
+	}
+}
+
+func TestGettingMigrationsFailsIfAMigrationPathAlreadyRunCannotBeRead(test *testing.T) {
+
+	dbRepository := &mocks.DBRepository{}
+	dbRepository.On("GetAlreadyRunMigrationFilePaths", migrationsDir).
+		Return([]string{migrationPath1}, nil)
+	fileRepository := &mocks.FileRepository{}
+	fileRepository.On("GetMigrationFilePaths", migrationsDir).
+		Return([]string{migrationPath1}, nil)
+	fileRepository.On("GetMigrationQuery", migrationPath1).
+		Return("", fmt.Errorf("cannot read file"))
 	service := NewFetcherService(dbRepository, fileRepository)
 
 	_, err := service.GetMigrations(migrationsDir)
