@@ -14,7 +14,7 @@ type Runner interface {
 }
 
 type runnerService struct {
-	migrationFetcherService         fetcher
+	migrationFetcherService         Fetcher
 	dbRepository                    repositories.DBRepository
 	migrationsDirectoryAbsolutePath string
 }
@@ -27,7 +27,7 @@ var _ Runner = runnerService{}
 
 // NewRunnerService returns an implementation of Runner
 func NewRunnerService(
-	migrationFetcherService fetcher,
+	migrationFetcherService Fetcher,
 	DBRepository repositories.DBRepository,
 	migrationsDirectoryAbsolutePath string) Runner {
 

@@ -9,3 +9,4 @@ Run example ./migrate -path=/home/maxi/projects/very-simple-migrations/example/m
 ./mockery --dir=migrations/adapters --name=OptionParser
 ./mockery --dir=migrations/repositories --name=DBRepository
 ./mockery --dir=migrations/repositories --name=FileRepository
+./mockery --dir=migrations/services --name=Fetcher
