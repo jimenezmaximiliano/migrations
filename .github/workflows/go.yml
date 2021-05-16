@@ -7,19 +7,24 @@ on:
     branches: [ master ]
 
 jobs:
-
   build:
+    strategy:
+      matrix:
+        go: [ '1.15', '1.16' ]
     runs-on: ubuntu-latest
     steps:
-    - uses: actions/checkout@v2
-
-    - name: Set up Go
-      uses: actions/setup-go@v2
-      with:
-        go-version: 1.14
-
-    - name: Build
-      run: go build -v ./...
-
-    - name: Test
-      run: go test -v ./...
+      - uses: actions/checkout@v2
+      - name: Setup Mysql
+        uses: mirromutth/mysql-action@v1.1
+        with:
+          mysql version: 8
+          mysql database: 'db'
+          mysql root password: 'root'
+      - name: Set up Go
+        uses: actions/setup-go@v2
+        with:
+          go-version: ${{ matrix.go }}
+      - name: Build
+        run: go build -v ./...
+      - name: Test
+        run: go test -v ./...
