@@ -99,7 +99,6 @@ func TestGettingAQuery(test *testing.T) {
 }
 
 func TestGettingAQueryFailsIfTheFileCannotBeRead(test *testing.T) {
-	const query = "SELECT 1"
 	fileSystem := &mocks.FileSystem{}
 	fileSystem.On("ReadFile", "/tmp/1.sql").Return(nil, fmt.Errorf("file read error"))
 	repository := NewFileRepository(fileSystem)
