@@ -9,7 +9,7 @@ import (
 )
 
 func TestRunningMigrations(test *testing.T) {
-	db, err := sql.Open("mysql", "root:root@/db")
+	db, err := sql.Open("mysql", "user:password@/db")
 	if err != nil {
 		test.Fatalf("failed to open db: %s", err.Error())
 	}
