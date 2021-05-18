@@ -15,7 +15,7 @@ jobs:
     steps:
       - uses: actions/checkout@v2
       - name: Setup Mysql
-        uses: samin/mysql-action@v1
+        uses: mirromutth/mysql-action@v1.1
         with:
           host port: 3306
           character set server: 'utf8'
