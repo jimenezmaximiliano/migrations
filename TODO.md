@@ -3,8 +3,9 @@
 ## 1.0.0
 
 - Write tests
-- Test multiple sql queries on one file
 - Include binaries with support for several db drivers
+- Move the migrations package to the root
+- Store and show why migrations failed
 
 ## Future versions
 
