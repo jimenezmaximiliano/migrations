@@ -15,12 +15,16 @@ jobs:
     steps:
       - uses: actions/checkout@v2
       - name: Setup Mysql
-        uses: mirromutth/mysql-action@v1.1
+        uses: samin/mysql-action@v1
         with:
+          host port: 3306
+          character set server: 'utf8'
+          collation server: 'utf8_general_ci'
           mysql version: '8.0'
           mysql database: 'db'
           mysql user: 'user'
           mysql password: 'password'
+      - run: 'sleep 5'
       - name: Set up Go
         uses: actions/setup-go@v2
         with:
