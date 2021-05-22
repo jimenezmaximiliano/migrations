@@ -67,13 +67,20 @@ func (service runnerService) RunMigrations() (migration.Collection, error) {
 func (service runnerService) runMigrations(migrationsToRun []migration.Migration) (migration.Collection, error) {
 
 	result := migration.Collection{}
+	failed := false
 
 	for _, migration := range migrationsToRun {
+		if failed {
+			result.Add(migration.NewAsNotRun())
+			continue
+		}
+
 		err := service.dbRepository.RunMigrationQuery(migration.GetQuery())
 		if err != nil {
 			result.Add(migration.NewAsFailed())
+			failed = true
 
-			return result, nil
+			continue
 		}
 
 		result.Add(migration.NewAsSuccessful())

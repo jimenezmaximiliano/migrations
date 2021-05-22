@@ -9,6 +9,6 @@ import (
 
 func main() {
 	migrations.RunMigrationsCommand(func() (*sql.DB, error) {
-		return sql.Open("mysql", "user:password@/db")
+		return sql.Open("mysql", "user:password@/db?multiStatements=true")
 	})
 }

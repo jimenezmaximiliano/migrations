@@ -26,6 +26,7 @@ type Migration interface {
 	GetQuery() string
 	NewAsFailed() Migration
 	NewAsSuccessful() Migration
+	NewAsNotRun() Migration
 	WasSuccessful() bool
 	HasFailed() bool
 	ShouldBeRunFirst(anotherMigration Migration) bool
@@ -79,6 +80,13 @@ func (migration migration) GetQuery() string {
 // NewAsFailed returns a copy of the migration but with a StatusFailed status.
 func (migration migration) NewAsFailed() Migration {
 	newMigration, _ := NewMigration(migration.GetAbsolutePath(), migration.GetQuery(), StatusFailed)
+
+	return newMigration
+}
+
+// NewAsNotRun returns a copy of the migration but with a StatusNotRun status.
+func (migration migration) NewAsNotRun() Migration {
+	newMigration, _ := NewMigration(migration.GetAbsolutePath(), migration.GetQuery(), StatusNotRun)
 
 	return newMigration
 }

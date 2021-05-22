@@ -59,3 +59,58 @@ func TestRunningAMigrationWithTwoQueries(test *testing.T) {
 		}
 	}
 }
+
+func TestRunningMigrationsWhenAllMigrationsHaveAlreadyRun(test *testing.T) {
+	db, err := sql.Open("mysql", "user:password@/db")
+	if err != nil {
+		test.Fatalf("failed to open db: %s", err.Error())
+	}
+
+	_, _ = db.Exec("DROP TABLE gophers")
+	_, _ = db.Exec("DROP TABLE migrations")
+
+	// First time
+	_, err = RunMigrations(db, "../fixtures/create_and_insert")
+	if err != nil {
+		test.Errorf("failed to run migrations: %s", err.Error())
+	}
+
+	// Second time
+	result, err := RunMigrations(db, "../fixtures/create_and_insert")
+	if err != nil {
+		test.Errorf("failed to run migrations: %s", err.Error())
+	}
+
+	numberOfMigrations := len(result.GetAll())
+	if numberOfMigrations != 0 {
+		test.Errorf("Expected 0 migrations to be run but got %d", numberOfMigrations)
+	}
+}
+
+func TestRunningMigrationsStopsWhenAMigrationFails(test *testing.T) {
+	db, err := sql.Open("mysql", "user:password@/db")
+	if err != nil {
+		test.Fatalf("failed to open db: %s", err.Error())
+	}
+
+	_, _ = db.Exec("DROP TABLE gophers")
+	_, _ = db.Exec("DROP TABLE migrations")
+
+	result, err := RunMigrations(db, "../fixtures/create_insert_error")
+	if err != nil {
+		test.Errorf("failed to run migrations: %s", err.Error())
+	}
+
+	all := result.GetAll()
+
+	if len(all) != 4 {
+		test.Errorf("exptected 4 migrations but got %d", len(all))
+	}
+
+	if all[0].GetStatus() != migration.StatusSuccessful ||
+		all[1].GetStatus() != migration.StatusSuccessful ||
+		all[2].GetStatus() != migration.StatusFailed ||
+		all[3].GetStatus() != migration.StatusNotRun {
+		test.Errorf("invalid status on migration results")
+	}
+}
