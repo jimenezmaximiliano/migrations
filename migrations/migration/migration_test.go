@@ -1,6 +1,9 @@
 package migration
 
-import "testing"
+import (
+	"errors"
+	"testing"
+)
 
 const validName = "20210316000000_createTableGophers.sql"
 const validPath = "/tmp/migrations/" + validName
@@ -111,7 +114,7 @@ func TestChangingTheMigrationsStatusToFailed(test *testing.T) {
 		test.Fatal(err)
 	}
 
-	failedMigration := migration.NewAsFailed()
+	failedMigration := migration.NewAsFailed(errors.New("oops"))
 	if migration.GetName() != failedMigration.GetName() ||
 		migration.GetQuery() != failedMigration.GetQuery() ||
 		migration.GetAbsolutePath() != failedMigration.GetAbsolutePath() ||

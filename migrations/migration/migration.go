@@ -24,12 +24,13 @@ type Migration interface {
 	GetStatus() int8
 	ShouldBeRun() bool
 	GetQuery() string
-	NewAsFailed() Migration
+	NewAsFailed(err error) Migration
 	NewAsSuccessful() Migration
 	NewAsNotRun() Migration
 	WasSuccessful() bool
 	HasFailed() bool
 	ShouldBeRunFirst(anotherMigration Migration) bool
+	GetError() error
 }
 
 type migration struct {
@@ -37,6 +38,7 @@ type migration struct {
 	name         string
 	status       int8
 	query        string
+	err			 error
 }
 
 // Ensure migration implements Migration
@@ -78,10 +80,14 @@ func (migration migration) GetQuery() string {
 }
 
 // NewAsFailed returns a copy of the migration but with a StatusFailed status.
-func (migration migration) NewAsFailed() Migration {
-	newMigration, _ := NewMigration(migration.GetAbsolutePath(), migration.GetQuery(), StatusFailed)
-
-	return newMigration
+func (thisMigration migration) NewAsFailed(err error) Migration {
+	return migration{
+		absolutePath: thisMigration.absolutePath,
+		name:         thisMigration.name,
+		status:       StatusFailed,
+		query:        thisMigration.query,
+		err:		  err,
+	}
 }
 
 // NewAsNotRun returns a copy of the migration but with a StatusNotRun status.
@@ -91,7 +97,7 @@ func (migration migration) NewAsNotRun() Migration {
 	return newMigration
 }
 
-// NewAsFailed returns a copy of the migration but with a StatusSuccessful status.
+// NewAsSuccessful returns a copy of the migration but with a StatusSuccessful status.
 func (migration migration) NewAsSuccessful() Migration {
 	newMigration, _ := NewMigration(migration.GetAbsolutePath(), migration.GetQuery(), StatusSuccessful)
 
@@ -122,6 +128,11 @@ func NewMigration(absolutePath string, query string, status int8) (Migration, er
 		status:       status,
 		query:        query,
 	}, nil
+}
+
+// GetError returns the error that caused the migration to fail.
+func (migration migration) GetError() error {
+	return migration.err
 }
 
 func extractFileName(absolutePath string) string {

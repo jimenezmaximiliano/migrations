@@ -33,6 +33,11 @@ func RunMigrationsCommand(setupDB SetupDB) {
 	commandService := services.NewCommandService(adapters.FlagOptionParser{})
 	arguments := commandService.ParseArguments()
 
+	if arguments.MigrationsPath == "" {
+		displayService.DisplayHelp()
+		os.Exit(0)
+	}
+
 	DB, err := setupDB()
 	if err != nil {
 		displayService.DisplaySetupError(err)

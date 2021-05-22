@@ -1,6 +1,7 @@
 package services
 
 import (
+	"fmt"
 	"os"
 
 	"github.com/jimenezmaximiliano/migrations/migrations/adapters"
@@ -12,6 +13,7 @@ type Display interface {
 	DisplayRunMigrations(migrations migration.Collection)
 	DisplaySetupError(err error)
 	DisplayGeneralError(err error)
+	DisplayHelp()
 }
 
 type displayService struct {
@@ -32,7 +34,7 @@ const (
 	messageFormat        = "\n[%s] %s"
 	informationalMessage = " INFO "
 	successfulMigration  = "  OK  "
-	failedMigration      = "  KO  "
+	failedMigration      = " FAIL "
 )
 
 // DisplayRunMigrations outputs the results of run migrations.
@@ -50,8 +52,14 @@ func (service displayService) DisplayRunMigrations(migrations migration.Collecti
 			service.success(migration.GetName())
 			continue
 		}
-		service.failure(migration.GetName())
-		migrationProcessHasFailed = true
+
+		if migration.HasFailed() {
+			service.failure(fmt.Sprintf("Migration %s failed with error [%s]", migration.GetAbsolutePath(), migration.GetError()))
+			migrationProcessHasFailed = true
+			continue
+		}
+
+		service.info(fmt.Sprintf("Not run: %s", migration.GetName()))
 	}
 
 	if migrationProcessHasFailed {
@@ -82,4 +90,10 @@ func (service displayService) success(message string) {
 
 func (service displayService) failure(message string) {
 	service.printer.Print(os.Stderr, messageFormat, failedMigration, message)
+}
+
+func (service displayService) DisplayHelp() {
+	service.printer.Print(os.Stdout, "Documentation: https://github.com/jimenezmaximiliano/migrations\n\n")
+	service.printer.Print(os.Stdout, "Usage:\n")
+	service.printer.Print(os.Stdout, "\tmigrate -path=/path/to/migrations/directory/\n\n")
 }

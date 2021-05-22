@@ -3,6 +3,8 @@ package services
 import (
 	"fmt"
 
+	"github.com/pkg/errors"
+
 	"github.com/jimenezmaximiliano/migrations/migrations/helpers"
 	"github.com/jimenezmaximiliano/migrations/migrations/migration"
 	"github.com/jimenezmaximiliano/migrations/migrations/repositories"
@@ -77,7 +79,7 @@ func (service runnerService) runMigrations(migrationsToRun []migration.Migration
 
 		err := service.dbRepository.RunMigrationQuery(migration.GetQuery())
 		if err != nil {
-			result.Add(migration.NewAsFailed())
+			result.Add(migration.NewAsFailed(errors.WithStack(err)))
 			failed = true
 
 			continue
