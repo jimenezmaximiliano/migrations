@@ -3,8 +3,9 @@ package services
 import (
 	"testing"
 
-	"github.com/jimenezmaximiliano/migrations/mocks"
 	"github.com/stretchr/testify/mock"
+
+	"github.com/jimenezmaximiliano/migrations/mocks"
 )
 
 func TestParsingArguments(test *testing.T) {
@@ -30,7 +31,7 @@ func TestParsingArgumentsWithEmptyPath(test *testing.T) {
 	service := NewCommandService(parser)
 	arguments := service.ParseArguments()
 
-	if arguments.MigrationsPath != "/" {
+	if arguments.MigrationsPath != "" {
 		test.Fail()
 	}
 }

@@ -1,6 +1,8 @@
-package migration
+package models
 
-import "sort"
+import (
+	"sort"
+)
 
 // Collection is a set of implementations of Migration.
 type Collection struct {

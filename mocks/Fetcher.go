@@ -3,7 +3,7 @@
 package mocks
 
 import (
-	migration "github.com/jimenezmaximiliano/migrations/migrations/migration"
+	models "github.com/jimenezmaximiliano/migrations/models"
 	mock "github.com/stretchr/testify/mock"
 )
 
@@ -13,14 +13,14 @@ type Fetcher struct {
 }
 
 // GetMigrations provides a mock function with given fields: migrationsDirectoryAbsolutePath
-func (_m *Fetcher) GetMigrations(migrationsDirectoryAbsolutePath string) (migration.Collection, error) {
+func (_m *Fetcher) GetMigrations(migrationsDirectoryAbsolutePath string) (models.Collection, error) {
 	ret := _m.Called(migrationsDirectoryAbsolutePath)
 
-	var r0 migration.Collection
-	if rf, ok := ret.Get(0).(func(string) migration.Collection); ok {
+	var r0 models.Collection
+	if rf, ok := ret.Get(0).(func(string) models.Collection); ok {
 		r0 = rf(migrationsDirectoryAbsolutePath)
 	} else {
-		r0 = ret.Get(0).(migration.Collection)
+		r0 = ret.Get(0).(models.Collection)
 	}
 
 	var r1 error

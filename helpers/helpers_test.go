@@ -1,6 +1,8 @@
 package helpers
 
-import "testing"
+import (
+	"testing"
+)
 
 func TestAddingATrailingSlashOnAPathWithoutIt(test *testing.T) {
 	const path = "/tmp"

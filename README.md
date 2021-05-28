@@ -2,11 +2,11 @@
 
 Run example ./migrate -path=/home/maxi/projects/very-simple-migrations/example/migrations
 
-./mockery --dir=migrations/adapters --name=DB
-./mockery --dir=migrations/adapters --name=DBRows
-./mockery --dir=migrations/adapters --name=FileSystem
-./mockery --dir=migrations/adapters --name=File
-./mockery --dir=migrations/adapters --name=OptionParser
-./mockery --dir=migrations/repositories --name=DBRepository
-./mockery --dir=migrations/repositories --name=FileRepository
-./mockery --dir=migrations/services --name=Fetcher
+./mockery --dir=adapters --name=DB
+./mockery --dir=adapters --name=DBRows
+./mockery --dir=adapters --name=FileSystem
+./mockery --dir=adapters --name=File
+./mockery --dir=adapters --name=OptionParser
+./mockery --dir=repositories --name=DBRepository
+./mockery --dir=repositories --name=FileRepository
+./mockery --dir=services --name=Fetcher

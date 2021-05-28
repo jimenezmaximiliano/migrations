@@ -1,6 +1,8 @@
-package migration
+package models
 
-import "testing"
+import (
+	"testing"
+)
 
 const anotherPath = "/tmp/another.sql"
 

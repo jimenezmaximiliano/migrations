@@ -4,15 +4,15 @@ import (
 	"database/sql"
 	"os"
 
-	"github.com/jimenezmaximiliano/migrations/migrations/adapters"
-	"github.com/jimenezmaximiliano/migrations/migrations/migration"
-	"github.com/jimenezmaximiliano/migrations/migrations/repositories"
-	"github.com/jimenezmaximiliano/migrations/migrations/services"
+	"github.com/jimenezmaximiliano/migrations/adapters"
+	"github.com/jimenezmaximiliano/migrations/models"
+	"github.com/jimenezmaximiliano/migrations/repositories"
+	"github.com/jimenezmaximiliano/migrations/services"
 )
 
 // RunMigrations runs the migrations using the given DB connection and migrations directory path.
 // Returns a MigrationCollection, to be used programmatically.
-func RunMigrations(DB *sql.DB, migrationsDirectoryAbsolutePath string) (migration.Collection, error) {
+func RunMigrations(DB *sql.DB, migrationsDirectoryAbsolutePath string) (models.Collection, error) {
 	fileSystem := adapters.IOUtilAdapter{}
 	dbAdapter := adapters.NewDBAdapter(DB)
 	dbRepository := repositories.NewDBRepository(dbAdapter)

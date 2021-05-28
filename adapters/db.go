@@ -2,14 +2,13 @@ package adapters
 
 import (
 	"database/sql"
-	stdSQL "database/sql"
 )
 
 // DB is an adapter interface for database/sql.DB.
 type DB interface {
 	Ping() error
 	Query(query string, args ...interface{}) (DBRows, error)
-	Exec(query string, args ...interface{}) (stdSQL.Result, error)
+	Exec(query string, args ...interface{}) (sql.Result, error)
 }
 
 // NewDBAdapter returns an implementation of DB.
@@ -37,11 +36,11 @@ func (adapter dbAdapter) Query(query string, args ...interface{}) (DBRows, error
 
 // Exec executes a query without returning any rows.
 // The args are for any placeholder parameters in the query.
-func (adapter dbAdapter) Exec(query string, args ...interface{}) (stdSQL.Result, error) {
+func (adapter dbAdapter) Exec(query string, args ...interface{}) (sql.Result, error) {
 	return adapter.db.Exec(query, args...)
 }
 
-// Rows is the result of a query. Its cursor starts before the first row
+// DBRows is the result of a query. Its cursor starts before the first row
 // of the result set. Use Next to advance from row to row.
 type DBRows interface {
 	Next() bool
@@ -49,5 +48,5 @@ type DBRows interface {
 	Close() error
 }
 
-// Ensure sql.Rows implements DBRows
+// Ensure sql.Rows implements DBRows.
 var _ DBRows = &sql.Rows{}

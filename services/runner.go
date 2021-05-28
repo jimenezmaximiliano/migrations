@@ -5,14 +5,14 @@ import (
 
 	"github.com/pkg/errors"
 
-	"github.com/jimenezmaximiliano/migrations/migrations/helpers"
-	"github.com/jimenezmaximiliano/migrations/migrations/migration"
-	"github.com/jimenezmaximiliano/migrations/migrations/repositories"
+	"github.com/jimenezmaximiliano/migrations/helpers"
+	"github.com/jimenezmaximiliano/migrations/models"
+	"github.com/jimenezmaximiliano/migrations/repositories"
 )
 
 // Runner handles running migrations.
 type Runner interface {
-	RunMigrations() (migration.Collection, error)
+	RunMigrations() (models.Collection, error)
 }
 
 type runnerService struct {
@@ -21,13 +21,13 @@ type runnerService struct {
 	migrationsDirectoryAbsolutePath string
 }
 
-// Ensure runnerService implements Runner
+// Ensure runnerService implements Runner.
 var _ Runner = runnerService{}
 
-// Ensure runnerService implements Runner
+// Ensure runnerService implements Runner.
 var _ Runner = runnerService{}
 
-// NewRunnerService returns an implementation of Runner
+// NewRunnerService returns an implementation of Runner.
 func NewRunnerService(
 	migrationFetcherService Fetcher,
 	DBRepository repositories.DBRepository,
@@ -40,35 +40,35 @@ func NewRunnerService(
 	}
 }
 
-// RunMigrations runs a collection of migrations checking first if they have been run already
-func (service runnerService) RunMigrations() (migration.Collection, error) {
+// RunMigrations runs a collection of migrations checking first if they have been run already.
+func (service runnerService) RunMigrations() (models.Collection, error) {
 	err := service.dbRepository.Ping()
 	if err != nil {
-		return migration.Collection{}, err
+		return models.Collection{}, err
 	}
 
 	err = service.dbRepository.CreateMigrationsTableIfNeeded()
 	if err != nil {
-		return migration.Collection{}, err
+		return models.Collection{}, err
 	}
 
 	allMigrations, err := service.migrationFetcherService.GetMigrations(service.migrationsDirectoryAbsolutePath)
 	if err != nil {
-		return migration.Collection{}, err
+		return models.Collection{}, err
 	}
 
 	migrationsToRun := allMigrations.GetMigrationsToRun()
 
 	if len(migrationsToRun) == 0 {
-		return migration.Collection{}, nil
+		return models.Collection{}, nil
 	}
 
 	return service.runMigrations(migrationsToRun)
 }
 
-func (service runnerService) runMigrations(migrationsToRun []migration.Migration) (migration.Collection, error) {
+func (service runnerService) runMigrations(migrationsToRun []models.Migration) (models.Collection, error) {
 
-	result := migration.Collection{}
+	result := models.Collection{}
 	failed := false
 
 	for _, migration := range migrationsToRun {

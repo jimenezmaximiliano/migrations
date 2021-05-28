@@ -5,7 +5,8 @@ import (
 	"testing"
 
 	_ "github.com/go-sql-driver/mysql"
-	"github.com/jimenezmaximiliano/migrations/migrations/migration"
+
+	"github.com/jimenezmaximiliano/migrations/models"
 )
 
 func TestRunningMigrations(test *testing.T) {
@@ -17,7 +18,7 @@ func TestRunningMigrations(test *testing.T) {
 	_, _ = db.Exec("DROP TABLE gophers")
 	_, _ = db.Exec("DROP TABLE migrations")
 
-	result, err := RunMigrations(db, "../fixtures/create_and_insert")
+	result, err := RunMigrations(db, "./fixtures/create_and_insert")
 	if err != nil {
 		test.Errorf("failed to run migrations: %s", err.Error())
 	}
@@ -28,7 +29,7 @@ func TestRunningMigrations(test *testing.T) {
 	}
 
 	for _, currentMigration := range result.GetAll() {
-		if currentMigration.GetStatus() != migration.StatusSuccessful {
+		if currentMigration.GetStatus() != models.StatusSuccessful {
 			test.Errorf("Migration %s failed", currentMigration.GetName())
 		}
 	}
@@ -43,7 +44,7 @@ func TestRunningAMigrationWithTwoQueries(test *testing.T) {
 	_, _ = db.Exec("DROP TABLE gophers")
 	_, _ = db.Exec("DROP TABLE migrations")
 
-	result, err := RunMigrations(db, "../fixtures/migration_with_two_queries")
+	result, err := RunMigrations(db, "./fixtures/migration_with_two_queries")
 	if err != nil {
 		test.Errorf("failed to run migrations: %s", err.Error())
 	}
@@ -54,7 +55,7 @@ func TestRunningAMigrationWithTwoQueries(test *testing.T) {
 	}
 
 	for _, currentMigration := range result.GetAll() {
-		if currentMigration.GetStatus() != migration.StatusSuccessful {
+		if currentMigration.GetStatus() != models.StatusSuccessful {
 			test.Errorf("Migration %s failed", currentMigration.GetName())
 		}
 	}
@@ -70,13 +71,13 @@ func TestRunningMigrationsWhenAllMigrationsHaveAlreadyRun(test *testing.T) {
 	_, _ = db.Exec("DROP TABLE migrations")
 
 	// First time
-	_, err = RunMigrations(db, "../fixtures/create_and_insert")
+	_, err = RunMigrations(db, "./fixtures/create_and_insert")
 	if err != nil {
 		test.Errorf("failed to run migrations: %s", err.Error())
 	}
 
 	// Second time
-	result, err := RunMigrations(db, "../fixtures/create_and_insert")
+	result, err := RunMigrations(db, "./fixtures/create_and_insert")
 	if err != nil {
 		test.Errorf("failed to run migrations: %s", err.Error())
 	}
@@ -96,7 +97,7 @@ func TestRunningMigrationsStopsWhenAMigrationFails(test *testing.T) {
 	_, _ = db.Exec("DROP TABLE gophers")
 	_, _ = db.Exec("DROP TABLE migrations")
 
-	result, err := RunMigrations(db, "../fixtures/create_insert_error")
+	result, err := RunMigrations(db, "./fixtures/create_insert_error")
 	if err != nil {
 		test.Errorf("failed to run migrations: %s", err.Error())
 	}
@@ -107,10 +108,10 @@ func TestRunningMigrationsStopsWhenAMigrationFails(test *testing.T) {
 		test.Errorf("exptected 4 migrations but got %d", len(all))
 	}
 
-	if all[0].GetStatus() != migration.StatusSuccessful ||
-		all[1].GetStatus() != migration.StatusSuccessful ||
-		all[2].GetStatus() != migration.StatusFailed ||
-		all[3].GetStatus() != migration.StatusNotRun {
+	if all[0].GetStatus() != models.StatusSuccessful ||
+		all[1].GetStatus() != models.StatusSuccessful ||
+		all[2].GetStatus() != models.StatusFailed ||
+		all[3].GetStatus() != models.StatusNotRun {
 		test.Errorf("invalid status on migration results")
 	}
 }

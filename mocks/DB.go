@@ -3,7 +3,7 @@
 package mocks
 
 import (
-	adapters "github.com/jimenezmaximiliano/migrations/migrations/adapters"
+	adapters "github.com/jimenezmaximiliano/migrations/adapters"
 	mock "github.com/stretchr/testify/mock"
 
 	sql "database/sql"

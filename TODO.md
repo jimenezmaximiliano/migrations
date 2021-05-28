@@ -3,7 +3,7 @@
 ## 1.0.0
 
 - Include binaries with support for several db drivers
-- Move the migrations package to the root
+- Add documentation
 
 ## Future versions
 

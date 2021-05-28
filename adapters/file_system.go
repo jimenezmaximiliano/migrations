@@ -11,10 +11,10 @@ type FileSystem interface {
 	ReadFile(filename string) ([]byte, error)
 }
 
-// IOUtilAdaper is an implementation of FileSystem using io/ioutil and os.
+// IOUtilAdapter is an implementation of FileSystem using io/ioutil and os.
 type IOUtilAdapter struct{}
 
-// Ensure IOUtilAdapter implements FileSystem
+// Ensure IOUtilAdapter implements FileSystem.
 var _ FileSystem = IOUtilAdapter{}
 
 // ReadDir list the files on a given directory.

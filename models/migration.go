@@ -1,4 +1,4 @@
-package migration
+package models
 
 import (
 	"fmt"
@@ -86,7 +86,7 @@ func (thisMigration migration) NewAsFailed(err error) Migration {
 		name:         thisMigration.name,
 		status:       StatusFailed,
 		query:        thisMigration.query,
-		err:		  err,
+		err:          err,
 	}
 }
 

@@ -1,6 +1,8 @@
 package adapters
 
-import "flag"
+import (
+	"flag"
+)
 
 // OptionParser parses command line flags.
 type OptionParser interface {
@@ -11,7 +13,7 @@ type OptionParser interface {
 // FlagOptionParser is an implementation of OptionParser using the package flag.
 type FlagOptionParser struct{}
 
-// Ensure FlagOptionParser implements OptionParser
+// Ensure FlagOptionParser implements OptionParser.
 var _ OptionParser = FlagOptionParser{}
 
 // String defines a string flag with specified name, default value, and usage string.

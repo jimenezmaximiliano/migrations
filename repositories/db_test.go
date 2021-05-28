@@ -4,8 +4,9 @@ import (
 	"fmt"
 	"testing"
 
-	"github.com/jimenezmaximiliano/migrations/mocks"
 	"github.com/stretchr/testify/mock"
+
+	"github.com/jimenezmaximiliano/migrations/mocks"
 )
 
 func TestCreatingTheMigrationsTable(test *testing.T) {

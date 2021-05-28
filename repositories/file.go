@@ -4,8 +4,8 @@ import (
 	"fmt"
 	"os"
 
-	"github.com/jimenezmaximiliano/migrations/migrations/adapters"
-	"github.com/jimenezmaximiliano/migrations/migrations/helpers"
+	"github.com/jimenezmaximiliano/migrations/adapters"
+	"github.com/jimenezmaximiliano/migrations/helpers"
 )
 
 // FileRepository fetches migrations files from a given path.
@@ -18,7 +18,7 @@ type fileRepository struct {
 	fileSystem adapters.FileSystem
 }
 
-// Ensure fileRepository implements FileRepository
+// Ensure fileRepository implements FileRepository.
 var _ FileRepository = fileRepository{}
 
 // NewFileRepository returns an implementation of FileRepository.

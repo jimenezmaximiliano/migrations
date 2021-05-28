@@ -4,8 +4,8 @@ import (
 	"fmt"
 	"testing"
 
-	"github.com/jimenezmaximiliano/migrations/migrations/migration"
 	"github.com/jimenezmaximiliano/migrations/mocks"
+	"github.com/jimenezmaximiliano/migrations/models"
 )
 
 func TestRunningMigrationsFailsIfTheDBConnectionDoesNotWork(test *testing.T) {
@@ -40,7 +40,7 @@ func TestRunningMigrationsFailsIfItCannotFetchMigrationsFromFilesOrTheDB(test *t
 	db.On("Ping").Return(nil)
 	db.On("CreateMigrationsTableIfNeeded").Return(nil)
 	fetcher := &mocks.Fetcher{}
-	fetcher.On("GetMigrations", "/tmp/").Return(migration.Collection{}, fmt.Errorf("cannot fetch migrations"))
+	fetcher.On("GetMigrations", "/tmp/").Return(models.Collection{}, fmt.Errorf("cannot fetch migrations"))
 	service := NewRunnerService(fetcher, db, "/tmp")
 
 	_, err := service.RunMigrations()
@@ -55,7 +55,7 @@ func TestRunningMigrationsDoesNotFailIfThereAreNoMigratiosToRun(test *testing.T)
 	db.On("Ping").Return(nil)
 	db.On("CreateMigrationsTableIfNeeded").Return(nil)
 	fetcher := &mocks.Fetcher{}
-	fetcher.On("GetMigrations", "/tmp/").Return(migration.Collection{}, nil)
+	fetcher.On("GetMigrations", "/tmp/").Return(models.Collection{}, nil)
 	service := NewRunnerService(fetcher, db, "/tmp")
 
 	_, err := service.RunMigrations()
@@ -72,8 +72,8 @@ func TestRunningAMigrationSuccessfully(test *testing.T) {
 	db.On("RunMigrationQuery", "SELECT 1").Return(nil)
 	db.On("RegisterRunMigration", "1.sql").Return(nil)
 	fetcher := &mocks.Fetcher{}
-	collection := migration.Collection{}
-	migration, _ := migration.NewMigration("/tmp/1.sql", "SELECT 1", migration.StatusNotRun)
+	collection := models.Collection{}
+	migration, _ := models.NewMigration("/tmp/1.sql", "SELECT 1", models.StatusNotRun)
 	collection.Add(migration)
 	fetcher.On("GetMigrations", "/tmp/").Return(collection, nil)
 	service := NewRunnerService(fetcher, db, "/tmp")
@@ -95,8 +95,8 @@ func TestRunningAMigrationThatFails(test *testing.T) {
 	db.On("CreateMigrationsTableIfNeeded").Return(nil)
 	db.On("RunMigrationQuery", "SELECT 1").Return(fmt.Errorf("query failed"))
 	fetcher := &mocks.Fetcher{}
-	collection := migration.Collection{}
-	migration, _ := migration.NewMigration("/tmp/1.sql", "SELECT 1", migration.StatusNotRun)
+	collection := models.Collection{}
+	migration, _ := models.NewMigration("/tmp/1.sql", "SELECT 1", models.StatusNotRun)
 	collection.Add(migration)
 	fetcher.On("GetMigrations", "/tmp/").Return(collection, nil)
 	service := NewRunnerService(fetcher, db, "/tmp")
@@ -119,8 +119,8 @@ func TestRunningAMigrationSuccessfullyAndThenFailingToRegisterIt(test *testing.T
 	db.On("RunMigrationQuery", "SELECT 1").Return(nil)
 	db.On("RegisterRunMigration", "1.sql").Return(fmt.Errorf("failed to register run migration"))
 	fetcher := &mocks.Fetcher{}
-	collection := migration.Collection{}
-	migration, _ := migration.NewMigration("/tmp/1.sql", "SELECT 1", migration.StatusNotRun)
+	collection := models.Collection{}
+	migration, _ := models.NewMigration("/tmp/1.sql", "SELECT 1", models.StatusNotRun)
 	collection.Add(migration)
 	fetcher.On("GetMigrations", "/tmp/").Return(collection, nil)
 	service := NewRunnerService(fetcher, db, "/tmp")

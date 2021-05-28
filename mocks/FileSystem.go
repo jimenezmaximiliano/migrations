@@ -3,7 +3,7 @@
 package mocks
 
 import (
-	os "os"
+	fs "io/fs"
 
 	mock "github.com/stretchr/testify/mock"
 )
@@ -14,15 +14,15 @@ type FileSystem struct {
 }
 
 // ReadDir provides a mock function with given fields: dirname
-func (_m *FileSystem) ReadDir(dirname string) ([]os.FileInfo, error) {
+func (_m *FileSystem) ReadDir(dirname string) ([]fs.FileInfo, error) {
 	ret := _m.Called(dirname)
 
-	var r0 []os.FileInfo
-	if rf, ok := ret.Get(0).(func(string) []os.FileInfo); ok {
+	var r0 []fs.FileInfo
+	if rf, ok := ret.Get(0).(func(string) []fs.FileInfo); ok {
 		r0 = rf(dirname)
 	} else {
 		if ret.Get(0) != nil {
-			r0 = ret.Get(0).([]os.FileInfo)
+			r0 = ret.Get(0).([]fs.FileInfo)
 		}
 	}
 

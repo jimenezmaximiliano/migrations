@@ -4,13 +4,13 @@ import (
 	"fmt"
 	"os"
 
-	"github.com/jimenezmaximiliano/migrations/migrations/adapters"
-	"github.com/jimenezmaximiliano/migrations/migrations/migration"
+	"github.com/jimenezmaximiliano/migrations/adapters"
+	"github.com/jimenezmaximiliano/migrations/models"
 )
 
 // Display handles the output of the migrations command.
 type Display interface {
-	DisplayRunMigrations(migrations migration.Collection)
+	DisplayRunMigrations(migrations models.Collection)
 	DisplaySetupError(err error)
 	DisplayGeneralError(err error)
 	DisplayHelp()
@@ -38,7 +38,7 @@ const (
 )
 
 // DisplayRunMigrations outputs the results of run migrations.
-func (service displayService) DisplayRunMigrations(migrations migration.Collection) {
+func (service displayService) DisplayRunMigrations(migrations models.Collection) {
 	service.info("Run migrations")
 	if migrations.IsEmpty() {
 		service.info("No migrations to run")

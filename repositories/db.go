@@ -3,7 +3,7 @@ package repositories
 import (
 	"fmt"
 
-	"github.com/jimenezmaximiliano/migrations/migrations/adapters"
+	"github.com/jimenezmaximiliano/migrations/adapters"
 )
 
 // DBRepository runs migration queries and handles the migrations table.
@@ -19,7 +19,7 @@ type dbRepository struct {
 	db adapters.DB
 }
 
-// Ensure dbRepository implements DBRepository
+// Ensure dbRepository implements DBRepository.
 var _ DBRepository = dbRepository{}
 
 // NewDBRepository returns an implementation of DbRepository.
@@ -29,7 +29,7 @@ func NewDBRepository(db adapters.DB) DBRepository {
 	}
 }
 
-// Ping the DB to check if the connection is working
+// Ping the DB to check if the connection is working.
 func (repository dbRepository) Ping() error {
 	err := repository.db.Ping()
 	if err == nil {
