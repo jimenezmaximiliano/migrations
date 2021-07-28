@@ -40,17 +40,40 @@ All migration files must:
 
 - be in the provided path (not inside subdirectories)
 - end in *.sql*
-- be ordered by filename in the order they should run
+- be ordered by filename in the order they should run 
+  (you can use migo for that)
 
 Example:
 
 ```bash
-/tmp/migrations
-/tmp/migrations/20200318001000_createGophersTable.sql
-/tmp/migrations/20200418001000_createGolfersTable.sql
+/app/migrations
+/app/migrations/2021-7-28_17-7-51_createGophersTable.sql
+/app/migrations/2021-7-28_17-8-15_createGolfersTable.sql
 ```
 
 > See [example migrations](https://github.com/jimenezmaximiliano/migrations/tree/master/example/migrations) in the example directory
+
+### Using migo to create migration files
+
+Migo creates migration files using the current date and time as a prefix.
+
+#### Installation
+
+```bash
+go get -u github.com/jimenezmaximiliano/migrations/migo
+```
+
+#### Usage
+
+```bash
+migo -path=/app/migrations name=myMigration migration:create
+```
+
+The above command results in:
+
+```bash
+/app/migrations/2021-7-28_17-8-15_myMigration.sql
+```
 
 ## How it works / features
 

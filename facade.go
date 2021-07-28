@@ -30,7 +30,7 @@ type SetupDB func() (*sql.DB, error)
 func RunMigrationsCommand(setupDB SetupDB) {
 	printerAdapter := adapters.PrinterAdapter{}
 	displayService := services.NewDisplayService(printerAdapter)
-	commandService := services.NewCommandService(adapters.FlagOptionParser{})
+	commandService := services.NewCommandService(adapters.NewArgumentParser())
 	arguments := commandService.ParseArguments()
 
 	if arguments.MigrationsPath == "" {

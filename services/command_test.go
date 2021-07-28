@@ -10,9 +10,14 @@ import (
 
 func TestParsingArguments(test *testing.T) {
 	path := "/tmp"
-	parser := &mocks.OptionParser{}
-	parser.On("String", "path", mock.AnythingOfType("string"), mock.AnythingOfType("string")).
+	name := "name"
+	parser := &mocks.ArgumentParser{}
+	parser.On("OptionString", "path", mock.AnythingOfType("string"), mock.AnythingOfType("string")).
 		Return(&path)
+	parser.On("OptionString", "name", mock.AnythingOfType("string"), mock.AnythingOfType("string")).
+		Return(&name)
+	parser.On("PositionalArguments").
+		Return([]string{"command"})
 	parser.On("Parse")
 	service := NewCommandService(parser)
 	arguments := service.ParseArguments()
@@ -20,18 +25,69 @@ func TestParsingArguments(test *testing.T) {
 	if arguments.MigrationsPath != "/tmp/" {
 		test.Fail()
 	}
+
+	if arguments.MigrationName != "name" {
+		test.Fail()
+	}
+
+	if arguments.Command != "command" {
+		test.Fail()
+	}
 }
 
 func TestParsingArgumentsWithEmptyPath(test *testing.T) {
 	path := ""
-	parser := &mocks.OptionParser{}
-	parser.On("String", "path", mock.AnythingOfType("string"), mock.AnythingOfType("string")).
+	name := "name"
+	parser := &mocks.ArgumentParser{}
+	parser.On("OptionString", "path", mock.AnythingOfType("string"), mock.AnythingOfType("string")).
 		Return(&path)
+	parser.On("OptionString", "name", mock.AnythingOfType("string"), mock.AnythingOfType("string")).
+		Return(&name)
+	parser.On("PositionalArguments").
+		Return([]string{"command"})
 	parser.On("Parse")
 	service := NewCommandService(parser)
 	arguments := service.ParseArguments()
 
 	if arguments.MigrationsPath != "" {
+		test.Fail()
+	}
+}
+
+func TestParsingArgumentsWithEmptyName(test *testing.T) {
+	path := "/tmp"
+	name := ""
+	parser := &mocks.ArgumentParser{}
+	parser.On("OptionString", "path", mock.AnythingOfType("string"), mock.AnythingOfType("string")).
+		Return(&path)
+	parser.On("OptionString", "name", mock.AnythingOfType("string"), mock.AnythingOfType("string")).
+		Return(&name)
+	parser.On("PositionalArguments").
+		Return([]string{"command"})
+	parser.On("Parse")
+	service := NewCommandService(parser)
+	arguments := service.ParseArguments()
+
+	if arguments.MigrationName != "" {
+		test.Fail()
+	}
+}
+
+func TestParsingArgumentsWithEmptyCommand(test *testing.T) {
+	path := "/tmp"
+	name := "name"
+	parser := &mocks.ArgumentParser{}
+	parser.On("OptionString", "path", mock.AnythingOfType("string")).
+		Return(&path)
+	parser.On("OptionString", "name", mock.AnythingOfType("string")).
+		Return(&name)
+	parser.On("PositionalArguments").
+		Return([]string{})
+	parser.On("Parse")
+	service := NewCommandService(parser)
+	arguments := service.ParseArguments()
+
+	if arguments.Command != "" {
 		test.Fail()
 	}
 }

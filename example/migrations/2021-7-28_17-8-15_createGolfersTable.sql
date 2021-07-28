@@ -1,4 +1,5 @@
-CREATE TABLE gophers (
+--
+CREATE TABLE golfers (
     id INTEGER PRIMARY KEY AUTO_INCREMENT,
     name TEXT
 );
