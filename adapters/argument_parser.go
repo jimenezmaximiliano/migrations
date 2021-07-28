@@ -4,6 +4,8 @@ import (
 	"flag"
 	"io/ioutil"
 	"os"
+
+	"github.com/pkg/errors"
 )
 
 // ArgumentParser parses command line flags.
@@ -39,6 +41,9 @@ func (adapter flagArgumentParser) OptionString(name string, value string) *strin
 // Parse parses the command-line flags from os.Args[1:]. Must be called
 // after all flags are defined and before flags are accessed by the program.
 func (adapter flagArgumentParser) Parse() error {
+	if len(os.Args) < 2 {
+		return errors.New("not enough arguments")
+	}
 	return adapter.flagSet.Parse(os.Args[1:])
 }
 

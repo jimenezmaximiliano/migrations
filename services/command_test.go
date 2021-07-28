@@ -12,13 +12,13 @@ func TestParsingArguments(test *testing.T) {
 	path := "/tmp"
 	name := "name"
 	parser := &mocks.ArgumentParser{}
-	parser.On("OptionString", "path", mock.AnythingOfType("string"), mock.AnythingOfType("string")).
+	parser.On("OptionString", "path", mock.AnythingOfType("string")).
 		Return(&path)
-	parser.On("OptionString", "name", mock.AnythingOfType("string"), mock.AnythingOfType("string")).
+	parser.On("OptionString", "name", mock.AnythingOfType("string")).
 		Return(&name)
 	parser.On("PositionalArguments").
 		Return([]string{"command"})
-	parser.On("Parse")
+	parser.On("Parse").Return(nil)
 	service := NewCommandService(parser)
 	arguments := service.ParseArguments()
 
@@ -39,13 +39,13 @@ func TestParsingArgumentsWithEmptyPath(test *testing.T) {
 	path := ""
 	name := "name"
 	parser := &mocks.ArgumentParser{}
-	parser.On("OptionString", "path", mock.AnythingOfType("string"), mock.AnythingOfType("string")).
+	parser.On("OptionString", "path", mock.AnythingOfType("string")).
 		Return(&path)
-	parser.On("OptionString", "name", mock.AnythingOfType("string"), mock.AnythingOfType("string")).
+	parser.On("OptionString", "name", mock.AnythingOfType("string")).
 		Return(&name)
 	parser.On("PositionalArguments").
 		Return([]string{"command"})
-	parser.On("Parse")
+	parser.On("Parse").Return(nil)
 	service := NewCommandService(parser)
 	arguments := service.ParseArguments()
 
@@ -58,13 +58,13 @@ func TestParsingArgumentsWithEmptyName(test *testing.T) {
 	path := "/tmp"
 	name := ""
 	parser := &mocks.ArgumentParser{}
-	parser.On("OptionString", "path", mock.AnythingOfType("string"), mock.AnythingOfType("string")).
+	parser.On("OptionString", "path", mock.AnythingOfType("string")).
 		Return(&path)
-	parser.On("OptionString", "name", mock.AnythingOfType("string"), mock.AnythingOfType("string")).
+	parser.On("OptionString", "name", mock.AnythingOfType("string")).
 		Return(&name)
 	parser.On("PositionalArguments").
 		Return([]string{"command"})
-	parser.On("Parse")
+	parser.On("Parse").Return(nil)
 	service := NewCommandService(parser)
 	arguments := service.ParseArguments()
 
@@ -83,7 +83,7 @@ func TestParsingArgumentsWithEmptyCommand(test *testing.T) {
 		Return(&name)
 	parser.On("PositionalArguments").
 		Return([]string{})
-	parser.On("Parse")
+	parser.On("Parse").Return(nil)
 	service := NewCommandService(parser)
 	arguments := service.ParseArguments()
 
