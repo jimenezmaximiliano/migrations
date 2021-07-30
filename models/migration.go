@@ -2,8 +2,10 @@ package models
 
 import (
 	"fmt"
-	"sort"
+	"strconv"
 	"strings"
+
+	"github.com/pkg/errors"
 )
 
 const (
@@ -22,6 +24,7 @@ type Migration interface {
 	GetAbsolutePath() string
 	GetName() string
 	GetStatus() int8
+	GetOrder() uint64
 	ShouldBeRun() bool
 	GetQuery() string
 	NewAsFailed(err error) Migration
@@ -39,44 +42,50 @@ type migration struct {
 	status       int8
 	query        string
 	err			 error
+	order        uint64
 }
 
 // Ensure migration implements Migration
 var _ Migration = migration{}
 
 // GetAbsolutePath returns the absolute path of the migration file.
-func (migration migration) GetAbsolutePath() string {
-	return migration.absolutePath
+func (thisMigration migration) GetAbsolutePath() string {
+	return thisMigration.absolutePath
 }
 
-// GeName returns the file name of the migration file.
-func (migration migration) GetName() string {
-	return migration.name
+// GetName returns the file name of the migration file.
+func (thisMigration migration) GetName() string {
+	return thisMigration.name
 }
 
-// GetStatus returns the current status of the migration using the consts on this package.
-func (migration migration) GetStatus() int8 {
-	return migration.status
+// GetStatus returns the current status of the migration using the constants on this package.
+func (thisMigration migration) GetStatus() int8 {
+	return thisMigration.status
+}
+
+// GetOrder returns the order on which the migration should be run.
+func (thisMigration migration) GetOrder() uint64 {
+	return thisMigration.order
 }
 
 // ShouldBeRun returns true if the migration has not been run yet.
-func (migration migration) ShouldBeRun() bool {
-	return migration.status == StatusNotRun
+func (thisMigration migration) ShouldBeRun() bool {
+	return thisMigration.status == StatusNotRun
 }
 
-// WasSuccessful returs true if the current status is StatusSuccessful.
-func (migration migration) WasSuccessful() bool {
-	return migration.status == StatusSuccessful
+// WasSuccessful returns true if the current status is StatusSuccessful.
+func (thisMigration migration) WasSuccessful() bool {
+	return thisMigration.status == StatusSuccessful
 }
 
 // HasFailed returns true if the current status is StatusFailed.
-func (migration migration) HasFailed() bool {
-	return migration.status == StatusFailed
+func (thisMigration migration) HasFailed() bool {
+	return thisMigration.status == StatusFailed
 }
 
 // GetQuery returns the sql query of the migration.
-func (migration migration) GetQuery() string {
-	return migration.query
+func (thisMigration migration) GetQuery() string {
+	return thisMigration.query
 }
 
 // NewAsFailed returns a copy of the migration but with a StatusFailed status.
@@ -87,33 +96,28 @@ func (thisMigration migration) NewAsFailed(err error) Migration {
 		status:       StatusFailed,
 		query:        thisMigration.query,
 		err:          err,
+		order:        thisMigration.order,
 	}
 }
 
 // NewAsNotRun returns a copy of the migration but with a StatusNotRun status.
-func (migration migration) NewAsNotRun() Migration {
-	newMigration, _ := NewMigration(migration.GetAbsolutePath(), migration.GetQuery(), StatusNotRun)
+func (thisMigration migration) NewAsNotRun() Migration {
+	newMigration, _ := NewMigration(thisMigration.GetAbsolutePath(), thisMigration.GetQuery(), StatusNotRun)
 
 	return newMigration
 }
 
 // NewAsSuccessful returns a copy of the migration but with a StatusSuccessful status.
-func (migration migration) NewAsSuccessful() Migration {
-	newMigration, _ := NewMigration(migration.GetAbsolutePath(), migration.GetQuery(), StatusSuccessful)
+func (thisMigration migration) NewAsSuccessful() Migration {
+	newMigration, _ := NewMigration(thisMigration.GetAbsolutePath(), thisMigration.GetQuery(), StatusSuccessful)
 
 	return newMigration
 }
 
 // ShouldBeRunFirst returns true if this migration needs to be run before the given migration
 // (used for sorting migrations).
-func (migration migration) ShouldBeRunFirst(anotherMigration Migration) bool {
-	names := []string{
-		migration.name,
-		anotherMigration.GetName(),
-	}
-	sort.Strings(names)
-
-	return names[0] == migration.name
+func (thisMigration migration) ShouldBeRunFirst(anotherMigration Migration) bool {
+	return thisMigration.GetOrder() < anotherMigration.GetOrder()
 }
 
 // NewMigration is a constructor for a Migration implementation.
@@ -122,17 +126,35 @@ func NewMigration(absolutePath string, query string, status int8) (Migration, er
 		return migration{}, fmt.Errorf("migration invalid status (status: %d)", status)
 	}
 
+	fileName := extractFileName(absolutePath)
+	order, err := getOrderFromFileName(fileName)
+	if err != nil {
+		return migration{}, err
+	}
+
 	return migration{
 		absolutePath: absolutePath,
-		name:         extractFileName(absolutePath),
+		name:         fileName,
 		status:       status,
 		query:        query,
+		order:        order,
 	}, nil
 }
 
+func getOrderFromFileName(fileName string) (uint64, error) {
+	result := strings.Split(fileName, "_")
+	orderAsString := result[0]
+	order, err := strconv.ParseUint(orderAsString, 10, 64)
+	if err != nil {
+		return 0, errors.Wrapf(err, "invalid migration file name [%s]", orderAsString)
+	}
+
+	return order, nil
+}
+
 // GetError returns the error that caused the migration to fail.
-func (migration migration) GetError() error {
-	return migration.err
+func (thisMigration migration) GetError() error {
+	return thisMigration.err
 }
 
 func extractFileName(absolutePath string) string {

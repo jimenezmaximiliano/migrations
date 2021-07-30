@@ -11,18 +11,14 @@ import (
 )
 
 func createMigration(name, path string) (string, error) {
+	if name == "" {
+		return "", errors.New("a migration's name cannot be empty")
+	}
+
 	pathWithTrailingSlash := helpers.AddTrailingSlashToPathIfNeeded(path)
 
 	now := time.Now()
-	fileName := fmt.Sprintf(
-		"%d-%d-%d_%d-%d-%d_%s",
-		now.Year(),
-		now.Month(),
-		now.Day(),
-		now.Hour(),
-		now.Minute(),
-		now.Second(),
-		name)
+	fileName := fmt.Sprintf("%d_%s", now.UnixNano(), name)
 
 	filePath := pathWithTrailingSlash + fileName
 	extension := filePath[len(filePath)-4:]

@@ -9,9 +9,9 @@ import (
 
 const migrationsDir = "/tmp/"
 
-const migrationPath1 = "/tmp/1.sql"
+const migrationPath1 = "/tmp/1_a.sql"
 const migrationQuery1 = "SELECT 1"
-const migrationPath2 = "/tmp/2.sql"
+const migrationPath2 = "/tmp/2_b.sql"
 const migrationQuery2 = "SELECT 2"
 
 func TestGettingMigrations(test *testing.T) {

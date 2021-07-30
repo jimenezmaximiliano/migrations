@@ -76,7 +76,10 @@ func (service fetcherService) parseRunMigrationsFromDB(filePaths []string) (mode
 			return collection, err
 		}
 
-		collection.Add(migration)
+		err = collection.Add(migration)
+		if err != nil {
+			return collection, err
+		}
 	}
 
 	return collection, nil
@@ -97,7 +100,10 @@ func (service fetcherService) parseMigrationsFromFiles(filePaths []string, colle
 			return collection, err
 		}
 
-		collection.Add(migration)
+		err = collection.Add(migration)
+		if err != nil {
+			return collection, err
+		}
 	}
 
 	return collection, nil
