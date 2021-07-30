@@ -70,10 +70,10 @@ func TestRunningAMigrationSuccessfully(test *testing.T) {
 	db.On("Ping").Return(nil)
 	db.On("CreateMigrationsTableIfNeeded").Return(nil)
 	db.On("RunMigrationQuery", "SELECT 1").Return(nil)
-	db.On("RegisterRunMigration", "1.sql").Return(nil)
+	db.On("RegisterRunMigration", "1_a.sql").Return(nil)
 	fetcher := &mocks.Fetcher{}
 	collection := models.Collection{}
-	migration, _ := models.NewMigration("/tmp/1.sql", "SELECT 1", models.StatusNotRun)
+	migration, _ := models.NewMigration("/tmp/1_a.sql", "SELECT 1", models.StatusNotRun)
 	err := collection.Add(migration)
 	if err != nil {
 		test.Fatal(err)
@@ -86,7 +86,7 @@ func TestRunningAMigrationSuccessfully(test *testing.T) {
 		test.Fail()
 	}
 
-	if result.GetAll()[0].GetAbsolutePath() != "/tmp/1.sql" || result.GetAll()[0].HasFailed() {
+	if result.GetAll()[0].GetAbsolutePath() != "/tmp/1_a.sql" || result.GetAll()[0].HasFailed() {
 		test.Fail()
 	}
 }
@@ -98,7 +98,7 @@ func TestRunningAMigrationThatFails(test *testing.T) {
 	db.On("RunMigrationQuery", "SELECT 1").Return(fmt.Errorf("query failed"))
 	fetcher := &mocks.Fetcher{}
 	collection := models.Collection{}
-	migration, _ := models.NewMigration("/tmp/1.sql", "SELECT 1", models.StatusNotRun)
+	migration, _ := models.NewMigration("/tmp/1_a.sql", "SELECT 1", models.StatusNotRun)
 	err := collection.Add(migration)
 	if err != nil {
 		test.Fatal(err)
@@ -112,7 +112,7 @@ func TestRunningAMigrationThatFails(test *testing.T) {
 		test.Fail()
 	}
 
-	if result.GetAll()[0].GetAbsolutePath() != "/tmp/1.sql" || result.GetAll()[0].WasSuccessful() {
+	if result.GetAll()[0].GetAbsolutePath() != "/tmp/1_a.sql" || result.GetAll()[0].WasSuccessful() {
 		test.Fail()
 	}
 }
@@ -122,10 +122,10 @@ func TestRunningAMigrationSuccessfullyAndThenFailingToRegisterIt(test *testing.T
 	db.On("Ping").Return(nil)
 	db.On("CreateMigrationsTableIfNeeded").Return(nil)
 	db.On("RunMigrationQuery", "SELECT 1").Return(nil)
-	db.On("RegisterRunMigration", "1.sql").Return(fmt.Errorf("failed to register run migration"))
+	db.On("RegisterRunMigration", "1_a.sql").Return(fmt.Errorf("failed to register run migration"))
 	fetcher := &mocks.Fetcher{}
 	collection := models.Collection{}
-	migration, _ := models.NewMigration("/tmp/1.sql", "SELECT 1", models.StatusNotRun)
+	migration, _ := models.NewMigration("/tmp/1_a.sql", "SELECT 1", models.StatusNotRun)
 	err := collection.Add(migration)
 	if err != nil {
 		test.Fatal(err)
@@ -139,7 +139,7 @@ func TestRunningAMigrationSuccessfullyAndThenFailingToRegisterIt(test *testing.T
 		test.Fail()
 	}
 
-	if result.GetAll()[0].GetAbsolutePath() != "/tmp/1.sql" || result.GetAll()[0].HasFailed() {
+	if result.GetAll()[0].GetAbsolutePath() != "/tmp/1_a.sql" || result.GetAll()[0].HasFailed() {
 		test.Fail()
 	}
 }

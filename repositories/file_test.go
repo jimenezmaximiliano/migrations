@@ -10,7 +10,7 @@ import (
 
 func TestGettingMigrationFilePaths(test *testing.T) {
 	file := &mocks.File{}
-	file.On("Name").Return("1.sql")
+	file.On("Name").Return("1_a.sql")
 	file.On("IsDir").Return(false)
 	files := []os.FileInfo{file}
 	fileSystem := &mocks.FileSystem{}
@@ -22,14 +22,14 @@ func TestGettingMigrationFilePaths(test *testing.T) {
 		test.Error(err)
 	}
 
-	if paths[0] != "/tmp/1.sql" {
-		test.Errorf("Expected /tmp/1.sql but got %s", paths[0])
+	if paths[0] != "/tmp/1_a.sql" {
+		test.Errorf("Expected /tmp/1_a.sql but got %s", paths[0])
 	}
 }
 
 func TestGettingMigrationFilePathsFromADirectoryWithoutTrailingSlash(test *testing.T) {
 	file := &mocks.File{}
-	file.On("Name").Return("1.sql")
+	file.On("Name").Return("1_a.sql")
 	file.On("IsDir").Return(false)
 	files := []os.FileInfo{file}
 	fileSystem := &mocks.FileSystem{}
@@ -41,17 +41,17 @@ func TestGettingMigrationFilePathsFromADirectoryWithoutTrailingSlash(test *testi
 		test.Error(err)
 	}
 
-	if paths[0] != "/tmp/1.sql" {
-		test.Errorf("Expected /tmp/1.sql but got %s", paths[0])
+	if paths[0] != "/tmp/1_a.sql" {
+		test.Errorf("Expected /tmp/1_a.sql but got %s", paths[0])
 	}
 }
 
 func TestGettingMigrationFilePathsOmitsNonSqlFilesAndDiretories(test *testing.T) {
 	file := &mocks.File{}
-	file.On("Name").Return("1.sql")
+	file.On("Name").Return("1_a.sql")
 	file.On("IsDir").Return(false)
 	directory := &mocks.File{}
-	directory.On("Name").Return("2.sql")
+	directory.On("Name").Return("2_b.sql")
 	directory.On("IsDir").Return(true)
 	txtFile := &mocks.File{}
 	txtFile.On("Name").Return("3.txt")
@@ -66,8 +66,8 @@ func TestGettingMigrationFilePathsOmitsNonSqlFilesAndDiretories(test *testing.T)
 		test.Error(err)
 	}
 
-	if paths[0] != "/tmp/1.sql" {
-		test.Errorf("Expected /tmp/1.sql but got %s", paths[0])
+	if paths[0] != "/tmp/1_a.sql" {
+		test.Errorf("Expected /tmp/1_a.sql but got %s", paths[0])
 	}
 
 	if len(paths) != 1 {
@@ -89,9 +89,9 @@ func TestGettingMigrationFilePathsFailsIfItIsNotPossibleToReadTheDirectory(test 
 func TestGettingAQuery(test *testing.T) {
 	const query = "SELECT 1"
 	fileSystem := &mocks.FileSystem{}
-	fileSystem.On("ReadFile", "/tmp/1.sql").Return([]byte(query), nil)
+	fileSystem.On("ReadFile", "/tmp/1_a.sql").Return([]byte(query), nil)
 	repository := NewFileRepository(fileSystem)
-	readQuery, err := repository.GetMigrationQuery("/tmp/1.sql")
+	readQuery, err := repository.GetMigrationQuery("/tmp/1_a.sql")
 
 	if readQuery != query || err != nil {
 		test.Fail()
@@ -100,9 +100,9 @@ func TestGettingAQuery(test *testing.T) {
 
 func TestGettingAQueryFailsIfTheFileCannotBeRead(test *testing.T) {
 	fileSystem := &mocks.FileSystem{}
-	fileSystem.On("ReadFile", "/tmp/1.sql").Return(nil, fmt.Errorf("file read error"))
+	fileSystem.On("ReadFile", "/tmp/1_a.sql").Return(nil, fmt.Errorf("file read error"))
 	repository := NewFileRepository(fileSystem)
-	readQuery, err := repository.GetMigrationQuery("/tmp/1.sql")
+	readQuery, err := repository.GetMigrationQuery("/tmp/1_a.sql")
 
 	if readQuery != "" || err == nil {
 		test.Fail()
