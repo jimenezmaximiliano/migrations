@@ -5,7 +5,8 @@ import (
 	"testing"
 )
 
-const validName = "20210316000000_createTableGophers.sql"
+const validOrder = 1627676757857350000
+const validName = "1627676757857350000_createTableGophers.sql"
 const validPath = "/tmp/migrations/" + validName
 const validQuery = "CREATE TABLE gophers;"
 
@@ -35,6 +36,12 @@ func TestMigrationDefaultValues(test *testing.T) {
 	if status != expectedStatus {
 		test.Errorf("expected status %d but got %d", expectedStatus, status)
 	}
+
+	order := migration.GetOrder()
+	const expectedOrder = 0
+	if status != expectedStatus {
+		test.Errorf("expected order %d but got %d", expectedOrder, order)
+	}
 }
 
 func TestMigrationConstruction(test *testing.T) {
@@ -59,6 +66,17 @@ func TestMigrationConstruction(test *testing.T) {
 
 	if migration.GetStatus() != status {
 		test.Errorf("expected status %d but got %d", status, migration.GetStatus())
+	}
+
+	if migration.GetOrder() != validOrder {
+		test.Errorf("expected order %d but got %d", validOrder, migration.GetOrder())
+	}
+}
+
+func TestMigrationConstructionFailsWithAnInvalidOrder(test *testing.T) {
+	_, err := NewMigration("/tmp/maxi.sql", validQuery, StatusUnknown)
+	if err == nil {
+		test.Fatal(err)
 	}
 }
 
@@ -117,6 +135,7 @@ func TestChangingTheMigrationsStatusToFailed(test *testing.T) {
 	failedMigration := migration.NewAsFailed(errors.New("oops"))
 	if migration.GetName() != failedMigration.GetName() ||
 		migration.GetQuery() != failedMigration.GetQuery() ||
+		migration.GetOrder() != failedMigration.GetOrder() ||
 		migration.GetAbsolutePath() != failedMigration.GetAbsolutePath() ||
 		!failedMigration.HasFailed() {
 		test.Fail()
@@ -129,18 +148,19 @@ func TestChangingTheMigrationsStatusToSuccessful(test *testing.T) {
 		test.Fatal(err)
 	}
 
-	sucessfulMigration := migration.NewAsSuccessful()
-	if migration.GetName() != sucessfulMigration.GetName() ||
-		migration.GetQuery() != sucessfulMigration.GetQuery() ||
-		migration.GetAbsolutePath() != sucessfulMigration.GetAbsolutePath() ||
-		!sucessfulMigration.WasSuccessful() {
+	successfulMigration := migration.NewAsSuccessful()
+	if migration.GetName() != successfulMigration.GetName() ||
+		migration.GetQuery() != successfulMigration.GetQuery() ||
+		migration.GetOrder() != successfulMigration.GetOrder() ||
+		migration.GetAbsolutePath() != successfulMigration.GetAbsolutePath() ||
+		!successfulMigration.WasSuccessful() {
 		test.Fail()
 	}
 }
 
 func TestShouldBeRunFirst(test *testing.T) {
-	migration2020, _ := NewMigration("/2020.sql", "", StatusNotRun)
-	migration2021, _ := NewMigration("/2021.sql", "", StatusNotRun)
+	migration2020, _ := NewMigration("/2020_a.sql", "", StatusNotRun)
+	migration2021, _ := NewMigration("/2021_b.sql", "", StatusNotRun)
 
 	if migration2020.ShouldBeRunFirst(migration2021) == false {
 		test.Fail()

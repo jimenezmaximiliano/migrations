@@ -74,12 +74,14 @@ func TestRunningAMigrationSuccessfully(test *testing.T) {
 	fetcher := &mocks.Fetcher{}
 	collection := models.Collection{}
 	migration, _ := models.NewMigration("/tmp/1.sql", "SELECT 1", models.StatusNotRun)
-	collection.Add(migration)
+	err := collection.Add(migration)
+	if err != nil {
+		test.Fatal(err)
+	}
 	fetcher.On("GetMigrations", "/tmp/").Return(collection, nil)
 	service := NewRunnerService(fetcher, db, "/tmp")
 
 	result, err := service.RunMigrations()
-
 	if err != nil {
 		test.Fail()
 	}
@@ -97,7 +99,10 @@ func TestRunningAMigrationThatFails(test *testing.T) {
 	fetcher := &mocks.Fetcher{}
 	collection := models.Collection{}
 	migration, _ := models.NewMigration("/tmp/1.sql", "SELECT 1", models.StatusNotRun)
-	collection.Add(migration)
+	err := collection.Add(migration)
+	if err != nil {
+		test.Fatal(err)
+	}
 	fetcher.On("GetMigrations", "/tmp/").Return(collection, nil)
 	service := NewRunnerService(fetcher, db, "/tmp")
 
@@ -121,7 +126,10 @@ func TestRunningAMigrationSuccessfullyAndThenFailingToRegisterIt(test *testing.T
 	fetcher := &mocks.Fetcher{}
 	collection := models.Collection{}
 	migration, _ := models.NewMigration("/tmp/1.sql", "SELECT 1", models.StatusNotRun)
-	collection.Add(migration)
+	err := collection.Add(migration)
+	if err != nil {
+		test.Fatal(err)
+	}
 	fetcher.On("GetMigrations", "/tmp/").Return(collection, nil)
 	service := NewRunnerService(fetcher, db, "/tmp")
 

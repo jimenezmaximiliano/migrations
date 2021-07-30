@@ -39,7 +39,8 @@ Then use the binary like this:
 All migration files must:
 
 - be in the provided path (not inside subdirectories)
-- end in *.sql*
+- end in *.sql* (files without the .sql extension will be ignored)
+- be in this format: {number}_{string}.sql where number determines the order on which migrations will be run
 - be ordered by filename in the order they should run 
   (you can use migo for that)
 
@@ -47,15 +48,15 @@ Example:
 
 ```bash
 /app/migrations
-/app/migrations/2021-7-28_17-7-51_createGophersTable.sql
-/app/migrations/2021-7-28_17-8-15_createGolfersTable.sql
+/app/migrations/1627676712447528000_createGophersTable.sql
+/app/migrations/1627676757857350000_createGolfersTable.sql
 ```
 
 > See [example migrations](https://github.com/jimenezmaximiliano/migrations/tree/master/example/migrations) in the example directory
 
 ### Using migo to create migration files
 
-Migo creates migration files using the current date and time as a prefix.
+Migo creates migration files using the current timestamp as a prefix.
 
 #### Installation
 
@@ -72,7 +73,7 @@ migo -path=/app/migrations name=myMigration migration:create
 The above command results in:
 
 ```bash
-/app/migrations/2021-7-28_17-8-15_myMigration.sql
+/app/migrations/1627676757857350000_myMigration.sql
 ```
 
 ## How it works / features

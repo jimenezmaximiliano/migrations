@@ -73,19 +73,30 @@ func (service runnerService) runMigrations(migrationsToRun []models.Migration) (
 
 	for _, migration := range migrationsToRun {
 		if failed {
-			result.Add(migration.NewAsNotRun())
+			err := result.Add(migration.NewAsNotRun())
+			if err != nil {
+				return result, err
+			}
 			continue
 		}
 
 		err := service.dbRepository.RunMigrationQuery(migration.GetQuery())
 		if err != nil {
-			result.Add(migration.NewAsFailed(errors.WithStack(err)))
+			err = result.Add(migration.NewAsFailed(errors.WithStack(err)))
+			if err != nil {
+				return result, err
+			}
+
 			failed = true
 
 			continue
 		}
 
-		result.Add(migration.NewAsSuccessful())
+		err = result.Add(migration.NewAsSuccessful())
+		if err != nil {
+			return result, err
+		}
+		
 		err = service.dbRepository.RegisterRunMigration(migration.GetName())
 		if err != nil {
 			return result, fmt.Errorf("could not register the migration as run (absolutePath: %s) %w", migration.GetAbsolutePath(), err)

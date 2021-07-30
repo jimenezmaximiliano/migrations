@@ -2,6 +2,8 @@ package models
 
 import (
 	"sort"
+
+	"github.com/pkg/errors"
 )
 
 // Collection is a set of implementations of Migration.
@@ -10,11 +12,22 @@ type Collection struct {
 }
 
 // Add adds a new migration to the collection.
-func (collection *Collection) Add(migration Migration) {
+func (collection *Collection) Add(migration Migration) error {
 	if collection.migrations == nil {
 		collection.migrations = make(map[string]Migration)
 	}
+
+	for _, currentMigration := range collection.migrations {
+		if currentMigration.GetOrder() == migration.GetOrder() {
+			return errors.Errorf("two migrations cannot have the same order [%s] [%s]",
+				currentMigration.GetName(),
+				migration.GetName())
+		}
+	}
+
 	collection.migrations[migration.GetAbsolutePath()] = migration
+
+	return nil
 }
 
 // ContainsMigrationPath check if a given path is already in the collection.
