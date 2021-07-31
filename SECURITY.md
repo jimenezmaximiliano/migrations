@@ -2,12 +2,12 @@
 
 ## Supported Versions
 
-This project uses semver and the current stable version is being supported
+Only the current major subversion is supported
 
 | Version | Supported          |
 | ------- | ------------------ |
-| 2.0.x   | :white_check_mark: |
-| 1.x.x   | :x:                |
+| 1.2.x   | :white_check_mark: |
+| 1.1.x   | :x:                |
 | < 1.0.0 | :x:                |
 
 ## Reporting a Vulnerability
