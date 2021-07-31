@@ -2,7 +2,7 @@
 
 ## Supported Versions
 
-Only the current major subversion is supported
+Only the current major version is supported
 
 | Version | Supported          |
 | ------- | ------------------ |
