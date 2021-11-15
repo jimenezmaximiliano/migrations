@@ -67,7 +67,7 @@ go get -u github.com/jimenezmaximiliano/migrations/migo
 #### Usage
 
 ```bash
-migo -path=/app/migrations name=myMigration migration:create
+migo -path=/app/migrations -name=myMigration migration:create
 ```
 
 The above command results in:
