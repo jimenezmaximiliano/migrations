@@ -8,7 +8,7 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
-const validOrder = 1627676757857350000
+const validOrder = uint64(1627676757857350000)
 const validName = "1627676757857350000_createTableGophers.sql"
 const validPath = "/tmp/migrations/" + validName
 const validQuery = "CREATE TABLE gophers;"
@@ -29,7 +29,7 @@ func TestMigrationDefaultValues(test *testing.T) {
 	assert.Equal(test, StatusUnknown, status)
 
 	order := migration.GetOrder()
-	assert.Equal(test, 0, order)
+	assert.Equal(test, uint64(0), order)
 }
 
 func TestMigrationConstruction(test *testing.T) {
