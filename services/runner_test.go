@@ -4,6 +4,9 @@ import (
 	"fmt"
 	"testing"
 
+	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
+
 	"github.com/jimenezmaximiliano/migrations/mocks"
 	"github.com/jimenezmaximiliano/migrations/models"
 )
@@ -16,9 +19,7 @@ func TestRunningMigrationsFailsIfTheDBConnectionDoesNotWork(test *testing.T) {
 
 	_, err := service.RunMigrations()
 
-	if err == nil {
-		test.Fail()
-	}
+	assert.NotNil(test, err)
 }
 
 func TestRunningMigrationsFailsIfAMigrationsTableCannotBeCreated(test *testing.T) {
@@ -30,9 +31,7 @@ func TestRunningMigrationsFailsIfAMigrationsTableCannotBeCreated(test *testing.T
 
 	_, err := service.RunMigrations()
 
-	if err == nil {
-		test.Fail()
-	}
+	assert.NotNil(test, err)
 }
 
 func TestRunningMigrationsFailsIfItCannotFetchMigrationsFromFilesOrTheDB(test *testing.T) {
@@ -45,9 +44,7 @@ func TestRunningMigrationsFailsIfItCannotFetchMigrationsFromFilesOrTheDB(test *t
 
 	_, err := service.RunMigrations()
 
-	if err == nil {
-		test.Fail()
-	}
+	assert.NotNil(test, err)
 }
 
 func TestRunningMigrationsDoesNotFailIfThereAreNoMigratiosToRun(test *testing.T) {
@@ -60,9 +57,7 @@ func TestRunningMigrationsDoesNotFailIfThereAreNoMigratiosToRun(test *testing.T)
 
 	_, err := service.RunMigrations()
 
-	if err != nil {
-		test.Fail()
-	}
+	assert.Nil(test, err)
 }
 
 func TestRunningAMigrationSuccessfully(test *testing.T) {
@@ -75,20 +70,16 @@ func TestRunningAMigrationSuccessfully(test *testing.T) {
 	collection := models.Collection{}
 	migration, _ := models.NewMigration("/tmp/1_a.sql", "SELECT 1", models.StatusNotRun)
 	err := collection.Add(migration)
-	if err != nil {
-		test.Fatal(err)
-	}
+	require.Nil(test, err)
+
 	fetcher.On("GetMigrations", "/tmp/").Return(collection, nil)
 	service := NewRunnerService(fetcher, db, "/tmp")
 
 	result, err := service.RunMigrations()
-	if err != nil {
-		test.Fail()
-	}
 
-	if result.GetAll()[0].GetAbsolutePath() != "/tmp/1_a.sql" || result.GetAll()[0].HasFailed() {
-		test.Fail()
-	}
+	assert.Nil(test, err)
+	assert.Equal(test, "/tmp/1_a.sql", result.GetAll()[0].GetAbsolutePath())
+	assert.True(test, result.GetAll()[0].WasSuccessful())
 }
 
 func TestRunningAMigrationThatFails(test *testing.T) {
@@ -100,21 +91,16 @@ func TestRunningAMigrationThatFails(test *testing.T) {
 	collection := models.Collection{}
 	migration, _ := models.NewMigration("/tmp/1_a.sql", "SELECT 1", models.StatusNotRun)
 	err := collection.Add(migration)
-	if err != nil {
-		test.Fatal(err)
-	}
+	require.Nil(test, err)
+
 	fetcher.On("GetMigrations", "/tmp/").Return(collection, nil)
 	service := NewRunnerService(fetcher, db, "/tmp")
 
 	result, err := service.RunMigrations()
 
-	if err != nil {
-		test.Fail()
-	}
-
-	if result.GetAll()[0].GetAbsolutePath() != "/tmp/1_a.sql" || result.GetAll()[0].WasSuccessful() {
-		test.Fail()
-	}
+	assert.Nil(test, err)
+	assert.Equal(test, "/tmp/1_a.sql", result.GetAll()[0].GetAbsolutePath())
+	assert.True(test, result.GetAll()[0].HasFailed())
 }
 
 func TestRunningAMigrationSuccessfullyAndThenFailingToRegisterIt(test *testing.T) {
@@ -127,19 +113,14 @@ func TestRunningAMigrationSuccessfullyAndThenFailingToRegisterIt(test *testing.T
 	collection := models.Collection{}
 	migration, _ := models.NewMigration("/tmp/1_a.sql", "SELECT 1", models.StatusNotRun)
 	err := collection.Add(migration)
-	if err != nil {
-		test.Fatal(err)
-	}
+	require.Nil(test, err)
+
 	fetcher.On("GetMigrations", "/tmp/").Return(collection, nil)
 	service := NewRunnerService(fetcher, db, "/tmp")
 
 	result, err := service.RunMigrations()
 
-	if err == nil {
-		test.Fail()
-	}
-
-	if result.GetAll()[0].GetAbsolutePath() != "/tmp/1_a.sql" || result.GetAll()[0].HasFailed() {
-		test.Fail()
-	}
+	assert.NotNil(test, err)
+	assert.Equal(test, "/tmp/1_a.sql", result.GetAll()[0].GetAbsolutePath())
+	assert.True(test, result.GetAll()[0].WasSuccessful())
 }

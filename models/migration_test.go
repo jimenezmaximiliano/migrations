@@ -3,6 +3,9 @@ package models
 import (
 	"errors"
 	"testing"
+
+	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
 )
 
 const validOrder = 1627676757857350000
@@ -14,159 +17,102 @@ func TestMigrationDefaultValues(test *testing.T) {
 	migration := migration{}
 
 	path := migration.GetAbsolutePath()
-	const expectedPath = ""
-	if path != expectedPath {
-		test.Errorf("expected path %s but got %s", expectedPath, path)
-	}
+	assert.Equal(test, "", path)
 
 	name := migration.GetName()
-	const expectedName = ""
-	if name != expectedName {
-		test.Errorf("expected name %s but got %s", expectedName, name)
-	}
+	assert.Equal(test, "", name)
 
 	query := migration.GetQuery()
-	const expectedQuery = ""
-	if query != expectedQuery {
-		test.Errorf("expected query %s but got %s", expectedQuery, query)
-	}
+	assert.Equal(test, "", query)
 
 	status := migration.GetStatus()
-	const expectedStatus = StatusUnknown
-	if status != expectedStatus {
-		test.Errorf("expected status %d but got %d", expectedStatus, status)
-	}
+	assert.Equal(test, StatusUnknown, status)
 
 	order := migration.GetOrder()
-	const expectedOrder = 0
-	if status != expectedStatus {
-		test.Errorf("expected order %d but got %d", expectedOrder, order)
-	}
+	assert.Equal(test, 0, order)
 }
 
 func TestMigrationConstruction(test *testing.T) {
 
 	const status = StatusNotRun
 	migration, err := NewMigration(validPath, validQuery, status)
-	if err != nil {
-		test.Fatal(err)
-	}
+	require.Nil(test, err)
 
-	if migration.GetAbsolutePath() != validPath {
-		test.Errorf("expected absolute path %s but got %s", validPath, migration.GetAbsolutePath())
-	}
-
-	if migration.GetName() != validName {
-		test.Errorf("expected name %s but got %s", validName, migration.GetName())
-	}
-
-	if migration.GetQuery() != validQuery {
-		test.Errorf("expected query %s but got %s", validQuery, migration.GetQuery())
-	}
-
-	if migration.GetStatus() != status {
-		test.Errorf("expected status %d but got %d", status, migration.GetStatus())
-	}
-
-	if migration.GetOrder() != validOrder {
-		test.Errorf("expected order %d but got %d", validOrder, migration.GetOrder())
-	}
+	assert.Equal(test, validPath, migration.GetAbsolutePath())
+	assert.Equal(test, validName, migration.GetName())
+	assert.Equal(test, validQuery, migration.GetQuery())
+	assert.Equal(test, status, migration.GetStatus())
+	assert.Equal(test, validOrder, migration.GetOrder())
 }
 
 func TestMigrationConstructionFailsWithAnInvalidOrder(test *testing.T) {
 	_, err := NewMigration("/tmp/maxi.sql", validQuery, StatusUnknown)
-	if err == nil {
-		test.Fatal(err)
-	}
+
+	assert.NotNil(test, err)
 }
 
 func TestMigrationConstructionFailsWithAnInvalidStatus(test *testing.T) {
 	_, err := NewMigration(validPath, validQuery, -2)
-	if err == nil {
-		test.Fatal(err)
-	}
+
+	assert.NotNil(test, err)
 }
 
 func TestMigrationShouldBeRun(test *testing.T) {
 	migration, err := NewMigration(validPath, validQuery, StatusNotRun)
-	if err != nil {
-		test.Fatal(err)
-	}
-	if migration.ShouldBeRun() == false {
-		test.Fail()
-	}
+	require.Nil(test, err)
+
+	assert.True(test, migration.ShouldBeRun())
 
 	notRunnableStatuses := []int8{StatusFailed, StatusSuccessful, StatusUnknown}
 	for _, status := range notRunnableStatuses {
 		migration, err = NewMigration(validPath, validQuery, status)
-		if err != nil {
-			test.Fatal(err)
-		}
-		if migration.ShouldBeRun() == true {
-			test.Fail()
-		}
+		require.Nil(test, err)
+
+		assert.False(test, migration.ShouldBeRun())
 	}
 }
 
 func TestStatusHelpers(test *testing.T) {
 	migration, err := NewMigration(validPath, validQuery, StatusSuccessful)
-	if err != nil {
-		test.Fatal(err)
-	}
-	if !migration.WasSuccessful() {
-		test.Fail()
-	}
+	require.Nil(test, err)
+
+	assert.True(test, migration.WasSuccessful())
 
 	migration, err = NewMigration(validPath, validQuery, StatusFailed)
-	if err != nil {
-		test.Fatal(err)
-	}
-	if !migration.HasFailed() {
-		test.Fail()
-	}
+	assert.Nil(test, err)
+	assert.True(test, migration.HasFailed())
 }
 
 func TestChangingTheMigrationsStatusToFailed(test *testing.T) {
 	migration, err := NewMigration(validPath, validQuery, StatusNotRun)
-	if err != nil {
-		test.Fatal(err)
-	}
+	require.Nil(test, err)
 
 	failedMigration := migration.NewAsFailed(errors.New("oops"))
-	if migration.GetName() != failedMigration.GetName() ||
-		migration.GetQuery() != failedMigration.GetQuery() ||
-		migration.GetOrder() != failedMigration.GetOrder() ||
-		migration.GetAbsolutePath() != failedMigration.GetAbsolutePath() ||
-		!failedMigration.HasFailed() {
-		test.Fail()
-	}
+
+	assert.Equal(test, migration.GetName(), failedMigration.GetName())
+	assert.Equal(test, migration.GetQuery(), failedMigration.GetQuery())
+	assert.Equal(test, migration.GetOrder(), failedMigration.GetOrder())
+	assert.Equal(test, migration.GetAbsolutePath(), failedMigration.GetAbsolutePath())
+	assert.True(test, failedMigration.HasFailed())
 }
 
 func TestChangingTheMigrationsStatusToSuccessful(test *testing.T) {
 	migration, err := NewMigration(validPath, validQuery, StatusNotRun)
-	if err != nil {
-		test.Fatal(err)
-	}
+	require.Nil(test, err)
 
 	successfulMigration := migration.NewAsSuccessful()
-	if migration.GetName() != successfulMigration.GetName() ||
-		migration.GetQuery() != successfulMigration.GetQuery() ||
-		migration.GetOrder() != successfulMigration.GetOrder() ||
-		migration.GetAbsolutePath() != successfulMigration.GetAbsolutePath() ||
-		!successfulMigration.WasSuccessful() {
-		test.Fail()
-	}
+
+	assert.Equal(test, migration.GetName(), successfulMigration.GetName())
+	assert.Equal(test, migration.GetQuery(), successfulMigration.GetQuery())
+	assert.Equal(test, migration.GetOrder(), successfulMigration.GetOrder())
+	assert.Equal(test, migration.GetAbsolutePath(), successfulMigration.GetAbsolutePath())
+	assert.True(test, successfulMigration.WasSuccessful())
 }
 
 func TestShouldBeRunFirst(test *testing.T) {
 	migration2020, _ := NewMigration("/2020_a.sql", "", StatusNotRun)
 	migration2021, _ := NewMigration("/2021_b.sql", "", StatusNotRun)
 
-	if migration2020.ShouldBeRunFirst(migration2021) == false {
-		test.Fail()
-	}
-
-	if migration2021.ShouldBeRunFirst(migration2020) == true {
-		test.Fail()
-	}
+	assert.True(test, migration2020.ShouldBeRunFirst(migration2021))
+	assert.False(test, migration2021.ShouldBeRunFirst(migration2020))
 }

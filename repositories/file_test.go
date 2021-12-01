@@ -5,6 +5,9 @@ import (
 	"os"
 	"testing"
 
+	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
+
 	"github.com/jimenezmaximiliano/migrations/mocks"
 )
 
@@ -18,13 +21,8 @@ func TestGettingMigrationFilePaths(test *testing.T) {
 	repository := NewFileRepository(fileSystem)
 	paths, err := repository.GetMigrationFilePaths("/tmp/")
 
-	if err != nil {
-		test.Error(err)
-	}
-
-	if paths[0] != "/tmp/1_a.sql" {
-		test.Errorf("Expected /tmp/1_a.sql but got %s", paths[0])
-	}
+	require.Nil(test, err)
+	assert.Equal(test, "/tmp/1_a.sql", paths[0])
 }
 
 func TestGettingMigrationFilePathsFromADirectoryWithoutTrailingSlash(test *testing.T) {
@@ -37,13 +35,8 @@ func TestGettingMigrationFilePathsFromADirectoryWithoutTrailingSlash(test *testi
 	repository := NewFileRepository(fileSystem)
 	paths, err := repository.GetMigrationFilePaths("/tmp")
 
-	if err != nil {
-		test.Error(err)
-	}
-
-	if paths[0] != "/tmp/1_a.sql" {
-		test.Errorf("Expected /tmp/1_a.sql but got %s", paths[0])
-	}
+	require.Nil(test, err)
+	assert.Equal(test, "/tmp/1_a.sql", paths[0])
 }
 
 func TestGettingMigrationFilePathsOmitsNonSqlFilesAndDiretories(test *testing.T) {
@@ -62,17 +55,9 @@ func TestGettingMigrationFilePathsOmitsNonSqlFilesAndDiretories(test *testing.T)
 	repository := NewFileRepository(fileSystem)
 	paths, err := repository.GetMigrationFilePaths("/tmp")
 
-	if err != nil {
-		test.Error(err)
-	}
-
-	if paths[0] != "/tmp/1_a.sql" {
-		test.Errorf("Expected /tmp/1_a.sql but got %s", paths[0])
-	}
-
-	if len(paths) != 1 {
-		test.Fail()
-	}
+	require.Nil(test, err)
+	assert.Equal(test, "/tmp/1_a.sql", paths[0])
+	assert.Len(test, paths, 1)
 }
 
 func TestGettingMigrationFilePathsFailsIfItIsNotPossibleToReadTheDirectory(test *testing.T) {
@@ -81,9 +66,8 @@ func TestGettingMigrationFilePathsFailsIfItIsNotPossibleToReadTheDirectory(test 
 	repository := NewFileRepository(fileSystem)
 	paths, err := repository.GetMigrationFilePaths("/tmp/")
 
-	if err == nil || paths != nil {
-		test.Error(err)
-	}
+	assert.NotNil(test, err)
+	assert.Nil(test, paths)
 }
 
 func TestGettingAQuery(test *testing.T) {
@@ -93,9 +77,8 @@ func TestGettingAQuery(test *testing.T) {
 	repository := NewFileRepository(fileSystem)
 	readQuery, err := repository.GetMigrationQuery("/tmp/1_a.sql")
 
-	if readQuery != query || err != nil {
-		test.Fail()
-	}
+	assert.Equal(test, query, readQuery)
+	assert.Nil(test, err)
 }
 
 func TestGettingAQueryFailsIfTheFileCannotBeRead(test *testing.T) {
@@ -104,7 +87,6 @@ func TestGettingAQueryFailsIfTheFileCannotBeRead(test *testing.T) {
 	repository := NewFileRepository(fileSystem)
 	readQuery, err := repository.GetMigrationQuery("/tmp/1_a.sql")
 
-	if readQuery != "" || err == nil {
-		test.Fail()
-	}
+	assert.Equal(test, "", readQuery)
+	assert.NotNil(test, err)
 }
