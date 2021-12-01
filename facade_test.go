@@ -5,113 +5,76 @@ import (
 	"testing"
 
 	_ "github.com/go-sql-driver/mysql"
+	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
 
 	"github.com/jimenezmaximiliano/migrations/models"
 )
 
 func TestRunningMigrations(test *testing.T) {
 	db, err := sql.Open("mysql", "user:password@/db")
-	if err != nil {
-		test.Fatalf("failed to open db: %s", err.Error())
-	}
+	require.Nil(test, err)
 
 	_, _ = db.Exec("DROP TABLE gophers")
 	_, _ = db.Exec("DROP TABLE migrations")
 
 	result, err := RunMigrations(db, "./fixtures/create_and_insert")
-	if err != nil {
-		test.Errorf("failed to run migrations: %s", err.Error())
-	}
-
-	numberOfMigrations := len(result.GetAll())
-	if numberOfMigrations != 2 {
-		test.Errorf("Expected 2 migrations to be run but got %d", numberOfMigrations)
-	}
+	require.Nil(test, err)
+	require.Len(test, result.GetAll(), 2)
 
 	for _, currentMigration := range result.GetAll() {
-		if currentMigration.GetStatus() != models.StatusSuccessful {
-			test.Errorf("Migration %s failed", currentMigration.GetName())
-		}
+		assert.Equal(test, models.StatusSuccessful, currentMigration.GetStatus())
 	}
 }
 
 func TestRunningAMigrationWithTwoQueries(test *testing.T) {
 	db, err := sql.Open("mysql", "user:password@/db?multiStatements=true")
-	if err != nil {
-		test.Fatalf("failed to open db: %s", err.Error())
-	}
+	require.Nil(test, err)
 
 	_, _ = db.Exec("DROP TABLE gophers")
 	_, _ = db.Exec("DROP TABLE migrations")
 
 	result, err := RunMigrations(db, "./fixtures/migration_with_two_queries")
-	if err != nil {
-		test.Errorf("failed to run migrations: %s", err.Error())
-	}
+	require.Nil(test, err)
 
-	numberOfMigrations := len(result.GetAll())
-	if numberOfMigrations != 2 {
-		test.Errorf("Expected 2 migrations to be run but got %d", numberOfMigrations)
-	}
+	require.Len(test, result.GetAll(), 2)
 
 	for _, currentMigration := range result.GetAll() {
-		if currentMigration.GetStatus() != models.StatusSuccessful {
-			test.Errorf("Migration %s failed", currentMigration.GetName())
-		}
+		assert.Equal(test, models.StatusSuccessful, currentMigration.GetStatus())
 	}
 }
 
 func TestRunningMigrationsWhenAllMigrationsHaveAlreadyRun(test *testing.T) {
 	db, err := sql.Open("mysql", "user:password@/db")
-	if err != nil {
-		test.Fatalf("failed to open db: %s", err.Error())
-	}
+	require.Nil(test, err)
 
 	_, _ = db.Exec("DROP TABLE gophers")
 	_, _ = db.Exec("DROP TABLE migrations")
 
 	// First time
 	_, err = RunMigrations(db, "./fixtures/create_and_insert")
-	if err != nil {
-		test.Errorf("failed to run migrations: %s", err.Error())
-	}
+	require.Nil(test, err)
 
 	// Second time
 	result, err := RunMigrations(db, "./fixtures/create_and_insert")
-	if err != nil {
-		test.Errorf("failed to run migrations: %s", err.Error())
-	}
+	require.Nil(test, err)
 
-	numberOfMigrations := len(result.GetAll())
-	if numberOfMigrations != 0 {
-		test.Errorf("Expected 0 migrations to be run but got %d", numberOfMigrations)
-	}
+	require.Len(test, result.GetAll(), 0)
 }
 
 func TestRunningMigrationsStopsWhenAMigrationFails(test *testing.T) {
 	db, err := sql.Open("mysql", "user:password@/db")
-	if err != nil {
-		test.Fatalf("failed to open db: %s", err.Error())
-	}
+	require.Nil(test, err)
 
 	_, _ = db.Exec("DROP TABLE gophers")
 	_, _ = db.Exec("DROP TABLE migrations")
 
 	result, err := RunMigrations(db, "./fixtures/create_insert_error")
-	if err != nil {
-		test.Errorf("failed to run migrations: %s", err.Error())
-	}
+	require.Nil(test, err)
+	require.Len(test, result.GetAll(), 4)
 
-	all := result.GetAll()
-
-	if len(all) != 4 {
-		test.Errorf("exptected 4 migrations but got %d", len(all))
-	}
-
-	if all[0].GetStatus() != models.StatusSuccessful ||
-		all[1].GetStatus() != models.StatusSuccessful ||
-		all[2].GetStatus() != models.StatusFailed ||
-		all[3].GetStatus() != models.StatusNotRun {
-		test.Errorf("invalid status on migration results")
-	}
+	assert.Equal(test, models.StatusSuccessful, result.GetAll()[0].GetStatus())
+	assert.Equal(test, models.StatusSuccessful, result.GetAll()[1].GetStatus())
+	assert.Equal(test, models.StatusFailed, result.GetAll()[2].GetStatus())
+	assert.Equal(test, models.StatusNotRun, result.GetAll()[3].GetStatus())
 }
