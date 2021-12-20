@@ -9,17 +9,17 @@ import (
 )
 
 const (
-	// StatusUnknown represents a migration without a set status (default value).
+	// StatusUnknown represents a MigrationContainer without a set status (default value).
 	StatusUnknown int8 = 0
-	// StatusNotRun represents a migration that hasn't been run yet.
+	// StatusNotRun represents a MigrationContainer that hasn't been run yet.
 	StatusNotRun int8 = 1
-	// StatusSuccessful represents a migration that has been run and it was successful.
+	// StatusSuccessful represents a MigrationContainer that has been run and it was successful.
 	StatusSuccessful int8 = 2
-	// StatusFailed represents a migration that has been run and it failed.
+	// StatusFailed represents a MigrationContainer that has been run and it failed.
 	StatusFailed int8 = -1
 )
 
-// Migration represents a database migration and its state (immutable).
+// Migration represents a database MigrationContainer and its state (immutable).
 type Migration interface {
 	GetAbsolutePath() string
 	GetName() string
@@ -36,61 +36,61 @@ type Migration interface {
 	GetError() error
 }
 
-type migration struct {
+type MigrationContainer struct {
 	absolutePath string
 	name         string
 	status       int8
 	query        string
-	err			 error
+	err          error
 	order        uint64
 }
 
-// Ensure migration implements Migration
-var _ Migration = migration{}
+// Ensure MigrationContainer implements Migration
+var _ Migration = MigrationContainer{}
 
-// GetAbsolutePath returns the absolute path of the migration file.
-func (thisMigration migration) GetAbsolutePath() string {
+// GetAbsolutePath returns the absolute path of the MigrationContainer file.
+func (thisMigration MigrationContainer) GetAbsolutePath() string {
 	return thisMigration.absolutePath
 }
 
-// GetName returns the file name of the migration file.
-func (thisMigration migration) GetName() string {
+// GetName returns the file name of the MigrationContainer file.
+func (thisMigration MigrationContainer) GetName() string {
 	return thisMigration.name
 }
 
-// GetStatus returns the current status of the migration using the constants on this package.
-func (thisMigration migration) GetStatus() int8 {
+// GetStatus returns the current status of the MigrationContainer using the constants on this package.
+func (thisMigration MigrationContainer) GetStatus() int8 {
 	return thisMigration.status
 }
 
-// GetOrder returns the order on which the migration should be run.
-func (thisMigration migration) GetOrder() uint64 {
+// GetOrder returns the order on which the MigrationContainer should be run.
+func (thisMigration MigrationContainer) GetOrder() uint64 {
 	return thisMigration.order
 }
 
-// ShouldBeRun returns true if the migration has not been run yet.
-func (thisMigration migration) ShouldBeRun() bool {
+// ShouldBeRun returns true if the MigrationContainer has not been run yet.
+func (thisMigration MigrationContainer) ShouldBeRun() bool {
 	return thisMigration.status == StatusNotRun
 }
 
 // WasSuccessful returns true if the current status is StatusSuccessful.
-func (thisMigration migration) WasSuccessful() bool {
+func (thisMigration MigrationContainer) WasSuccessful() bool {
 	return thisMigration.status == StatusSuccessful
 }
 
 // HasFailed returns true if the current status is StatusFailed.
-func (thisMigration migration) HasFailed() bool {
+func (thisMigration MigrationContainer) HasFailed() bool {
 	return thisMigration.status == StatusFailed
 }
 
-// GetQuery returns the sql query of the migration.
-func (thisMigration migration) GetQuery() string {
+// GetQuery returns the sql query of the MigrationContainer.
+func (thisMigration MigrationContainer) GetQuery() string {
 	return thisMigration.query
 }
 
-// NewAsFailed returns a copy of the migration but with a StatusFailed status.
-func (thisMigration migration) NewAsFailed(err error) Migration {
-	return migration{
+// NewAsFailed returns a copy of the MigrationContainer but with a StatusFailed status.
+func (thisMigration MigrationContainer) NewAsFailed(err error) Migration {
+	return MigrationContainer{
 		absolutePath: thisMigration.absolutePath,
 		name:         thisMigration.name,
 		status:       StatusFailed,
@@ -100,39 +100,39 @@ func (thisMigration migration) NewAsFailed(err error) Migration {
 	}
 }
 
-// NewAsNotRun returns a copy of the migration but with a StatusNotRun status.
-func (thisMigration migration) NewAsNotRun() Migration {
+// NewAsNotRun returns a copy of the MigrationContainer but with a StatusNotRun status.
+func (thisMigration MigrationContainer) NewAsNotRun() Migration {
 	newMigration, _ := NewMigration(thisMigration.GetAbsolutePath(), thisMigration.GetQuery(), StatusNotRun)
 
 	return newMigration
 }
 
-// NewAsSuccessful returns a copy of the migration but with a StatusSuccessful status.
-func (thisMigration migration) NewAsSuccessful() Migration {
+// NewAsSuccessful returns a copy of the MigrationContainer but with a StatusSuccessful status.
+func (thisMigration MigrationContainer) NewAsSuccessful() Migration {
 	newMigration, _ := NewMigration(thisMigration.GetAbsolutePath(), thisMigration.GetQuery(), StatusSuccessful)
 
 	return newMigration
 }
 
-// ShouldBeRunFirst returns true if this migration needs to be run before the given migration
+// ShouldBeRunFirst returns true if this MigrationContainer needs to be run before the given MigrationContainer
 // (used for sorting migrations).
-func (thisMigration migration) ShouldBeRunFirst(anotherMigration Migration) bool {
+func (thisMigration MigrationContainer) ShouldBeRunFirst(anotherMigration Migration) bool {
 	return thisMigration.GetOrder() < anotherMigration.GetOrder()
 }
 
 // NewMigration is a constructor for a Migration implementation.
 func NewMigration(absolutePath string, query string, status int8) (Migration, error) {
 	if status < -1 || status > 2 {
-		return migration{}, fmt.Errorf("migration invalid status (status: %d)", status)
+		return MigrationContainer{}, fmt.Errorf("MigrationContainer invalid status (status: %d)", status)
 	}
 
 	fileName := extractFileName(absolutePath)
 	order, err := getOrderFromFileName(fileName)
 	if err != nil {
-		return migration{}, err
+		return MigrationContainer{}, err
 	}
 
-	return migration{
+	return MigrationContainer{
 		absolutePath: absolutePath,
 		name:         fileName,
 		status:       status,
@@ -146,14 +146,14 @@ func getOrderFromFileName(fileName string) (uint64, error) {
 	orderAsString := result[0]
 	order, err := strconv.ParseUint(orderAsString, 10, 64)
 	if err != nil {
-		return 0, errors.Wrapf(err, "invalid migration file name [%s]", orderAsString)
+		return 0, errors.Wrapf(err, "invalid MigrationContainer file name [%s]", orderAsString)
 	}
 
 	return order, nil
 }
 
-// GetError returns the error that caused the migration to fail.
-func (thisMigration migration) GetError() error {
+// GetError returns the error that caused the MigrationContainer to fail.
+func (thisMigration MigrationContainer) GetError() error {
 	return thisMigration.err
 }
 

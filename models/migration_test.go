@@ -16,6 +16,7 @@ const validPath = "/tmp/migrations/" + validName
 const validQuery = "CREATE TABLE gophers;"
 
 func TestMigrationConstruction(test *testing.T) {
+	test.Parallel()
 
 	const status = models.StatusNotRun
 	migration, err := models.NewMigration(validPath, validQuery, status)
@@ -29,18 +30,24 @@ func TestMigrationConstruction(test *testing.T) {
 }
 
 func TestMigrationConstructionFailsWithAnInvalidOrder(test *testing.T) {
+	test.Parallel()
+
 	_, err := models.NewMigration("/tmp/maxi.sql", validQuery, models.StatusUnknown)
 
 	assert.NotNil(test, err)
 }
 
 func TestMigrationConstructionFailsWithAnInvalidStatus(test *testing.T) {
+	test.Parallel()
+
 	_, err := models.NewMigration(validPath, validQuery, -2)
 
 	assert.NotNil(test, err)
 }
 
 func TestMigrationShouldBeRun(test *testing.T) {
+	test.Parallel()
+
 	migration, err := models.NewMigration(validPath, validQuery, models.StatusNotRun)
 	require.Nil(test, err)
 
@@ -56,6 +63,8 @@ func TestMigrationShouldBeRun(test *testing.T) {
 }
 
 func TestStatusHelpers(test *testing.T) {
+	test.Parallel()
+
 	migration, err := models.NewMigration(validPath, validQuery, models.StatusSuccessful)
 	require.Nil(test, err)
 
@@ -67,6 +76,8 @@ func TestStatusHelpers(test *testing.T) {
 }
 
 func TestChangingTheMigrationsStatusToFailed(test *testing.T) {
+	test.Parallel()
+
 	migration, err := models.NewMigration(validPath, validQuery, models.StatusNotRun)
 	require.Nil(test, err)
 
@@ -76,10 +87,13 @@ func TestChangingTheMigrationsStatusToFailed(test *testing.T) {
 	assert.Equal(test, migration.GetQuery(), failedMigration.GetQuery())
 	assert.Equal(test, migration.GetOrder(), failedMigration.GetOrder())
 	assert.Equal(test, migration.GetAbsolutePath(), failedMigration.GetAbsolutePath())
+	assert.NotNil(test, failedMigration.GetError())
 	assert.True(test, failedMigration.HasFailed())
 }
 
 func TestChangingTheMigrationsStatusToSuccessful(test *testing.T) {
+	test.Parallel()
+
 	migration, err := models.NewMigration(validPath, validQuery, models.StatusNotRun)
 	require.Nil(test, err)
 
@@ -93,6 +107,8 @@ func TestChangingTheMigrationsStatusToSuccessful(test *testing.T) {
 }
 
 func TestShouldBeRunFirst(test *testing.T) {
+	test.Parallel()
+
 	migration2020, _ := models.NewMigration("/2020_a.sql", "", models.StatusNotRun)
 	migration2021, _ := models.NewMigration("/2021_b.sql", "", models.StatusNotRun)
 
