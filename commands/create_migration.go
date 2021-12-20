@@ -9,12 +9,14 @@ import (
 	"github.com/jimenezmaximiliano/migrations/services"
 )
 
+// CreateMigration is a command that creates a migration file.
 type CreateMigration struct {
 	fileRepo repositories.FileRepository
 	display  services.Display
 	args     services.Arguments
 }
 
+// NewCreateMigrationCommand builds a CreateMigration.
 func NewCreateMigrationCommand(
 	fileRepo repositories.FileRepository,
 	display services.Display,
@@ -27,12 +29,14 @@ func NewCreateMigrationCommand(
 	}
 }
 
+// Command represents a command line command that can be run.
 type Command interface {
 	Run()
 }
 
 var _ Command = CreateMigration{}
 
+// Run creates a migration file with a sample content using a sort of unique name based on a timestamp.
 func (command CreateMigration) Run() {
 	now := time.Now()
 	fileName := fmt.Sprintf("%d_%s", now.UnixNano(), command.args.MigrationName)

@@ -56,6 +56,7 @@ func (repository fileRepository) GetMigrationQuery(migrationAbsolutePath string)
 	return string(query), nil
 }
 
+// CreateMigration creates a new file with th emigration content.
 func (repository fileRepository) CreateMigration(migrationAbsolutePath, query string) error {
 	err := repository.fileSystem.WriteFile(migrationAbsolutePath, []byte(query), fs.FileMode(0644))
 	if err != nil {
