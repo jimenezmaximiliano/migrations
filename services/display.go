@@ -11,7 +11,11 @@ import (
 // Display handles the output of the migrations command.
 type Display interface {
 	DisplayRunMigrations(migrations models.Collection)
+	DisplayErrorWithMessage(err error, message string)
+	DisplayError(err error)
+	// Deprecated: use DisplayError instead
 	DisplaySetupError(err error)
+	// Deprecated: use DisplayError instead
 	DisplayGeneralError(err error)
 	DisplayHelp()
 }
@@ -67,33 +71,46 @@ func (service displayService) DisplayRunMigrations(migrations models.Collection)
 	}
 
 	service.info("Done")
-	service.printer.Print(os.Stdout, "\n\n")
+	_ = service.printer.Print(os.Stdout, "\n\n")
 }
 
-// DisplaySetupError outputs an error that occur during the setup process (before running migrations).
-func (service displayService) DisplaySetupError(err error) {
-	service.printer.Print(os.Stderr, "\nFailed to setup migrations:\n%v\n\n", err)
+func (service displayService) DisplayError(err error) {
+	_ = service.printer.Print(os.Stderr, "\n[ERROR] %s\n", err)
 }
 
-// DisplayGeneralError outputs an error that occur while running a migration.
-func (service displayService) DisplayGeneralError(err error) {
-	service.printer.Print(os.Stderr, "\nAn error occur while running migrations:\n%v\n\n", err)
+func (service displayService) DisplayErrorWithMessage(err error, message string) {
+	_ = service.printer.Print(os.Stderr, "\n[ERROR] %s: %s\n", message, err)
 }
 
 func (service displayService) info(message string) {
-	service.printer.Print(os.Stdout, messageFormat, informationalMessage, message)
+	_ = service.printer.Print(os.Stdout, messageFormat, informationalMessage, message)
 }
 
 func (service displayService) success(message string) {
-	service.printer.Print(os.Stdout, messageFormat, successfulMigration, message)
+	_ = service.printer.Print(os.Stdout, messageFormat, successfulMigration, message)
 }
 
 func (service displayService) failure(message string) {
-	service.printer.Print(os.Stderr, messageFormat, failedMigration, message)
+	_ = service.printer.Print(os.Stderr, messageFormat, failedMigration, message)
 }
 
 func (service displayService) DisplayHelp() {
-	service.printer.Print(os.Stdout, "Documentation: https://github.com/jimenezmaximiliano/migrations\n\n")
-	service.printer.Print(os.Stdout, "Usage:\n")
-	service.printer.Print(os.Stdout, "\tmigrate -path=/path/to/migrations/directory/\n\n")
+	_ = service.printer.Print(os.Stdout, "\nUsage:\n")
+	_ = service.printer.Print(os.Stdout, "\t[executable] [command] [-options]\n\n")
+	_ = service.printer.Print(os.Stdout, "\tExamples:\n\n")
+	_ = service.printer.Print(os.Stdout, "\tgo run main.go migrate -path=/path/to/migrations/directory/\n")
+	_ = service.printer.Print(os.Stdout, "\t./myMigrationBinary migrate -path=/path/to/migrations/directory/\n\n")
+	_ = service.printer.Print(os.Stdout, "\nDocumentation: https://github.com/jimenezmaximiliano/migrations\n\n")
+}
+
+// Deprecated: use DisplayError instead
+// DisplaySetupError outputs an error that occur during the setup process (before running migrations).
+func (service displayService) DisplaySetupError(err error) {
+	service.DisplayErrorWithMessage(err, "failed to setup migrations")
+}
+
+// Deprecated: use DisplayError instead
+// DisplayGeneralError outputs an error that occur while running a migration.
+func (service displayService) DisplayGeneralError(err error) {
+	service.DisplayErrorWithMessage(err, "an error occur while running migrations")
 }

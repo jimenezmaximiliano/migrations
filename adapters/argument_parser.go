@@ -4,19 +4,18 @@ import (
 	"flag"
 	"io/ioutil"
 	"os"
-
-	"github.com/pkg/errors"
 )
 
 // ArgumentParser parses command line flags.
 type ArgumentParser interface {
 	OptionString(name string, value string) *string
 	PositionalArguments() []string
+	ParseArguments(args []string) error
 	Parse() error
 }
 
 // flagArgumentParser is an implementation of ArgumentParser using the package flag.
-type flagArgumentParser struct{
+type flagArgumentParser struct {
 	flagSet *flag.FlagSet
 }
 
@@ -38,13 +37,21 @@ func (adapter flagArgumentParser) OptionString(name string, value string) *strin
 	return adapter.flagSet.String(name, value, "")
 }
 
-// Parse parses the command-line flags from os.Args[1:]. Must be called
+// ParseArguments parses the command-line flags from os.Args[1:]. Must be called
 // after all flags are defined and before flags are accessed by the program.
-func (adapter flagArgumentParser) Parse() error {
-	if len(os.Args) < 2 {
-		return errors.New("not enough arguments")
+func (adapter flagArgumentParser) ParseArguments(args []string) error {
+	// Default os.Args[1:] for retro compatibility.
+	if len(args) == 0 {
+		args = os.Args[1:]
 	}
-	return adapter.flagSet.Parse(os.Args[1:])
+
+	return adapter.flagSet.Parse(args)
+}
+
+// Deprecated: use ParseArguments instead.
+// Parse is deprecated.
+func (adapter flagArgumentParser) Parse() error {
+	return adapter.ParseArguments(nil)
 }
 
 // PositionalArguments returns the non-flag command-line arguments.

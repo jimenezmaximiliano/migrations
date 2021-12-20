@@ -30,19 +30,17 @@ type SetupDB func() (*sql.DB, error)
 func RunMigrationsCommand(setupDB SetupDB) {
 	printerAdapter := adapters.PrinterAdapter{}
 	displayService := services.NewDisplayService(printerAdapter)
-	commandService := services.NewCommandService(adapters.NewArgumentParser())
-	arguments := commandService.ParseArguments()
+	argumentService := services.NewCommandArgumentService(displayService, adapters.NewArgumentParser())
 
-	if arguments.MigrationsPath == "" {
-		displayService.DisplayHelp()
-		os.Exit(0)
+	arguments, argumentsAreValid := argumentService.ParseAndValidate()
+	if !argumentsAreValid {
+		os.Exit(1)
 	}
 
 	DB, err := setupDB()
 	if err != nil {
-		displayService.DisplaySetupError(err)
+		displayService.DisplayErrorWithMessage(err, "failed to setup the DB")
 		os.Exit(1)
-		return
 	}
 
 	fileSystem := adapters.IOUtilAdapter{}
@@ -51,11 +49,11 @@ func RunMigrationsCommand(setupDB SetupDB) {
 	fileRepository := repositories.NewFileRepository(fileSystem)
 	migrationFetcher := services.NewFetcherService(dbRepository, fileRepository)
 	migrationRunner := services.NewRunnerService(migrationFetcher, dbRepository, arguments.MigrationsPath)
+
 	result, err := migrationRunner.RunMigrations()
 	if err != nil {
-		displayService.DisplayGeneralError(err)
+		displayService.DisplayErrorWithMessage(err, "something went wrong while running migrations")
 		os.Exit(1)
-		return
 	}
 
 	displayService.DisplayRunMigrations(result)

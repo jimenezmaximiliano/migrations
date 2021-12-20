@@ -21,3 +21,10 @@ func (adapter PrinterAdapter) Print(writer io.Writer, format string, a ...interf
 
 	return err
 }
+
+type NilPrinterAdapter struct{}
+
+// Print outputs a string given a format.
+func (adapter NilPrinterAdapter) Print(writer io.Writer, format string, a ...interface{}) error {
+	return nil
+}
