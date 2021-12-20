@@ -32,6 +32,11 @@ func (_m *Display) DisplayHelp() {
 	_m.Called()
 }
 
+// DisplayInfo provides a mock function with given fields: message
+func (_m *Display) DisplayInfo(message string) {
+	_m.Called(message)
+}
+
 // DisplayRunMigrations provides a mock function with given fields: migrations
 func (_m *Display) DisplayRunMigrations(migrations models.Collection) {
 	_m.Called(migrations)

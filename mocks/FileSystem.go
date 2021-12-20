@@ -58,3 +58,17 @@ func (_m *FileSystem) ReadFile(filename string) ([]byte, error) {
 
 	return r0, r1
 }
+
+// WriteFile provides a mock function with given fields: filename, data, perm
+func (_m *FileSystem) WriteFile(filename string, data []byte, perm fs.FileMode) error {
+	ret := _m.Called(filename, data, perm)
+
+	var r0 error
+	if rf, ok := ret.Get(0).(func(string, []byte, fs.FileMode) error); ok {
+		r0 = rf(filename, data, perm)
+	} else {
+		r0 = ret.Error(0)
+	}
+
+	return r0
+}
