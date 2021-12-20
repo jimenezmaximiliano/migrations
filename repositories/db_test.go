@@ -13,6 +13,8 @@ import (
 )
 
 func TestCreatingTheMigrationsTable(test *testing.T) {
+	test.Parallel()
+
 	db := &mocks.DB{}
 	db.On("Exec", mock.AnythingOfType("string")).Return(nil, nil)
 	repository := repositories.NewDBRepository(db)
@@ -22,6 +24,8 @@ func TestCreatingTheMigrationsTable(test *testing.T) {
 }
 
 func TestCreatingTheMigrationsTableFailsIfThereWasAnError(test *testing.T) {
+	test.Parallel()
+
 	db := &mocks.DB{}
 	db.On("Exec", mock.AnythingOfType("string")).Return(nil, fmt.Errorf("db exec error"))
 	repository := repositories.NewDBRepository(db)
@@ -31,6 +35,8 @@ func TestCreatingTheMigrationsTableFailsIfThereWasAnError(test *testing.T) {
 }
 
 func TestPingingAnOkConnection(test *testing.T) {
+	test.Parallel()
+
 	db := &mocks.DB{}
 	db.On("Ping").Return(nil)
 	repository := repositories.NewDBRepository(db)
@@ -40,6 +46,8 @@ func TestPingingAnOkConnection(test *testing.T) {
 }
 
 func TestPingingAKOConnection(test *testing.T) {
+	test.Parallel()
+
 	db := &mocks.DB{}
 	db.On("Ping").Return(fmt.Errorf("db ping error"))
 	repository := repositories.NewDBRepository(db)
@@ -49,6 +57,8 @@ func TestPingingAKOConnection(test *testing.T) {
 }
 
 func TestGettingAlreadyRunMigrationFilePaths(test *testing.T) {
+	test.Parallel()
+
 	rows := &mocks.DBRows{}
 	rows.On("Close").Return(nil).Once()
 	rows.On("Next").Return(true).Once()
@@ -67,6 +77,8 @@ func TestGettingAlreadyRunMigrationFilePaths(test *testing.T) {
 }
 
 func TestGettingAlreadyRunMigrationFilePathsFailsIfTheQueryFails(test *testing.T) {
+	test.Parallel()
+
 	db := &mocks.DB{}
 	db.On("Query", mock.AnythingOfType("string")).Return(nil, fmt.Errorf("db query error"))
 	repository := repositories.NewDBRepository(db)
@@ -77,6 +89,8 @@ func TestGettingAlreadyRunMigrationFilePathsFailsIfTheQueryFails(test *testing.T
 }
 
 func TestGettingAlreadyRunMigrationFilePathsFailsIfRowsCannotBeScanned(test *testing.T) {
+	test.Parallel()
+
 	rows := &mocks.DBRows{}
 	rows.On("Close").Return(nil).Once()
 	rows.On("Next").Return(true).Once()
@@ -92,6 +106,8 @@ func TestGettingAlreadyRunMigrationFilePathsFailsIfRowsCannotBeScanned(test *tes
 }
 
 func TestRunningASuccessfulMigrationQuery(test *testing.T) {
+	test.Parallel()
+
 	const query = "SELECT 1"
 	db := &mocks.DB{}
 	db.On("Exec", query).Return(nil, nil)
@@ -102,6 +118,8 @@ func TestRunningASuccessfulMigrationQuery(test *testing.T) {
 }
 
 func TestRunningABrokenMigrationQueryFails(test *testing.T) {
+	test.Parallel()
+
 	const query = "SELECT * FROM"
 	db := &mocks.DB{}
 	db.On("Exec", query).Return(nil, fmt.Errorf("db query error"))
@@ -112,6 +130,8 @@ func TestRunningABrokenMigrationQueryFails(test *testing.T) {
 }
 
 func TestRegisteringARunMigration(test *testing.T) {
+	test.Parallel()
+
 	const migrationName = ""
 	db := &mocks.DB{}
 	db.On("Exec", mock.AnythingOfType("string"), migrationName).Return(nil, nil)
@@ -122,6 +142,8 @@ func TestRegisteringARunMigration(test *testing.T) {
 }
 
 func TestRegisteringARunMigrationFailsIfTheInsertFails(test *testing.T) {
+	test.Parallel()
+
 	const migrationName = ""
 	db := &mocks.DB{}
 	db.On("Exec", mock.AnythingOfType("string"), migrationName).Return(nil, fmt.Errorf("db query error"))

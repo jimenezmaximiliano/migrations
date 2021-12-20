@@ -12,6 +12,8 @@ import (
 const anotherPath = "/tmp/3_another.sql"
 
 func TestAddingAnItem(test *testing.T) {
+	test.Parallel()
+
 	collection := models.Collection{}
 	migration, err := models.NewMigration(validPath, validQuery, models.StatusNotRun)
 	require.Nil(test, err)
@@ -23,6 +25,8 @@ func TestAddingAnItem(test *testing.T) {
 }
 
 func TestFindingAMigrationPath(test *testing.T) {
+	test.Parallel()
+
 	collection := models.Collection{}
 	migration, err := models.NewMigration(validPath, validQuery, models.StatusNotRun)
 	require.Nil(test, err)
@@ -35,6 +39,8 @@ func TestFindingAMigrationPath(test *testing.T) {
 }
 
 func TestGettingEveryMigrationWithTwoMigrations(test *testing.T) {
+	test.Parallel()
+
 	collection := models.Collection{}
 	migration, err := models.NewMigration(validPath, validQuery, models.StatusNotRun)
 	require.Nil(test, err)
@@ -54,6 +60,8 @@ func TestGettingEveryMigrationWithTwoMigrations(test *testing.T) {
 }
 
 func TestAddingTwoMigrationsWithTheSameOrderFails(test *testing.T) {
+	test.Parallel()
+
 	collection := models.Collection{}
 	migration, err := models.NewMigration("/tmp/1_a.sql", validQuery, models.StatusNotRun)
 	require.Nil(test, err)
@@ -69,6 +77,8 @@ func TestAddingTwoMigrationsWithTheSameOrderFails(test *testing.T) {
 }
 
 func TestGettingEveryMigrationOnAnEmptyCollection(test *testing.T) {
+	test.Parallel()
+
 	collection := models.Collection{}
 	migrations := collection.GetAll()
 
@@ -76,6 +86,8 @@ func TestGettingEveryMigrationOnAnEmptyCollection(test *testing.T) {
 }
 
 func TestGetAllSortsMigrations(test *testing.T) {
+	test.Parallel()
+
 	collection := models.Collection{}
 	migration, err := models.NewMigration("/tmp/1_obladi.sql", validQuery, models.StatusNotRun)
 	require.Nil(test, err)
@@ -103,6 +115,8 @@ func TestGetAllSortsMigrations(test *testing.T) {
 }
 
 func TestGetMigrationsToRunSortsMigrations(test *testing.T) {
+	test.Parallel()
+
 	collection := models.Collection{}
 	migration, err := models.NewMigration("/tmp/1_obladi.sql", validQuery, models.StatusNotRun)
 	require.Nil(test, err)
@@ -130,6 +144,8 @@ func TestGetMigrationsToRunSortsMigrations(test *testing.T) {
 }
 
 func TestGettingMigrationsToRun(test *testing.T) {
+	test.Parallel()
+
 	collection := models.Collection{}
 	migration, err := models.NewMigration("/tmp/1_a.sql", validQuery, models.StatusNotRun)
 	require.Nil(test, err)

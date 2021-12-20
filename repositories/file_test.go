@@ -13,6 +13,8 @@ import (
 )
 
 func TestGettingMigrationFilePaths(test *testing.T) {
+	test.Parallel()
+
 	file := &mocks.File{}
 	file.On("Name").Return("1_a.sql")
 	file.On("IsDir").Return(false)
@@ -27,6 +29,8 @@ func TestGettingMigrationFilePaths(test *testing.T) {
 }
 
 func TestGettingMigrationFilePathsFromADirectoryWithoutTrailingSlash(test *testing.T) {
+	test.Parallel()
+
 	file := &mocks.File{}
 	file.On("Name").Return("1_a.sql")
 	file.On("IsDir").Return(false)
@@ -41,6 +45,8 @@ func TestGettingMigrationFilePathsFromADirectoryWithoutTrailingSlash(test *testi
 }
 
 func TestGettingMigrationFilePathsOmitsNonSqlFilesAndDiretories(test *testing.T) {
+	test.Parallel()
+
 	file := &mocks.File{}
 	file.On("Name").Return("1_a.sql")
 	file.On("IsDir").Return(false)
@@ -62,6 +68,8 @@ func TestGettingMigrationFilePathsOmitsNonSqlFilesAndDiretories(test *testing.T)
 }
 
 func TestGettingMigrationFilePathsFailsIfItIsNotPossibleToReadTheDirectory(test *testing.T) {
+	test.Parallel()
+
 	fileSystem := &mocks.FileSystem{}
 	fileSystem.On("ReadDir", "/tmp/").Return(nil, fmt.Errorf("file system read error"))
 	repository := repositories.NewFileRepository(fileSystem)
@@ -72,6 +80,8 @@ func TestGettingMigrationFilePathsFailsIfItIsNotPossibleToReadTheDirectory(test 
 }
 
 func TestGettingAQuery(test *testing.T) {
+	test.Parallel()
+
 	const query = "SELECT 1"
 	fileSystem := &mocks.FileSystem{}
 	fileSystem.On("ReadFile", "/tmp/1_a.sql").Return([]byte(query), nil)
@@ -83,6 +93,8 @@ func TestGettingAQuery(test *testing.T) {
 }
 
 func TestGettingAQueryFailsIfTheFileCannotBeRead(test *testing.T) {
+	test.Parallel()
+
 	fileSystem := &mocks.FileSystem{}
 	fileSystem.On("ReadFile", "/tmp/1_a.sql").Return(nil, fmt.Errorf("file read error"))
 	repository := repositories.NewFileRepository(fileSystem)

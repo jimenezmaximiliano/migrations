@@ -19,6 +19,7 @@ const migrationPath2 = "/tmp/2_b.sql"
 const migrationQuery2 = "SELECT 2"
 
 func TestGettingMigrations(test *testing.T) {
+	test.Parallel()
 
 	dbRepository := &mocks.DBRepository{}
 	dbRepository.On("GetAlreadyRunMigrationFilePaths", migrationsDir).
@@ -46,6 +47,8 @@ func TestGettingMigrations(test *testing.T) {
 }
 
 func TestGettingMigrationsFailsIfItCannotReadFromTheDB(test *testing.T) {
+	test.Parallel()
+
 	const migrationsDir = "/tmp/"
 	dbRepository := &mocks.DBRepository{}
 	dbRepository.On("GetAlreadyRunMigrationFilePaths", migrationsDir).
@@ -61,6 +64,8 @@ func TestGettingMigrationsFailsIfItCannotReadFromTheDB(test *testing.T) {
 }
 
 func TestGettingMigrationsFailsIfItCannotReadFromTheFileSystem(test *testing.T) {
+	test.Parallel()
+
 	const migrationsDir = "/tmp/"
 	dbRepository := &mocks.DBRepository{}
 	fileRepository := &mocks.FileRepository{}
@@ -74,6 +79,7 @@ func TestGettingMigrationsFailsIfItCannotReadFromTheFileSystem(test *testing.T) 
 }
 
 func TestGettingMigrationsFailsIfAMigrationPathCannotBeRead(test *testing.T) {
+	test.Parallel()
 
 	dbRepository := &mocks.DBRepository{}
 	dbRepository.On("GetAlreadyRunMigrationFilePaths", migrationsDir).
@@ -91,6 +97,7 @@ func TestGettingMigrationsFailsIfAMigrationPathCannotBeRead(test *testing.T) {
 }
 
 func TestGettingMigrationsFailsIfAMigrationPathAlreadyRunCannotBeRead(test *testing.T) {
+	test.Parallel()
 
 	dbRepository := &mocks.DBRepository{}
 	dbRepository.On("GetAlreadyRunMigrationFilePaths", migrationsDir).

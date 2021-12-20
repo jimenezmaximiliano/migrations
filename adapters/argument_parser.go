@@ -14,32 +14,32 @@ type ArgumentParser interface {
 	Parse() error
 }
 
-// flagArgumentParser is an implementation of ArgumentParser using the package flag.
-type flagArgumentParser struct {
+// FlagArgumentParser is an implementation of ArgumentParser using the package flag.
+type FlagArgumentParser struct {
 	flagSet *flag.FlagSet
 }
 
-// Ensure flagArgumentParser implements ArgumentParser.
-var _ ArgumentParser = flagArgumentParser{}
+// Ensure FlagArgumentParser implements ArgumentParser.
+var _ ArgumentParser = FlagArgumentParser{}
 
-func NewArgumentParser() ArgumentParser {
+func NewArgumentParser() FlagArgumentParser {
 	flagSet := flag.NewFlagSet("flags", flag.ContinueOnError)
 	flagSet.SetOutput(ioutil.Discard)
 
-	return flagArgumentParser{
+	return FlagArgumentParser{
 		flagSet: flagSet,
 	}
 }
 
 // OptionString defines a string flag with specified name, default value, and usage string.
 // The return value is the address of a string variable that stores the value of the flag.
-func (adapter flagArgumentParser) OptionString(name string, value string) *string {
+func (adapter FlagArgumentParser) OptionString(name string, value string) *string {
 	return adapter.flagSet.String(name, value, "")
 }
 
 // ParseArguments parses the command-line flags from os.Args[1:]. Must be called
 // after all flags are defined and before flags are accessed by the program.
-func (adapter flagArgumentParser) ParseArguments(args []string) error {
+func (adapter FlagArgumentParser) ParseArguments(args []string) error {
 	// Default os.Args[1:] for retro compatibility.
 	if len(args) == 0 {
 		args = os.Args[1:]
@@ -50,11 +50,11 @@ func (adapter flagArgumentParser) ParseArguments(args []string) error {
 
 // Deprecated: use ParseArguments instead.
 // Parse is deprecated.
-func (adapter flagArgumentParser) Parse() error {
+func (adapter FlagArgumentParser) Parse() error {
 	return adapter.ParseArguments(nil)
 }
 
 // PositionalArguments returns the non-flag command-line arguments.
-func (adapter flagArgumentParser) PositionalArguments() []string {
+func (adapter FlagArgumentParser) PositionalArguments() []string {
 	return adapter.flagSet.Args()
 }

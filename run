@@ -2,6 +2,11 @@
 
 set -e
 
+function coverage() {
+  go test -coverpkg=./... -coverprofile=coverage.out ./...
+  go tool cover -html=coverage.out
+}
+
 function test() {
   go test ./... -v
 }
@@ -15,18 +20,20 @@ function mocks() {
   mockery --dir=repositories --name=DBRepository
   mockery --dir=repositories --name=FileRepository
   mockery --dir=services --name=Fetcher
-  mockery --dir=services --name=CommandArgument
   mockery --dir=services --name=Display
 }
 
 case "$1" in
-test)
-  test
+coverage)
+  coverage
   ;;
 mocks)
   mocks
   ;;
+test)
+  test
+  ;;
 *)
-  echo "Commands: test, mocks"
+  echo "Commands: coverage, mocks, test"
   ;;
 esac

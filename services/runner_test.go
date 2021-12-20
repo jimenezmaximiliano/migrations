@@ -13,6 +13,8 @@ import (
 )
 
 func TestRunningMigrationsFailsIfTheDBConnectionDoesNotWork(test *testing.T) {
+	test.Parallel()
+
 	fetcher := &mocks.Fetcher{}
 	db := &mocks.DBRepository{}
 	db.On("Ping").Return(fmt.Errorf("db connection error"))
@@ -24,6 +26,8 @@ func TestRunningMigrationsFailsIfTheDBConnectionDoesNotWork(test *testing.T) {
 }
 
 func TestRunningMigrationsFailsIfAMigrationsTableCannotBeCreated(test *testing.T) {
+	test.Parallel()
+
 	fetcher := &mocks.Fetcher{}
 	db := &mocks.DBRepository{}
 	db.On("Ping").Return(nil)
@@ -36,6 +40,8 @@ func TestRunningMigrationsFailsIfAMigrationsTableCannotBeCreated(test *testing.T
 }
 
 func TestRunningMigrationsFailsIfItCannotFetchMigrationsFromFilesOrTheDB(test *testing.T) {
+	test.Parallel()
+
 	db := &mocks.DBRepository{}
 	db.On("Ping").Return(nil)
 	db.On("CreateMigrationsTableIfNeeded").Return(nil)
@@ -49,6 +55,8 @@ func TestRunningMigrationsFailsIfItCannotFetchMigrationsFromFilesOrTheDB(test *t
 }
 
 func TestRunningMigrationsDoesNotFailIfThereAreNoMigratiosToRun(test *testing.T) {
+	test.Parallel()
+
 	db := &mocks.DBRepository{}
 	db.On("Ping").Return(nil)
 	db.On("CreateMigrationsTableIfNeeded").Return(nil)
@@ -62,6 +70,8 @@ func TestRunningMigrationsDoesNotFailIfThereAreNoMigratiosToRun(test *testing.T)
 }
 
 func TestRunningAMigrationSuccessfully(test *testing.T) {
+	test.Parallel()
+
 	db := &mocks.DBRepository{}
 	db.On("Ping").Return(nil)
 	db.On("CreateMigrationsTableIfNeeded").Return(nil)
@@ -84,6 +94,8 @@ func TestRunningAMigrationSuccessfully(test *testing.T) {
 }
 
 func TestRunningAMigrationThatFails(test *testing.T) {
+	test.Parallel()
+
 	db := &mocks.DBRepository{}
 	db.On("Ping").Return(nil)
 	db.On("CreateMigrationsTableIfNeeded").Return(nil)
@@ -105,6 +117,8 @@ func TestRunningAMigrationThatFails(test *testing.T) {
 }
 
 func TestRunningAMigrationSuccessfullyAndThenFailingToRegisterIt(test *testing.T) {
+	test.Parallel()
+
 	db := &mocks.DBRepository{}
 	db.On("Ping").Return(nil)
 	db.On("CreateMigrationsTableIfNeeded").Return(nil)

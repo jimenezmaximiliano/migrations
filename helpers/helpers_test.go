@@ -9,6 +9,8 @@ import (
 )
 
 func TestAddingATrailingSlashOnAPathWithoutIt(test *testing.T) {
+	test.Parallel()
+
 	const path = "/tmp"
 	const expectedResult = "/tmp/"
 	result := helpers.AddTrailingSlashToPathIfNeeded(path)
@@ -17,6 +19,8 @@ func TestAddingATrailingSlashOnAPathWithoutIt(test *testing.T) {
 }
 
 func TestAddingATrailingSlashOnAPathWithIt(test *testing.T) {
+	test.Parallel()
+
 	const path = "/tmp/"
 	const expectedResult = "/tmp/"
 	result := helpers.AddTrailingSlashToPathIfNeeded(path)
@@ -25,6 +29,8 @@ func TestAddingATrailingSlashOnAPathWithIt(test *testing.T) {
 }
 
 func TestAddingATrailingSlashOnAnEmptyPath(test *testing.T) {
+	test.Parallel()
+
 	const path = ""
 	const expectedResult = "/"
 	result := helpers.AddTrailingSlashToPathIfNeeded(path)

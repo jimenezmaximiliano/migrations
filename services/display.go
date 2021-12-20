@@ -20,16 +20,16 @@ type Display interface {
 	DisplayHelp()
 }
 
-type displayService struct {
+type DisplayService struct {
 	printer adapters.Printer
 }
 
-// Ensure displayService implements Display.
-var _ Display = displayService{}
+// Ensure DisplayService implements Display.
+var _ Display = DisplayService{}
 
 // NewDisplayService returns an implementation of Display.
-func NewDisplayService(printer adapters.Printer) Display {
-	return displayService{
+func NewDisplayService(printer adapters.Printer) DisplayService {
+	return DisplayService{
 		printer: printer,
 	}
 }
@@ -42,7 +42,7 @@ const (
 )
 
 // DisplayRunMigrations outputs the results of run migrations.
-func (service displayService) DisplayRunMigrations(migrations models.Collection) {
+func (service DisplayService) DisplayRunMigrations(migrations models.Collection) {
 	service.info("Run migrations")
 	if migrations.IsEmpty() {
 		service.info("No migrations to run")
@@ -74,27 +74,27 @@ func (service displayService) DisplayRunMigrations(migrations models.Collection)
 	_ = service.printer.Print(os.Stdout, "\n\n")
 }
 
-func (service displayService) DisplayError(err error) {
+func (service DisplayService) DisplayError(err error) {
 	_ = service.printer.Print(os.Stderr, "\n[ERROR] %s\n", err)
 }
 
-func (service displayService) DisplayErrorWithMessage(err error, message string) {
+func (service DisplayService) DisplayErrorWithMessage(err error, message string) {
 	_ = service.printer.Print(os.Stderr, "\n[ERROR] %s: %s\n", message, err)
 }
 
-func (service displayService) info(message string) {
+func (service DisplayService) info(message string) {
 	_ = service.printer.Print(os.Stdout, messageFormat, informationalMessage, message)
 }
 
-func (service displayService) success(message string) {
+func (service DisplayService) success(message string) {
 	_ = service.printer.Print(os.Stdout, messageFormat, successfulMigration, message)
 }
 
-func (service displayService) failure(message string) {
+func (service DisplayService) failure(message string) {
 	_ = service.printer.Print(os.Stderr, messageFormat, failedMigration, message)
 }
 
-func (service displayService) DisplayHelp() {
+func (service DisplayService) DisplayHelp() {
 	_ = service.printer.Print(os.Stdout, "\nUsage:\n")
 	_ = service.printer.Print(os.Stdout, "\t[executable] [command] [-options]\n\n")
 	_ = service.printer.Print(os.Stdout, "\tExamples:\n\n")
@@ -105,12 +105,12 @@ func (service displayService) DisplayHelp() {
 
 // Deprecated: use DisplayError instead
 // DisplaySetupError outputs an error that occur during the setup process (before running migrations).
-func (service displayService) DisplaySetupError(err error) {
+func (service DisplayService) DisplaySetupError(err error) {
 	service.DisplayErrorWithMessage(err, "failed to setup migrations")
 }
 
 // Deprecated: use DisplayError instead
 // DisplayGeneralError outputs an error that occur while running a migration.
-func (service displayService) DisplayGeneralError(err error) {
+func (service DisplayService) DisplayGeneralError(err error) {
 	service.DisplayErrorWithMessage(err, "an error occur while running migrations")
 }

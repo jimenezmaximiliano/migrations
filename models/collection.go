@@ -6,12 +6,12 @@ import (
 	"github.com/pkg/errors"
 )
 
-// Collection is a set of implementations of Migration.
+// Collection is a set of implementations of Migration indexed by migration absolute path.
 type Collection struct {
 	migrations map[string]Migration
 }
 
-// Add adds a new migration to the collection.
+// Add adds a new MigrationContainer to the collection.
 func (collection *Collection) Add(migration Migration) error {
 	if collection.migrations == nil {
 		collection.migrations = make(map[string]Migration)

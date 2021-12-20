@@ -12,31 +12,31 @@ type DB interface {
 }
 
 // NewDBAdapter returns an implementation of DB.
-func NewDBAdapter(db *sql.DB) DB {
-	return dbAdapter{
+func NewDBAdapter(db *sql.DB) DBAdapter {
+	return DBAdapter{
 		db: db,
 	}
 }
 
-type dbAdapter struct {
+type DBAdapter struct {
 	db *sql.DB
 }
 
 // Ping verifies a connection to the database is still alive,
 // establishing a connection if necessary.
-func (adapter dbAdapter) Ping() error {
+func (adapter DBAdapter) Ping() error {
 	return adapter.db.Ping()
 }
 
 // Query executes a query that returns rows, typically a SELECT.
 // The args are for any placeholder parameters in the query.
-func (adapter dbAdapter) Query(query string, args ...interface{}) (DBRows, error) {
+func (adapter DBAdapter) Query(query string, args ...interface{}) (DBRows, error) {
 	return adapter.db.Query(query, args...)
 }
 
 // Exec executes a query without returning any rows.
 // The args are for any placeholder parameters in the query.
-func (adapter dbAdapter) Exec(query string, args ...interface{}) (sql.Result, error) {
+func (adapter DBAdapter) Exec(query string, args ...interface{}) (sql.Result, error) {
 	return adapter.db.Exec(query, args...)
 }
 
