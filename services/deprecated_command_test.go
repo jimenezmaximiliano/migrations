@@ -1,4 +1,4 @@
-package services
+package services_test
 
 import (
 	"testing"
@@ -7,26 +7,8 @@ import (
 	"github.com/stretchr/testify/mock"
 
 	"github.com/jimenezmaximiliano/migrations/mocks"
+	"github.com/jimenezmaximiliano/migrations/services"
 )
-
-func TestParsingArguments(test *testing.T) {
-	path := "/tmp"
-	name := "name"
-	parser := &mocks.ArgumentParser{}
-	parser.On("OptionString", "path", mock.AnythingOfType("string")).
-		Return(&path)
-	parser.On("OptionString", "name", mock.AnythingOfType("string")).
-		Return(&name)
-	parser.On("PositionalArguments").
-		Return([]string{"command"})
-	parser.On("Parse").Return(nil)
-	service := NewCommandService(parser)
-	arguments := service.ParseArguments()
-
-	assert.Equal(test, "/tmp/", arguments.MigrationsPath)
-	assert.Equal(test, "name", arguments.MigrationName)
-	assert.Equal(test, "command", arguments.Command)
-}
 
 func TestParsingArgumentsWithEmptyPath(test *testing.T) {
 	path := ""
@@ -38,13 +20,11 @@ func TestParsingArgumentsWithEmptyPath(test *testing.T) {
 		Return(&name)
 	parser.On("PositionalArguments").
 		Return([]string{"command"})
-	parser.On("Parse").Return(nil)
-	service := NewCommandService(parser)
+	parser.On("ParseArguments", mock.AnythingOfType("[]string")).Return(nil)
+	service := services.NewCommandService(parser)
 	arguments := service.ParseArguments()
 
-	if arguments.MigrationsPath != "" {
-		test.Fail()
-	}
+	assert.Equal(test, "", arguments.MigrationsPath)
 }
 
 func TestParsingArgumentsWithEmptyName(test *testing.T) {
@@ -58,12 +38,11 @@ func TestParsingArgumentsWithEmptyName(test *testing.T) {
 	parser.On("PositionalArguments").
 		Return([]string{"command"})
 	parser.On("Parse").Return(nil)
-	service := NewCommandService(parser)
+	parser.On("ParseArguments", mock.AnythingOfType("[]string")).Return(nil)
+	service := services.NewCommandService(parser)
 	arguments := service.ParseArguments()
 
-	if arguments.MigrationName != "" {
-		test.Fail()
-	}
+	assert.Equal(test, "", arguments.MigrationName)
 }
 
 func TestParsingArgumentsWithEmptyCommand(test *testing.T) {
@@ -77,10 +56,9 @@ func TestParsingArgumentsWithEmptyCommand(test *testing.T) {
 	parser.On("PositionalArguments").
 		Return([]string{})
 	parser.On("Parse").Return(nil)
-	service := NewCommandService(parser)
+	service := services.NewCommandService(parser)
+	parser.On("ParseArguments", mock.AnythingOfType("[]string")).Return(nil)
 	arguments := service.ParseArguments()
 
-	if arguments.Command != "" {
-		test.Fail()
-	}
+	assert.Equal(test, "migrate", arguments.Command)
 }

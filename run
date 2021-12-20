@@ -1,18 +1,22 @@
 #!/bin/bash
 
+set -e
+
 function test() {
   go test ./... -v
 }
 
 function mocks() {
-  ./mockery --dir=adapters --name=DB
-  ./mockery --dir=adapters --name=DBRows
-  ./mockery --dir=adapters --name=FileSystem
-  ./mockery --dir=adapters --name=File
-  ./mockery --dir=adapters --name=ArgumentParser
-  ./mockery --dir=repositories --name=DBRepository
-  ./mockery --dir=repositories --name=FileRepository
-  ./mockery --dir=services --name=Fetcher
+  mockery --dir=adapters --name=DB
+  mockery --dir=adapters --name=DBRows
+  mockery --dir=adapters --name=FileSystem
+  mockery --dir=adapters --name=File
+  mockery --dir=adapters --name=ArgumentParser
+  mockery --dir=repositories --name=DBRepository
+  mockery --dir=repositories --name=FileRepository
+  mockery --dir=services --name=Fetcher
+  mockery --dir=services --name=CommandArgument
+  mockery --dir=services --name=Display
 }
 
 case "$1" in
