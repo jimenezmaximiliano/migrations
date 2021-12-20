@@ -44,7 +44,7 @@ func (service CommandArgumentService) ParseAndValidate() (Arguments, bool) {
 	args := service.parse()
 
 	if args.Command != "migrate" {
-		service.displayService.DisplayError(errors.Errorf("incorrect 'command' argument: [%s]", args.Command))
+		service.displayService.DisplayError(errors.Errorf("invalid 'command' argument: [%s]", args.Command))
 		service.displayService.DisplayHelp()
 		return args, false
 	}
@@ -67,7 +67,7 @@ func (service CommandArgumentService) parse() Arguments {
 
 	err := service.parser.ParseArguments(rawArgs)
 	if err != nil {
-		return Arguments{}
+		// Let it continue so we can apply default values.
 	}
 
 	// Migration's directory path
