@@ -10,6 +10,8 @@ import (
 	"github.com/jimenezmaximiliano/migrations/helpers"
 )
 
+var ValidCommands = []string{"migrate", "create"}
+
 // Arguments represents the command line arguments for the migrations commands.
 type Arguments struct {
 	MigrationsPath string
@@ -43,14 +45,20 @@ func NewCommandArgumentService(displayService Display, parser adapters.ArgumentP
 func (service CommandArgumentService) ParseAndValidate() (Arguments, bool) {
 	args := service.parse()
 
-	if args.Command != "migrate" {
+	if !isCommandValid(args.Command) {
 		service.displayService.DisplayError(errors.Errorf("invalid 'command' argument: [%s]", args.Command))
 		service.displayService.DisplayHelp()
 		return args, false
 	}
 
 	if args.MigrationsPath == "" {
-		service.displayService.DisplayError(errors.New("missing 'path' option for command 'migrate'"))
+		service.displayService.DisplayError(errors.Errorf("missing 'path' option for command '%s'", args.Command))
+		service.displayService.DisplayHelp()
+		return args, false
+	}
+
+	if args.Command == "create" && args.MigrationName == "" {
+		service.displayService.DisplayError(errors.Errorf("missing 'name' option for command '%s'", args.Command))
 		service.displayService.DisplayHelp()
 		return args, false
 	}
@@ -123,4 +131,14 @@ func getRearrangedArguments() []string {
 	}
 
 	return rearrangedArgs
+}
+
+func isCommandValid(command string) bool {
+	for _, validCommand := range ValidCommands {
+		if validCommand == command {
+			return true
+		}
+	}
+
+	return false
 }

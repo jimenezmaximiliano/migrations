@@ -1,6 +1,7 @@
 package repositories
 
 import (
+	"io/fs"
 	"os"
 
 	"github.com/pkg/errors"
@@ -13,6 +14,7 @@ import (
 type FileRepository interface {
 	GetMigrationFilePaths(migrationsDirectoryAbsolutePath string) ([]string, error)
 	GetMigrationQuery(migrationAbsolutePath string) (string, error)
+	CreateMigration(migrationAbsolutePath, query string) error
 }
 
 type fileRepository struct {
@@ -52,6 +54,15 @@ func (repository fileRepository) GetMigrationQuery(migrationAbsolutePath string)
 	}
 
 	return string(query), nil
+}
+
+func (repository fileRepository) CreateMigration(migrationAbsolutePath, query string) error {
+	err := repository.fileSystem.WriteFile(migrationAbsolutePath, []byte(query), fs.FileMode(0644))
+	if err != nil {
+		return errors.Wrapf(err, "failed to create migration file on [%s]", migrationAbsolutePath)
+	}
+
+	return nil
 }
 
 func getMigrationFilePathsFromFiles(files []os.FileInfo, migrationsDirectoryAbsolutePath string) []string {

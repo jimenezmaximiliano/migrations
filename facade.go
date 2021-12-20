@@ -5,6 +5,7 @@ import (
 	"os"
 
 	"github.com/jimenezmaximiliano/migrations/adapters"
+	"github.com/jimenezmaximiliano/migrations/commands"
 	"github.com/jimenezmaximiliano/migrations/models"
 	"github.com/jimenezmaximiliano/migrations/repositories"
 	"github.com/jimenezmaximiliano/migrations/services"
@@ -50,12 +51,18 @@ func RunMigrationsCommand(setupDB SetupDB) {
 	migrationFetcher := services.NewFetcherService(dbRepository, fileRepository)
 	migrationRunner := services.NewRunnerService(migrationFetcher, dbRepository, arguments.MigrationsPath)
 
-	result, err := migrationRunner.RunMigrations()
-	if err != nil {
-		displayService.DisplayErrorWithMessage(err, "something went wrong while running migrations")
-		os.Exit(1)
+	switch arguments.Command {
+	case "migrate":
+		result, err := migrationRunner.RunMigrations()
+		if err != nil {
+			displayService.DisplayErrorWithMessage(err, "something went wrong while running migrations")
+			os.Exit(1)
+		}
+		displayService.DisplayRunMigrations(result)
+		break
+	case "create":
+		commands.NewCreateMigrationCommand(fileRepository, displayService, arguments).Run()
 	}
 
-	displayService.DisplayRunMigrations(result)
 	os.Exit(0)
 }
