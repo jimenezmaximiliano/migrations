@@ -1,8 +1,6 @@
 package services
 
 import (
-	"fmt"
-
 	"github.com/pkg/errors"
 
 	"github.com/jimenezmaximiliano/migrations/helpers"
@@ -44,7 +42,7 @@ func NewRunnerService(
 func (service runnerService) RunMigrations() (models.Collection, error) {
 	err := service.dbRepository.Ping()
 	if err != nil {
-		return models.Collection{}, err
+		return models.Collection{}, errors.Wrap(err, "failed to connect to the DB")
 	}
 
 	err = service.dbRepository.CreateMigrationsTableIfNeeded()
@@ -96,10 +94,10 @@ func (service runnerService) runMigrations(migrationsToRun []models.Migration) (
 		if err != nil {
 			return result, err
 		}
-		
+
 		err = service.dbRepository.RegisterRunMigration(migration.GetName())
 		if err != nil {
-			return result, fmt.Errorf("could not register the migration as run (absolutePath: %s) %w", migration.GetAbsolutePath(), err)
+			return result, err
 		}
 	}
 

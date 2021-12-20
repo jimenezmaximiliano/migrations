@@ -3,8 +3,8 @@
 ## Future versions
 
 - Deprecate migo
-- Wrap errors
 - Add a verbose mode
+- Support env vars instead of params
 
 ## Maybe
 

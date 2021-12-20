@@ -1,8 +1,9 @@
 package repositories
 
 import (
-	"fmt"
 	"os"
+
+	"github.com/pkg/errors"
 
 	"github.com/jimenezmaximiliano/migrations/adapters"
 	"github.com/jimenezmaximiliano/migrations/helpers"
@@ -33,7 +34,11 @@ func (repository fileRepository) GetMigrationFilePaths(migrationsDirectoryAbsolu
 	migrationsDirectoryAbsolutePath = helpers.AddTrailingSlashToPathIfNeeded(migrationsDirectoryAbsolutePath)
 	migrationFiles, err := repository.fileSystem.ReadDir(migrationsDirectoryAbsolutePath)
 	if err != nil {
-		return nil, fmt.Errorf("could not read files from the migrations directory (path: %s)\n%w", migrationsDirectoryAbsolutePath, err)
+		return nil, errors.Wrapf(
+			err,
+			"could not read files from the migrations directory [%s]",
+			migrationsDirectoryAbsolutePath,
+		)
 	}
 
 	return getMigrationFilePathsFromFiles(migrationFiles, migrationsDirectoryAbsolutePath), nil
@@ -43,7 +48,7 @@ func (repository fileRepository) GetMigrationFilePaths(migrationsDirectoryAbsolu
 func (repository fileRepository) GetMigrationQuery(migrationAbsolutePath string) (string, error) {
 	query, err := repository.fileSystem.ReadFile(migrationAbsolutePath)
 	if err != nil {
-		return "", fmt.Errorf("could not read contents of a migration file (path: %s) \n%w", migrationAbsolutePath, err)
+		return "", errors.Wrapf(err, "could not read contents of a migration file [%s]", migrationAbsolutePath)
 	}
 
 	return string(query), nil

@@ -1,7 +1,6 @@
 package models
 
 import (
-	"fmt"
 	"strconv"
 	"strings"
 
@@ -123,7 +122,7 @@ func (thisMigration MigrationContainer) ShouldBeRunFirst(anotherMigration Migrat
 // NewMigration is a constructor for a Migration implementation.
 func NewMigration(absolutePath string, query string, status int8) (Migration, error) {
 	if status < -1 || status > 2 {
-		return MigrationContainer{}, fmt.Errorf("MigrationContainer invalid status (status: %d)", status)
+		return MigrationContainer{}, errors.Errorf("MigrationContainer invalid status [%d]", status)
 	}
 
 	fileName := extractFileName(absolutePath)
