@@ -87,8 +87,3 @@ The above command results in:
 You can use the [migrations facade](https://github.com/jimenezmaximiliano/migrations/blob/master/facade.go)
 as a tutorial on how to replace any component of the package by implementing one of its
 interfaces.
-
-## Breaking changes
-
-To avoid go modules issues with major version, this package doesn't support semver.
-Breaking changes could happen in minor versions but not in patches.

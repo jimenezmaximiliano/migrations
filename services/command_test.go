@@ -3,6 +3,7 @@ package services
 import (
 	"testing"
 
+	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
 
 	"github.com/jimenezmaximiliano/migrations/mocks"
@@ -22,17 +23,9 @@ func TestParsingArguments(test *testing.T) {
 	service := NewCommandService(parser)
 	arguments := service.ParseArguments()
 
-	if arguments.MigrationsPath != "/tmp/" {
-		test.Fail()
-	}
-
-	if arguments.MigrationName != "name" {
-		test.Fail()
-	}
-
-	if arguments.Command != "command" {
-		test.Fail()
-	}
+	assert.Equal(test, "/tmp/", arguments.MigrationsPath)
+	assert.Equal(test, "name", arguments.MigrationName)
+	assert.Equal(test, "command", arguments.Command)
 }
 
 func TestParsingArgumentsWithEmptyPath(test *testing.T) {

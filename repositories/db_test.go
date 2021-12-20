@@ -4,7 +4,9 @@ import (
 	"fmt"
 	"testing"
 
+	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
+	"github.com/stretchr/testify/require"
 
 	"github.com/jimenezmaximiliano/migrations/mocks"
 )
@@ -15,9 +17,7 @@ func TestCreatingTheMigrationsTable(test *testing.T) {
 	repository := NewDBRepository(db)
 	err := repository.CreateMigrationsTableIfNeeded()
 
-	if err != nil {
-		test.Error(err)
-	}
+	assert.Nil(test, err)
 }
 
 func TestCreatingTheMigrationsTableFailsIfThereWasAnError(test *testing.T) {
@@ -26,9 +26,7 @@ func TestCreatingTheMigrationsTableFailsIfThereWasAnError(test *testing.T) {
 	repository := NewDBRepository(db)
 	err := repository.CreateMigrationsTableIfNeeded()
 
-	if err == nil {
-		test.Fail()
-	}
+	assert.NotNil(test, err)
 }
 
 func TestPingingAnOkConnection(test *testing.T) {
@@ -37,9 +35,7 @@ func TestPingingAnOkConnection(test *testing.T) {
 	repository := NewDBRepository(db)
 	err := repository.Ping()
 
-	if err != nil {
-		test.Fail()
-	}
+	assert.Nil(test, err)
 }
 
 func TestPingingAKOConnection(test *testing.T) {
@@ -48,9 +44,7 @@ func TestPingingAKOConnection(test *testing.T) {
 	repository := NewDBRepository(db)
 	err := repository.Ping()
 
-	if err == nil {
-		test.Fail()
-	}
+	assert.NotNil(test, err)
 }
 
 func TestGettingAlreadyRunMigrationFilePaths(test *testing.T) {
@@ -67,13 +61,8 @@ func TestGettingAlreadyRunMigrationFilePaths(test *testing.T) {
 	repository := NewDBRepository(db)
 	filePaths, err := repository.GetAlreadyRunMigrationFilePaths("/tmp/")
 
-	if err != nil {
-		test.Error(err)
-	}
-
-	if filePaths[0] != "/tmp/migrationAlreadyRun.sql" {
-		test.Errorf("Expected migration path /tmp/migrationAlreadyRun.sql but got %s", filePaths[0])
-	}
+	require.Nil(test, err)
+	assert.Equal(test, "/tmp/migrationAlreadyRun.sql", filePaths[0])
 }
 
 func TestGettingAlreadyRunMigrationFilePathsFailsIfTheQueryFails(test *testing.T) {
@@ -82,9 +71,8 @@ func TestGettingAlreadyRunMigrationFilePathsFailsIfTheQueryFails(test *testing.T
 	repository := NewDBRepository(db)
 	filePaths, err := repository.GetAlreadyRunMigrationFilePaths("/tmp/")
 
-	if err == nil || filePaths != nil {
-		test.Fail()
-	}
+	assert.NotNil(test, err)
+	assert.Nil(test, filePaths)
 }
 
 func TestGettingAlreadyRunMigrationFilePathsFailsIfRowsCannotBeScanned(test *testing.T) {
@@ -98,9 +86,8 @@ func TestGettingAlreadyRunMigrationFilePathsFailsIfRowsCannotBeScanned(test *tes
 	repository := NewDBRepository(db)
 	filePaths, err := repository.GetAlreadyRunMigrationFilePaths("/tmp/")
 
-	if err == nil || filePaths != nil {
-		test.Fail()
-	}
+	assert.NotNil(test, err)
+	assert.Nil(test, filePaths)
 }
 
 func TestRunningASuccessfulMigrationQuery(test *testing.T) {
@@ -110,9 +97,7 @@ func TestRunningASuccessfulMigrationQuery(test *testing.T) {
 	repository := NewDBRepository(db)
 	err := repository.RunMigrationQuery(query)
 
-	if err != nil {
-		test.Fail()
-	}
+	assert.Nil(test, err)
 }
 
 func TestRunningABrokenMigrationQueryFails(test *testing.T) {
@@ -122,9 +107,7 @@ func TestRunningABrokenMigrationQueryFails(test *testing.T) {
 	repository := NewDBRepository(db)
 	err := repository.RunMigrationQuery(query)
 
-	if err == nil {
-		test.Fail()
-	}
+	assert.NotNil(test, err)
 }
 
 func TestRegisteringARunMigration(test *testing.T) {
@@ -134,9 +117,7 @@ func TestRegisteringARunMigration(test *testing.T) {
 	repository := NewDBRepository(db)
 	err := repository.RegisterRunMigration(migrationName)
 
-	if err != nil {
-		test.Fail()
-	}
+	assert.Nil(test, err)
 }
 
 func TestRegisteringARunMigrationFailsIfTheInsertFails(test *testing.T) {
@@ -146,7 +127,5 @@ func TestRegisteringARunMigrationFailsIfTheInsertFails(test *testing.T) {
 	repository := NewDBRepository(db)
 	err := repository.RegisterRunMigration(migrationName)
 
-	if err == nil {
-		test.Fail()
-	}
+	assert.NotNil(test, err)
 }

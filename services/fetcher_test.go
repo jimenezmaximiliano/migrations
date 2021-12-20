@@ -4,6 +4,9 @@ import (
 	"fmt"
 	"testing"
 
+	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
+
 	"github.com/jimenezmaximiliano/migrations/mocks"
 )
 
@@ -30,24 +33,15 @@ func TestGettingMigrations(test *testing.T) {
 
 	migrations, err := service.GetMigrations(migrationsDir)
 
-	if err != nil {
-		test.Error(err)
-	}
+	require.Nil(test, err)
 
-	if len(migrations.GetAll()) != 2 {
-		test.Error("Expected only 1 migration in the collection")
-	}
+	assert.Len(test, migrations.GetAll(), 2)
 
 	migrationsToRun := migrations.GetMigrationsToRun()
 	migrationToRun := migrationsToRun[0]
 
-	if migrationToRun.GetAbsolutePath() != migrationPath2 {
-		test.Errorf("Expected migration absolute path %s but got %s", migrationPath2, migrationToRun.GetAbsolutePath())
-	}
-
-	if migrationToRun.GetQuery() != migrationQuery2 {
-		test.Errorf("Expected migration query %s but got %s", migrationQuery2, migrationToRun.GetQuery())
-	}
+	assert.Equal(test, migrationPath2, migrationToRun.GetAbsolutePath())
+	assert.Equal(test, migrationQuery2, migrationToRun.GetQuery())
 }
 
 func TestGettingMigrationsFailsIfItCannotReadFromTheDB(test *testing.T) {
@@ -62,9 +56,7 @@ func TestGettingMigrationsFailsIfItCannotReadFromTheDB(test *testing.T) {
 
 	_, err := service.GetMigrations(migrationsDir)
 
-	if err == nil {
-		test.Error(err)
-	}
+	assert.NotNil(test, err)
 }
 
 func TestGettingMigrationsFailsIfItCannotReadFromTheFileSystem(test *testing.T) {
@@ -77,9 +69,7 @@ func TestGettingMigrationsFailsIfItCannotReadFromTheFileSystem(test *testing.T) 
 
 	_, err := service.GetMigrations(migrationsDir)
 
-	if err == nil {
-		test.Error(err)
-	}
+	assert.NotNil(test, err)
 }
 
 func TestGettingMigrationsFailsIfAMigrationPathCannotBeRead(test *testing.T) {
@@ -96,9 +86,7 @@ func TestGettingMigrationsFailsIfAMigrationPathCannotBeRead(test *testing.T) {
 
 	_, err := service.GetMigrations(migrationsDir)
 
-	if err == nil {
-		test.Error(err)
-	}
+	assert.NotNil(test, err)
 }
 
 func TestGettingMigrationsFailsIfAMigrationPathAlreadyRunCannotBeRead(test *testing.T) {
@@ -115,7 +103,5 @@ func TestGettingMigrationsFailsIfAMigrationPathAlreadyRunCannotBeRead(test *test
 
 	_, err := service.GetMigrations(migrationsDir)
 
-	if err == nil {
-		test.Error(err)
-	}
+	assert.NotNil(test, err)
 }
