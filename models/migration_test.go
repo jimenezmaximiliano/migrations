@@ -1,4 +1,4 @@
-package models
+package models_test
 
 import (
 	"errors"
@@ -6,6 +6,8 @@ import (
 
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
+
+	"github.com/jimenezmaximiliano/migrations/models"
 )
 
 const validOrder = uint64(1627676757857350000)
@@ -13,29 +15,10 @@ const validName = "1627676757857350000_createTableGophers.sql"
 const validPath = "/tmp/migrations/" + validName
 const validQuery = "CREATE TABLE gophers;"
 
-func TestMigrationDefaultValues(test *testing.T) {
-	migration := migration{}
-
-	path := migration.GetAbsolutePath()
-	assert.Equal(test, "", path)
-
-	name := migration.GetName()
-	assert.Equal(test, "", name)
-
-	query := migration.GetQuery()
-	assert.Equal(test, "", query)
-
-	status := migration.GetStatus()
-	assert.Equal(test, StatusUnknown, status)
-
-	order := migration.GetOrder()
-	assert.Equal(test, uint64(0), order)
-}
-
 func TestMigrationConstruction(test *testing.T) {
 
-	const status = StatusNotRun
-	migration, err := NewMigration(validPath, validQuery, status)
+	const status = models.StatusNotRun
+	migration, err := models.NewMigration(validPath, validQuery, status)
 	require.Nil(test, err)
 
 	assert.Equal(test, validPath, migration.GetAbsolutePath())
@@ -46,26 +29,26 @@ func TestMigrationConstruction(test *testing.T) {
 }
 
 func TestMigrationConstructionFailsWithAnInvalidOrder(test *testing.T) {
-	_, err := NewMigration("/tmp/maxi.sql", validQuery, StatusUnknown)
+	_, err := models.NewMigration("/tmp/maxi.sql", validQuery, models.StatusUnknown)
 
 	assert.NotNil(test, err)
 }
 
 func TestMigrationConstructionFailsWithAnInvalidStatus(test *testing.T) {
-	_, err := NewMigration(validPath, validQuery, -2)
+	_, err := models.NewMigration(validPath, validQuery, -2)
 
 	assert.NotNil(test, err)
 }
 
 func TestMigrationShouldBeRun(test *testing.T) {
-	migration, err := NewMigration(validPath, validQuery, StatusNotRun)
+	migration, err := models.NewMigration(validPath, validQuery, models.StatusNotRun)
 	require.Nil(test, err)
 
 	assert.True(test, migration.ShouldBeRun())
 
-	notRunnableStatuses := []int8{StatusFailed, StatusSuccessful, StatusUnknown}
+	notRunnableStatuses := []int8{models.StatusFailed, models.StatusSuccessful, models.StatusUnknown}
 	for _, status := range notRunnableStatuses {
-		migration, err = NewMigration(validPath, validQuery, status)
+		migration, err = models.NewMigration(validPath, validQuery, status)
 		require.Nil(test, err)
 
 		assert.False(test, migration.ShouldBeRun())
@@ -73,18 +56,18 @@ func TestMigrationShouldBeRun(test *testing.T) {
 }
 
 func TestStatusHelpers(test *testing.T) {
-	migration, err := NewMigration(validPath, validQuery, StatusSuccessful)
+	migration, err := models.NewMigration(validPath, validQuery, models.StatusSuccessful)
 	require.Nil(test, err)
 
 	assert.True(test, migration.WasSuccessful())
 
-	migration, err = NewMigration(validPath, validQuery, StatusFailed)
+	migration, err = models.NewMigration(validPath, validQuery, models.StatusFailed)
 	assert.Nil(test, err)
 	assert.True(test, migration.HasFailed())
 }
 
 func TestChangingTheMigrationsStatusToFailed(test *testing.T) {
-	migration, err := NewMigration(validPath, validQuery, StatusNotRun)
+	migration, err := models.NewMigration(validPath, validQuery, models.StatusNotRun)
 	require.Nil(test, err)
 
 	failedMigration := migration.NewAsFailed(errors.New("oops"))
@@ -97,7 +80,7 @@ func TestChangingTheMigrationsStatusToFailed(test *testing.T) {
 }
 
 func TestChangingTheMigrationsStatusToSuccessful(test *testing.T) {
-	migration, err := NewMigration(validPath, validQuery, StatusNotRun)
+	migration, err := models.NewMigration(validPath, validQuery, models.StatusNotRun)
 	require.Nil(test, err)
 
 	successfulMigration := migration.NewAsSuccessful()
@@ -110,8 +93,8 @@ func TestChangingTheMigrationsStatusToSuccessful(test *testing.T) {
 }
 
 func TestShouldBeRunFirst(test *testing.T) {
-	migration2020, _ := NewMigration("/2020_a.sql", "", StatusNotRun)
-	migration2021, _ := NewMigration("/2021_b.sql", "", StatusNotRun)
+	migration2020, _ := models.NewMigration("/2020_a.sql", "", models.StatusNotRun)
+	migration2021, _ := models.NewMigration("/2021_b.sql", "", models.StatusNotRun)
 
 	assert.True(test, migration2020.ShouldBeRunFirst(migration2021))
 	assert.False(test, migration2021.ShouldBeRunFirst(migration2020))

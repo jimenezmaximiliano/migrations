@@ -1,4 +1,4 @@
-package services
+package services_test
 
 import (
 	"fmt"
@@ -9,13 +9,14 @@ import (
 
 	"github.com/jimenezmaximiliano/migrations/mocks"
 	"github.com/jimenezmaximiliano/migrations/models"
+	"github.com/jimenezmaximiliano/migrations/services"
 )
 
 func TestRunningMigrationsFailsIfTheDBConnectionDoesNotWork(test *testing.T) {
 	fetcher := &mocks.Fetcher{}
 	db := &mocks.DBRepository{}
 	db.On("Ping").Return(fmt.Errorf("db connection error"))
-	service := NewRunnerService(fetcher, db, "/tmp")
+	service := services.NewRunnerService(fetcher, db, "/tmp")
 
 	_, err := service.RunMigrations()
 
@@ -27,7 +28,7 @@ func TestRunningMigrationsFailsIfAMigrationsTableCannotBeCreated(test *testing.T
 	db := &mocks.DBRepository{}
 	db.On("Ping").Return(nil)
 	db.On("CreateMigrationsTableIfNeeded").Return(fmt.Errorf("cannot create table"))
-	service := NewRunnerService(fetcher, db, "/tmp")
+	service := services.NewRunnerService(fetcher, db, "/tmp")
 
 	_, err := service.RunMigrations()
 
@@ -40,7 +41,7 @@ func TestRunningMigrationsFailsIfItCannotFetchMigrationsFromFilesOrTheDB(test *t
 	db.On("CreateMigrationsTableIfNeeded").Return(nil)
 	fetcher := &mocks.Fetcher{}
 	fetcher.On("GetMigrations", "/tmp/").Return(models.Collection{}, fmt.Errorf("cannot fetch migrations"))
-	service := NewRunnerService(fetcher, db, "/tmp")
+	service := services.NewRunnerService(fetcher, db, "/tmp")
 
 	_, err := service.RunMigrations()
 
@@ -53,7 +54,7 @@ func TestRunningMigrationsDoesNotFailIfThereAreNoMigratiosToRun(test *testing.T)
 	db.On("CreateMigrationsTableIfNeeded").Return(nil)
 	fetcher := &mocks.Fetcher{}
 	fetcher.On("GetMigrations", "/tmp/").Return(models.Collection{}, nil)
-	service := NewRunnerService(fetcher, db, "/tmp")
+	service := services.NewRunnerService(fetcher, db, "/tmp")
 
 	_, err := service.RunMigrations()
 
@@ -73,7 +74,7 @@ func TestRunningAMigrationSuccessfully(test *testing.T) {
 	require.Nil(test, err)
 
 	fetcher.On("GetMigrations", "/tmp/").Return(collection, nil)
-	service := NewRunnerService(fetcher, db, "/tmp")
+	service := services.NewRunnerService(fetcher, db, "/tmp")
 
 	result, err := service.RunMigrations()
 
@@ -94,7 +95,7 @@ func TestRunningAMigrationThatFails(test *testing.T) {
 	require.Nil(test, err)
 
 	fetcher.On("GetMigrations", "/tmp/").Return(collection, nil)
-	service := NewRunnerService(fetcher, db, "/tmp")
+	service := services.NewRunnerService(fetcher, db, "/tmp")
 
 	result, err := service.RunMigrations()
 
@@ -116,7 +117,7 @@ func TestRunningAMigrationSuccessfullyAndThenFailingToRegisterIt(test *testing.T
 	require.Nil(test, err)
 
 	fetcher.On("GetMigrations", "/tmp/").Return(collection, nil)
-	service := NewRunnerService(fetcher, db, "/tmp")
+	service := services.NewRunnerService(fetcher, db, "/tmp")
 
 	result, err := service.RunMigrations()
 

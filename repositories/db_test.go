@@ -1,4 +1,4 @@
-package repositories
+package repositories_test
 
 import (
 	"fmt"
@@ -9,12 +9,13 @@ import (
 	"github.com/stretchr/testify/require"
 
 	"github.com/jimenezmaximiliano/migrations/mocks"
+	"github.com/jimenezmaximiliano/migrations/repositories"
 )
 
 func TestCreatingTheMigrationsTable(test *testing.T) {
 	db := &mocks.DB{}
 	db.On("Exec", mock.AnythingOfType("string")).Return(nil, nil)
-	repository := NewDBRepository(db)
+	repository := repositories.NewDBRepository(db)
 	err := repository.CreateMigrationsTableIfNeeded()
 
 	assert.Nil(test, err)
@@ -23,7 +24,7 @@ func TestCreatingTheMigrationsTable(test *testing.T) {
 func TestCreatingTheMigrationsTableFailsIfThereWasAnError(test *testing.T) {
 	db := &mocks.DB{}
 	db.On("Exec", mock.AnythingOfType("string")).Return(nil, fmt.Errorf("db exec error"))
-	repository := NewDBRepository(db)
+	repository := repositories.NewDBRepository(db)
 	err := repository.CreateMigrationsTableIfNeeded()
 
 	assert.NotNil(test, err)
@@ -32,7 +33,7 @@ func TestCreatingTheMigrationsTableFailsIfThereWasAnError(test *testing.T) {
 func TestPingingAnOkConnection(test *testing.T) {
 	db := &mocks.DB{}
 	db.On("Ping").Return(nil)
-	repository := NewDBRepository(db)
+	repository := repositories.NewDBRepository(db)
 	err := repository.Ping()
 
 	assert.Nil(test, err)
@@ -41,7 +42,7 @@ func TestPingingAnOkConnection(test *testing.T) {
 func TestPingingAKOConnection(test *testing.T) {
 	db := &mocks.DB{}
 	db.On("Ping").Return(fmt.Errorf("db ping error"))
-	repository := NewDBRepository(db)
+	repository := repositories.NewDBRepository(db)
 	err := repository.Ping()
 
 	assert.NotNil(test, err)
@@ -58,7 +59,7 @@ func TestGettingAlreadyRunMigrationFilePaths(test *testing.T) {
 	})
 	db := &mocks.DB{}
 	db.On("Query", mock.AnythingOfType("string")).Return(rows, nil)
-	repository := NewDBRepository(db)
+	repository := repositories.NewDBRepository(db)
 	filePaths, err := repository.GetAlreadyRunMigrationFilePaths("/tmp/")
 
 	require.Nil(test, err)
@@ -68,7 +69,7 @@ func TestGettingAlreadyRunMigrationFilePaths(test *testing.T) {
 func TestGettingAlreadyRunMigrationFilePathsFailsIfTheQueryFails(test *testing.T) {
 	db := &mocks.DB{}
 	db.On("Query", mock.AnythingOfType("string")).Return(nil, fmt.Errorf("db query error"))
-	repository := NewDBRepository(db)
+	repository := repositories.NewDBRepository(db)
 	filePaths, err := repository.GetAlreadyRunMigrationFilePaths("/tmp/")
 
 	assert.NotNil(test, err)
@@ -83,7 +84,7 @@ func TestGettingAlreadyRunMigrationFilePathsFailsIfRowsCannotBeScanned(test *tes
 	rows.On("Scan", mock.AnythingOfType("*string")).Return(fmt.Errorf("rows scan error"))
 	db := &mocks.DB{}
 	db.On("Query", mock.AnythingOfType("string")).Return(rows, nil)
-	repository := NewDBRepository(db)
+	repository := repositories.NewDBRepository(db)
 	filePaths, err := repository.GetAlreadyRunMigrationFilePaths("/tmp/")
 
 	assert.NotNil(test, err)
@@ -94,7 +95,7 @@ func TestRunningASuccessfulMigrationQuery(test *testing.T) {
 	const query = "SELECT 1"
 	db := &mocks.DB{}
 	db.On("Exec", query).Return(nil, nil)
-	repository := NewDBRepository(db)
+	repository := repositories.NewDBRepository(db)
 	err := repository.RunMigrationQuery(query)
 
 	assert.Nil(test, err)
@@ -104,7 +105,7 @@ func TestRunningABrokenMigrationQueryFails(test *testing.T) {
 	const query = "SELECT * FROM"
 	db := &mocks.DB{}
 	db.On("Exec", query).Return(nil, fmt.Errorf("db query error"))
-	repository := NewDBRepository(db)
+	repository := repositories.NewDBRepository(db)
 	err := repository.RunMigrationQuery(query)
 
 	assert.NotNil(test, err)
@@ -114,7 +115,7 @@ func TestRegisteringARunMigration(test *testing.T) {
 	const migrationName = ""
 	db := &mocks.DB{}
 	db.On("Exec", mock.AnythingOfType("string"), migrationName).Return(nil, nil)
-	repository := NewDBRepository(db)
+	repository := repositories.NewDBRepository(db)
 	err := repository.RegisterRunMigration(migrationName)
 
 	assert.Nil(test, err)
@@ -124,7 +125,7 @@ func TestRegisteringARunMigrationFailsIfTheInsertFails(test *testing.T) {
 	const migrationName = ""
 	db := &mocks.DB{}
 	db.On("Exec", mock.AnythingOfType("string"), migrationName).Return(nil, fmt.Errorf("db query error"))
-	repository := NewDBRepository(db)
+	repository := repositories.NewDBRepository(db)
 	err := repository.RegisterRunMigration(migrationName)
 
 	assert.NotNil(test, err)

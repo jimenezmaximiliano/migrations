@@ -2,9 +2,10 @@
 
 ## Future versions
 
-- Include binaries with support for several db drivers
-- Add a verbose mode
+- Deprecate migo
 - Wrap errors
+- Add a verbose mode
+- Return structs
 
 ## Maybe
 
