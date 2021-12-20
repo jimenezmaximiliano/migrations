@@ -1,15 +1,17 @@
-package helpers
+package helpers_test
 
 import (
 	"testing"
 
 	"github.com/stretchr/testify/assert"
+
+	"github.com/jimenezmaximiliano/migrations/helpers"
 )
 
 func TestAddingATrailingSlashOnAPathWithoutIt(test *testing.T) {
 	const path = "/tmp"
 	const expectedResult = "/tmp/"
-	result := AddTrailingSlashToPathIfNeeded(path)
+	result := helpers.AddTrailingSlashToPathIfNeeded(path)
 
 	assert.Equal(test, expectedResult, result)
 }
@@ -17,7 +19,7 @@ func TestAddingATrailingSlashOnAPathWithoutIt(test *testing.T) {
 func TestAddingATrailingSlashOnAPathWithIt(test *testing.T) {
 	const path = "/tmp/"
 	const expectedResult = "/tmp/"
-	result := AddTrailingSlashToPathIfNeeded(path)
+	result := helpers.AddTrailingSlashToPathIfNeeded(path)
 
 	assert.Equal(test, expectedResult, result)
 }
@@ -25,7 +27,7 @@ func TestAddingATrailingSlashOnAPathWithIt(test *testing.T) {
 func TestAddingATrailingSlashOnAnEmptyPath(test *testing.T) {
 	const path = ""
 	const expectedResult = "/"
-	result := AddTrailingSlashToPathIfNeeded(path)
+	result := helpers.AddTrailingSlashToPathIfNeeded(path)
 
 	assert.Equal(test, expectedResult, result)
 }

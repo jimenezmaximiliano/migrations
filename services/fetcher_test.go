@@ -1,4 +1,4 @@
-package services
+package services_test
 
 import (
 	"fmt"
@@ -8,6 +8,7 @@ import (
 	"github.com/stretchr/testify/require"
 
 	"github.com/jimenezmaximiliano/migrations/mocks"
+	"github.com/jimenezmaximiliano/migrations/services"
 )
 
 const migrationsDir = "/tmp/"
@@ -29,7 +30,7 @@ func TestGettingMigrations(test *testing.T) {
 		Return(migrationQuery1, nil)
 	fileRepository.On("GetMigrationQuery", migrationPath2).
 		Return(migrationQuery2, nil)
-	service := NewFetcherService(dbRepository, fileRepository)
+	service := services.NewFetcherService(dbRepository, fileRepository)
 
 	migrations, err := service.GetMigrations(migrationsDir)
 
@@ -52,7 +53,7 @@ func TestGettingMigrationsFailsIfItCannotReadFromTheDB(test *testing.T) {
 	fileRepository := &mocks.FileRepository{}
 	fileRepository.On("GetMigrationFilePaths", migrationsDir).
 		Return(nil, nil)
-	service := NewFetcherService(dbRepository, fileRepository)
+	service := services.NewFetcherService(dbRepository, fileRepository)
 
 	_, err := service.GetMigrations(migrationsDir)
 
@@ -65,7 +66,7 @@ func TestGettingMigrationsFailsIfItCannotReadFromTheFileSystem(test *testing.T) 
 	fileRepository := &mocks.FileRepository{}
 	fileRepository.On("GetMigrationFilePaths", migrationsDir).
 		Return(nil, fmt.Errorf("some fs error"))
-	service := NewFetcherService(dbRepository, fileRepository)
+	service := services.NewFetcherService(dbRepository, fileRepository)
 
 	_, err := service.GetMigrations(migrationsDir)
 
@@ -82,7 +83,7 @@ func TestGettingMigrationsFailsIfAMigrationPathCannotBeRead(test *testing.T) {
 		Return([]string{migrationPath1}, nil)
 	fileRepository.On("GetMigrationQuery", migrationPath1).
 		Return("", fmt.Errorf("cannot read file"))
-	service := NewFetcherService(dbRepository, fileRepository)
+	service := services.NewFetcherService(dbRepository, fileRepository)
 
 	_, err := service.GetMigrations(migrationsDir)
 
@@ -99,7 +100,7 @@ func TestGettingMigrationsFailsIfAMigrationPathAlreadyRunCannotBeRead(test *test
 		Return([]string{migrationPath1}, nil)
 	fileRepository.On("GetMigrationQuery", migrationPath1).
 		Return("", fmt.Errorf("cannot read file"))
-	service := NewFetcherService(dbRepository, fileRepository)
+	service := services.NewFetcherService(dbRepository, fileRepository)
 
 	_, err := service.GetMigrations(migrationsDir)
 

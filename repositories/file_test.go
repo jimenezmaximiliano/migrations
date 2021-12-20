@@ -1,4 +1,4 @@
-package repositories
+package repositories_test
 
 import (
 	"fmt"
@@ -9,6 +9,7 @@ import (
 	"github.com/stretchr/testify/require"
 
 	"github.com/jimenezmaximiliano/migrations/mocks"
+	"github.com/jimenezmaximiliano/migrations/repositories"
 )
 
 func TestGettingMigrationFilePaths(test *testing.T) {
@@ -18,7 +19,7 @@ func TestGettingMigrationFilePaths(test *testing.T) {
 	files := []os.FileInfo{file}
 	fileSystem := &mocks.FileSystem{}
 	fileSystem.On("ReadDir", "/tmp/").Return(files, nil)
-	repository := NewFileRepository(fileSystem)
+	repository := repositories.NewFileRepository(fileSystem)
 	paths, err := repository.GetMigrationFilePaths("/tmp/")
 
 	require.Nil(test, err)
@@ -32,7 +33,7 @@ func TestGettingMigrationFilePathsFromADirectoryWithoutTrailingSlash(test *testi
 	files := []os.FileInfo{file}
 	fileSystem := &mocks.FileSystem{}
 	fileSystem.On("ReadDir", "/tmp/").Return(files, nil)
-	repository := NewFileRepository(fileSystem)
+	repository := repositories.NewFileRepository(fileSystem)
 	paths, err := repository.GetMigrationFilePaths("/tmp")
 
 	require.Nil(test, err)
@@ -52,7 +53,7 @@ func TestGettingMigrationFilePathsOmitsNonSqlFilesAndDiretories(test *testing.T)
 	files := []os.FileInfo{directory, file, txtFile}
 	fileSystem := &mocks.FileSystem{}
 	fileSystem.On("ReadDir", "/tmp/").Return(files, nil)
-	repository := NewFileRepository(fileSystem)
+	repository := repositories.NewFileRepository(fileSystem)
 	paths, err := repository.GetMigrationFilePaths("/tmp")
 
 	require.Nil(test, err)
@@ -63,7 +64,7 @@ func TestGettingMigrationFilePathsOmitsNonSqlFilesAndDiretories(test *testing.T)
 func TestGettingMigrationFilePathsFailsIfItIsNotPossibleToReadTheDirectory(test *testing.T) {
 	fileSystem := &mocks.FileSystem{}
 	fileSystem.On("ReadDir", "/tmp/").Return(nil, fmt.Errorf("file system read error"))
-	repository := NewFileRepository(fileSystem)
+	repository := repositories.NewFileRepository(fileSystem)
 	paths, err := repository.GetMigrationFilePaths("/tmp/")
 
 	assert.NotNil(test, err)
@@ -74,7 +75,7 @@ func TestGettingAQuery(test *testing.T) {
 	const query = "SELECT 1"
 	fileSystem := &mocks.FileSystem{}
 	fileSystem.On("ReadFile", "/tmp/1_a.sql").Return([]byte(query), nil)
-	repository := NewFileRepository(fileSystem)
+	repository := repositories.NewFileRepository(fileSystem)
 	readQuery, err := repository.GetMigrationQuery("/tmp/1_a.sql")
 
 	assert.Equal(test, query, readQuery)
@@ -84,7 +85,7 @@ func TestGettingAQuery(test *testing.T) {
 func TestGettingAQueryFailsIfTheFileCannotBeRead(test *testing.T) {
 	fileSystem := &mocks.FileSystem{}
 	fileSystem.On("ReadFile", "/tmp/1_a.sql").Return(nil, fmt.Errorf("file read error"))
-	repository := NewFileRepository(fileSystem)
+	repository := repositories.NewFileRepository(fileSystem)
 	readQuery, err := repository.GetMigrationQuery("/tmp/1_a.sql")
 
 	assert.Equal(test, "", readQuery)
