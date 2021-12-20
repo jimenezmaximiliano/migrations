@@ -5,7 +5,6 @@
 - Deprecate migo
 - Wrap errors
 - Add a verbose mode
-- Return structs
 
 ## Maybe
 
