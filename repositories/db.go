@@ -1,7 +1,7 @@
 package repositories
 
 import (
-	"fmt"
+	"github.com/pkg/errors"
 
 	"github.com/jimenezmaximiliano/migrations/adapters"
 )
@@ -36,7 +36,7 @@ func (repository dbRepository) Ping() error {
 		return nil
 	}
 
-	return fmt.Errorf("could not connect to the DB\n%w", err)
+	return errors.Wrap(err, "could not connect to the DB")
 }
 
 // CreateMigrationsTableIfNeeded creates the migrations table used to keep track of already run migrations.
@@ -48,35 +48,41 @@ func (repository dbRepository) CreateMigrationsTableIfNeeded() error {
 		);`
 	_, err := repository.db.Exec(query)
 	if err != nil {
-		return fmt.Errorf("could not create the migrations table: \n%w", err)
+		return errors.Wrap(err, "could not create the migrations table")
 	}
 
 	return nil
 }
 
 // GetAlreadyRunMigrationFilePaths returns a list of migration file paths that have been run already.
-func (repository dbRepository) GetAlreadyRunMigrationFilePaths(migrationsDirectoryAbsolutePath string) ([]string, error) {
+func (repository dbRepository) GetAlreadyRunMigrationFilePaths(migrationsDirectoryAbsolutePath string) (paths []string, err error) {
 	rows, err := repository.db.Query("SELECT migration FROM migrations")
 	if err != nil {
-		return nil, fmt.Errorf("could not get already run migrations from the migrations table\n%w", err)
+		return nil, errors.Wrapf(err, "could not get already run migrations from the migrations table")
 	}
-	defer rows.Close()
+	defer func() {
+		if closeErr := rows.Close(); closeErr != nil && err == nil {
+			err = closeErr
+		}
+	}()
 
-	return getMigrationPathsFromRows(rows, migrationsDirectoryAbsolutePath)
+	paths, err = getMigrationPathsFromRows(rows, migrationsDirectoryAbsolutePath)
+
+	return paths, err
 }
 
 // RunMigrationQuery runs the migration query.
 func (repository dbRepository) RunMigrationQuery(query string) error {
 	_, err := repository.db.Exec(query)
 
-	return err
+	return errors.Wrap(err, "failed to run migration query")
 }
 
 // RegisterRunMigration creates a record on the migrations table for a successfully run migration.
 func (repository dbRepository) RegisterRunMigration(migrationFileName string) error {
 	_, err := repository.db.Exec("INSERT INTO migrations (migration) VALUES (?)", migrationFileName)
 
-	return err
+	return errors.Wrapf(err, "failed to register a run migration [%s]", migrationFileName)
 }
 
 func getMigrationPathsFromRows(rows adapters.DBRows, migrationsDirectoryAbsolutePath string) ([]string, error) {
@@ -85,7 +91,7 @@ func getMigrationPathsFromRows(rows adapters.DBRows, migrationsDirectoryAbsolute
 		migrationFileName := ""
 		err := rows.Scan(&migrationFileName)
 		if err != nil {
-			return migrationsAlreadyRun, fmt.Errorf("migrations.readMigrationRowFromMigrationsTable \n%w", err)
+			return migrationsAlreadyRun, errors.Wrap(err, "failed to query migrations already run")
 		}
 		currentMigrationAbsolutePath := migrationsDirectoryAbsolutePath + migrationFileName
 		migrationsAlreadyRun = append(migrationsAlreadyRun, currentMigrationAbsolutePath)

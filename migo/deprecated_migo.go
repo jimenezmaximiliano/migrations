@@ -8,6 +8,7 @@ import (
 	"github.com/jimenezmaximiliano/migrations/services"
 )
 
+// Deprecated
 func main() {
 	commandService := services.NewCommandService(adapters.NewArgumentParser())
 	arguments := commandService.ParseArguments()
@@ -32,6 +33,7 @@ func main() {
 	os.Exit(0)
 }
 
+// Deprecated.
 func displayHelp() {
 	fmt.Fprint(os.Stdout, "Documentation: https://github.com/jimenezmaximiliano/migrations\n\n")
 	fmt.Fprint(os.Stdout, "Usage:\n")

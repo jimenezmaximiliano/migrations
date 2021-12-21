@@ -9,6 +9,20 @@ type FileRepository struct {
 	mock.Mock
 }
 
+// CreateMigration provides a mock function with given fields: migrationAbsolutePath, query
+func (_m *FileRepository) CreateMigration(migrationAbsolutePath string, query string) error {
+	ret := _m.Called(migrationAbsolutePath, query)
+
+	var r0 error
+	if rf, ok := ret.Get(0).(func(string, string) error); ok {
+		r0 = rf(migrationAbsolutePath, query)
+	} else {
+		r0 = ret.Error(0)
+	}
+
+	return r0
+}
+
 // GetMigrationFilePaths provides a mock function with given fields: migrationsDirectoryAbsolutePath
 func (_m *FileRepository) GetMigrationFilePaths(migrationsDirectoryAbsolutePath string) ([]string, error) {
 	ret := _m.Called(migrationsDirectoryAbsolutePath)

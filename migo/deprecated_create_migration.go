@@ -10,6 +10,7 @@ import (
 	"github.com/jimenezmaximiliano/migrations/helpers"
 )
 
+// Deprecated.
 func createMigration(name, path string) (string, error) {
 	if name == "" {
 		return "", errors.New("a migration's name cannot be empty")

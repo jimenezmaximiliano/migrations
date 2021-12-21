@@ -2,12 +2,77 @@
 
 ![migrate](https://bestanimations.com/media/birds/1460382957ducks-flying-gif.gif)
 
-Migrations is a database migration tool that uses go's **database/sql** from the standard library
+Migrations is a minimalistic database migration tool that uses go's **database/sql** from the standard library.
 
-## How to use it
+## Features
 
-    go get github.com/jimenezmaximiliano/migrations
+- supports [any database driver](https://github.com/golang/go/wiki/SQLDrivers) that is compatible with **database/sql**, including: MySQL, Microsoft SQL Server, PostgreSQL, Oracle and SQLite.
+- migrations are simple SQL files
+- migrations can contain multiple queries
+- easy generation of migration files
+- we keep track of run migrations
+- minimal dependencies
+- customizable
 
+## Usage
+
+### Examples
+
+#### Create a migration file
+
+```bash
+./migrations create -name=createGophersTable -path=/app/migrations/
+```
+
+#### Run migrations
+```bash
+./migrations migrate -path=/app/migrations/
+```
+
+### create command
+
+The **create** command creates a file with a prefix using the current timestamp. That's going to be used to determine
+the order on which migrations should be run.
+
+For example, running:
+
+```bash
+./migrations create -name=createGophersTable -path=/app/migrations/
+./migrations create -name=createGolfersTable -path=/app/migrations/
+```
+
+Will result in:
+
+```bash
+/app/migrations/1627676712447528000_createGophersTable.sql
+/app/migrations/1627676757857350000_createGolfersTable.sql
+```
+
+### migrate command
+
+The **migrate** command runs migrations and then displays a report with the result of each migration run, if any.
+
+```bash
+./migrations migrate -path=/app/migrations/
+```
+
+Example output:
+
+```bash
+[ INFO ] Run migrations
+[  OK  ] 1627676712447528000_createGophersTable.sql
+[  OK  ] 1627676757857350000_createGolfersTable.sql
+[ INFO ] Done
+```
+
+## Setup
+
+1) Get the module
+```bash
+go get github.com/jimenezmaximiliano/migrations
+```
+
+2) Create a go file using the next template:
 ```golang
 package main
 
@@ -28,9 +93,14 @@ func main() {
 }
 ```
 
-Then use the binary like this:
-
-    ./migrate -path=/absolute/path/to/migrations
+3) Then use the binary like this:
+```bash
+./migrations migrate -path=/app/migrations
+```
+or
+```bash
+go run migrations.go migrate -path=/app/migrations
+```
 
 > See the [example directory](https://github.com/jimenezmaximiliano/migrations/tree/master/example) in this repository for a working example
 
@@ -42,7 +112,7 @@ All migration files must:
 - end in *.sql* (files without the .sql extension will be ignored)
 - be in this format: {number}_{string}.sql where number determines the order on which migrations will be run
 - be ordered by filename in the order they should run 
-  (you can use migo for that)
+  (you can use the **create** command for that)
 
 Example:
 
@@ -53,34 +123,6 @@ Example:
 ```
 
 > See [example migrations](https://github.com/jimenezmaximiliano/migrations/tree/master/example/migrations) in the example directory
-
-### Using migo to create migration files
-
-Migo creates migration files using the current timestamp as a prefix.
-
-#### Installation
-
-```bash
-go get -u github.com/jimenezmaximiliano/migrations/migo
-```
-
-#### Usage
-
-```bash
-migo -path=/app/migrations name=myMigration migration:create
-```
-
-The above command results in:
-
-```bash
-/app/migrations/1627676757857350000_myMigration.sql
-```
-
-## How it works / features
-
-- migration files can contain multiple queries
-- each successful migration will be added to the migrations table
-- the migrations table is created automatically when migrations are run
 
 ## Customization
 

@@ -2,6 +2,7 @@ package repositories_test
 
 import (
 	"fmt"
+	"io/fs"
 	"os"
 	"testing"
 
@@ -102,4 +103,19 @@ func TestGettingAQueryFailsIfTheFileCannotBeRead(test *testing.T) {
 
 	assert.Equal(test, "", readQuery)
 	assert.NotNil(test, err)
+}
+
+func TestCreatingAFile(test *testing.T) {
+	test.Parallel()
+
+	fileSystem := &mocks.FileSystem{}
+	repository := repositories.NewFileRepository(fileSystem)
+
+	fileSystem.
+		On("WriteFile", "/tmp/1.sql", []byte("SELECT 1;"), fs.FileMode(0644)).
+		Return(nil)
+
+	err := repository.CreateMigration("/tmp/1.sql", "SELECT 1;")
+
+	assert.Nil(test, err)
 }

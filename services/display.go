@@ -18,6 +18,7 @@ type Display interface {
 	// Deprecated: use DisplayError instead
 	DisplayGeneralError(err error)
 	DisplayHelp()
+	DisplayInfo(message string)
 }
 
 type DisplayService struct {
@@ -94,12 +95,24 @@ func (service DisplayService) failure(message string) {
 	_ = service.printer.Print(os.Stderr, messageFormat, failedMigration, message)
 }
 
+func (service DisplayService) DisplayInfo(message string) {
+	_ = service.printer.Print(os.Stdout, "\n%s\n\n", message)
+}
+
 func (service DisplayService) DisplayHelp() {
 	_ = service.printer.Print(os.Stdout, "\nUsage:\n")
 	_ = service.printer.Print(os.Stdout, "\t[executable] [command] [-options]\n\n")
 	_ = service.printer.Print(os.Stdout, "\tExamples:\n\n")
-	_ = service.printer.Print(os.Stdout, "\tgo run main.go migrate -path=/path/to/migrations/directory/\n")
-	_ = service.printer.Print(os.Stdout, "\t./myMigrationBinary migrate -path=/path/to/migrations/directory/\n\n")
+	_ = service.printer.Print(os.Stdout, "\t\tgo run main.go migrate -path=/path/to/migrations/directory/\n")
+	_ = service.printer.Print(os.Stdout, "\t\t./myMigrationBinary migrate -path=/path/to/migrations/directory/\n\n")
+	_ = service.printer.Print(os.Stdout, "Available commands:\n\n")
+	_ = service.printer.Print(os.Stdout, "\tmigrate [-path]\n")
+	_ = service.printer.Print(os.Stdout, "\t./migrate migrate -path=/path/to/migrations/directory/\n\n")
+	_ = service.printer.Print(os.Stdout, "\tcreate [-name] [-path]\n")
+	_ = service.printer.Print(
+		os.Stdout,
+		"\t./migrate create -path=/path/to/migrations/directory/ -name=createTableGophers\n\n",
+	)
 	_ = service.printer.Print(os.Stdout, "\nDocumentation: https://github.com/jimenezmaximiliano/migrations\n\n")
 }
 

@@ -1,6 +1,7 @@
 package adapters
 
 import (
+	"io/fs"
 	"io/ioutil"
 	"os"
 )
@@ -9,6 +10,7 @@ import (
 type FileSystem interface {
 	ReadDir(dirname string) ([]os.FileInfo, error)
 	ReadFile(filename string) ([]byte, error)
+	WriteFile(filename string, data []byte, perm fs.FileMode) error
 }
 
 // IOUtilAdapter is an implementation of FileSystem using io/ioutil and os.
@@ -25,4 +27,8 @@ func (adapter IOUtilAdapter) ReadDir(dirname string) ([]os.FileInfo, error) {
 // ReadFile reads the contents of a file.
 func (adapter IOUtilAdapter) ReadFile(filename string) ([]byte, error) {
 	return ioutil.ReadFile(filename)
+}
+
+func (adapter IOUtilAdapter) WriteFile(filename string, data []byte, perm fs.FileMode) error {
+	return ioutil.WriteFile(filename, data, perm)
 }
