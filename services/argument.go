@@ -74,6 +74,7 @@ func (service CommandArgumentService) parse() Arguments {
 	nameOption := service.parser.OptionString("name", "")
 
 	err := service.parser.ParseArguments(rawArgs)
+	// nolint - Ignore this empty branch because it serves as documentation of the decision and it's explicit.
 	if err != nil {
 		// Let it continue so we can apply default values.
 	}
