@@ -8,7 +8,7 @@ import (
 	"github.com/jimenezmaximiliano/migrations/services"
 )
 
-// Deprecated
+// Deprecated: use the migrations binary to create new migrations instead.
 func main() {
 	commandService := services.NewCommandService(adapters.NewArgumentParser())
 	arguments := commandService.ParseArguments()
@@ -33,7 +33,7 @@ func main() {
 	os.Exit(0)
 }
 
-// Deprecated.
+// Deprecated: migo is deprecated.
 func displayHelp() {
 	fmt.Fprint(os.Stdout, "Documentation: https://github.com/jimenezmaximiliano/migrations\n\n")
 	fmt.Fprint(os.Stdout, "Usage:\n")

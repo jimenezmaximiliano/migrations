@@ -59,7 +59,6 @@ func RunMigrationsCommand(setupDB SetupDB) {
 			os.Exit(1)
 		}
 		displayService.DisplayRunMigrations(result)
-		break
 	case "create":
 		commands.NewCreateMigrationCommand(fileRepository, displayService, arguments).Run()
 	}
