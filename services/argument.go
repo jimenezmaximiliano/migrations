@@ -10,6 +10,12 @@ import (
 	"github.com/jimenezmaximiliano/migrations/helpers"
 )
 
+const (
+	EnvVarMigrationsPath   string = "MIGRATIONS_PATH"
+	EnvVarNewMigrationName string = "MIGRATIONS_NEW_MIGRATION_NAME"
+	EnvVarCommand          string = "MIGRATIONS_COMMAND"
+)
+
 var ValidCommands = []string{"migrate", "create"}
 
 // Arguments represents the command line arguments for the migrations commands.
@@ -67,45 +73,71 @@ func (service CommandArgumentService) ParseAndValidate() (Arguments, bool) {
 }
 
 func (service CommandArgumentService) parse() Arguments {
-	var parsedArgs Arguments
 	rawArgs := getRearrangedArguments()
 
 	pathOption := service.parser.OptionString("path", "")
 	nameOption := service.parser.OptionString("name", "")
 
+	// Parse command line arguments.
 	err := service.parser.ParseArguments(rawArgs)
-	// nolint - Ignore this empty branch because it serves as documentation of the decision and it's explicit.
+	// nolint - Ignore this empty branch because it serves as documentation of the decision, and it's explicit.
 	if err != nil {
-		// Let it continue so we can apply default values.
+		// Let it continue, so we can check environment variables and apply default values.
 	}
 
-	// Migration's directory path
-	if pathOption != nil {
-		parsedArgs.MigrationsPath = *pathOption
+	return Arguments{
+		MigrationsPath: parseMigrationsDirectoryPath(pathOption),
+		MigrationName:  parseNewMigrationName(nameOption),
+		Command:        service.parseCommand(),
 	}
-	if parsedArgs.MigrationsPath != "" {
-		parsedArgs.MigrationsPath = helpers.AddTrailingSlashToPathIfNeeded(parsedArgs.MigrationsPath)
+}
+
+func parseMigrationsDirectoryPath(pathOption *string) string {
+	// Parse the path command option.
+	if pathOption != nil && *pathOption != "" {
+		return helpers.AddTrailingSlashToPathIfNeeded(*pathOption)
 	}
 
-	// Migration name
-	if nameOption != nil {
-		parsedArgs.MigrationName = *nameOption
+	// Parse the path environment variable.
+	pathEnvVar := os.Getenv(EnvVarMigrationsPath)
+	if pathEnvVar != "" {
+		return helpers.AddTrailingSlashToPathIfNeeded(pathEnvVar)
 	}
 
-	// Command
+	return ""
+}
+
+func parseNewMigrationName(nameOption *string) string {
+	// Parse the name command option.
+	if nameOption != nil && *nameOption != "" {
+		return *nameOption
+	}
+
+	// Parse the name environment variable.
+	return os.Getenv(EnvVarNewMigrationName)
+}
+
+func (service CommandArgumentService) parseCommand() string {
+	// Parse the first argument.
 	positionalArguments := service.parser.PositionalArguments()
-	if len(positionalArguments) > 0 {
-		parsedArgs.Command = positionalArguments[0]
-	}
-	// Default to migrate for retro compatibility.
-	if parsedArgs.Command == "" {
-		parsedArgs.Command = "migrate"
+	if len(positionalArguments) > 0 && positionalArguments[0] != "" {
+		return positionalArguments[0]
 	}
 
-	return parsedArgs
+	commandEnvVar := os.Getenv(EnvVarCommand)
+	if commandEnvVar != "" {
+		return commandEnvVar
+	}
+
+	// Default to migrate for retro compatibility.
+	return "migrate"
 }
 
 func getRearrangedArguments() []string {
+	if len(os.Args) == 0 {
+		return nil
+	}
+
 	args := os.Args[1:]
 	rearrangedArgs := make([]string, len(args))
 	options := make([]string, 0)

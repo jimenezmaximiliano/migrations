@@ -17,10 +17,12 @@ func TestGettingMigrationFilePaths(test *testing.T) {
 	test.Parallel()
 
 	file := &mocks.File{}
+	defer file.AssertExpectations(test)
 	file.On("Name").Return("1_a.sql")
 	file.On("IsDir").Return(false)
 	files := []os.FileInfo{file}
 	fileSystem := &mocks.FileSystem{}
+	defer fileSystem.AssertExpectations(test)
 	fileSystem.On("ReadDir", "/tmp/").Return(files, nil)
 	repository := repositories.NewFileRepository(fileSystem)
 	paths, err := repository.GetMigrationFilePaths("/tmp/")
@@ -33,10 +35,12 @@ func TestGettingMigrationFilePathsFromADirectoryWithoutTrailingSlash(test *testi
 	test.Parallel()
 
 	file := &mocks.File{}
+	defer file.AssertExpectations(test)
 	file.On("Name").Return("1_a.sql")
 	file.On("IsDir").Return(false)
 	files := []os.FileInfo{file}
 	fileSystem := &mocks.FileSystem{}
+	defer fileSystem.AssertExpectations(test)
 	fileSystem.On("ReadDir", "/tmp/").Return(files, nil)
 	repository := repositories.NewFileRepository(fileSystem)
 	paths, err := repository.GetMigrationFilePaths("/tmp")
@@ -49,16 +53,20 @@ func TestGettingMigrationFilePathsOmitsNonSqlFilesAndDiretories(test *testing.T)
 	test.Parallel()
 
 	file := &mocks.File{}
+	defer file.AssertExpectations(test)
 	file.On("Name").Return("1_a.sql")
 	file.On("IsDir").Return(false)
 	directory := &mocks.File{}
+	defer directory.AssertExpectations(test)
 	directory.On("Name").Return("2_b.sql")
 	directory.On("IsDir").Return(true)
 	txtFile := &mocks.File{}
+	defer txtFile.AssertExpectations(test)
 	txtFile.On("Name").Return("3.txt")
 	txtFile.On("IsDir").Return(false)
 	files := []os.FileInfo{directory, file, txtFile}
 	fileSystem := &mocks.FileSystem{}
+	defer fileSystem.AssertExpectations(test)
 	fileSystem.On("ReadDir", "/tmp/").Return(files, nil)
 	repository := repositories.NewFileRepository(fileSystem)
 	paths, err := repository.GetMigrationFilePaths("/tmp")
@@ -72,6 +80,7 @@ func TestGettingMigrationFilePathsFailsIfItIsNotPossibleToReadTheDirectory(test 
 	test.Parallel()
 
 	fileSystem := &mocks.FileSystem{}
+	defer fileSystem.AssertExpectations(test)
 	fileSystem.On("ReadDir", "/tmp/").Return(nil, fmt.Errorf("file system read error"))
 	repository := repositories.NewFileRepository(fileSystem)
 	paths, err := repository.GetMigrationFilePaths("/tmp/")
@@ -85,6 +94,7 @@ func TestGettingAQuery(test *testing.T) {
 
 	const query = "SELECT 1"
 	fileSystem := &mocks.FileSystem{}
+	defer fileSystem.AssertExpectations(test)
 	fileSystem.On("ReadFile", "/tmp/1_a.sql").Return([]byte(query), nil)
 	repository := repositories.NewFileRepository(fileSystem)
 	readQuery, err := repository.GetMigrationQuery("/tmp/1_a.sql")
@@ -97,6 +107,7 @@ func TestGettingAQueryFailsIfTheFileCannotBeRead(test *testing.T) {
 	test.Parallel()
 
 	fileSystem := &mocks.FileSystem{}
+	defer fileSystem.AssertExpectations(test)
 	fileSystem.On("ReadFile", "/tmp/1_a.sql").Return(nil, fmt.Errorf("file read error"))
 	repository := repositories.NewFileRepository(fileSystem)
 	readQuery, err := repository.GetMigrationQuery("/tmp/1_a.sql")
@@ -109,6 +120,7 @@ func TestCreatingAFile(test *testing.T) {
 	test.Parallel()
 
 	fileSystem := &mocks.FileSystem{}
+	defer fileSystem.AssertExpectations(test)
 	repository := repositories.NewFileRepository(fileSystem)
 
 	fileSystem.

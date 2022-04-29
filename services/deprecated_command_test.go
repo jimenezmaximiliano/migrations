@@ -14,6 +14,7 @@ func TestParsingArgumentsWithEmptyPath(test *testing.T) {
 	path := ""
 	name := "name"
 	parser := &mocks.ArgumentParser{}
+	defer parser.AssertExpectations(test)
 	parser.On("OptionString", "path", mock.AnythingOfType("string")).
 		Return(&path)
 	parser.On("OptionString", "name", mock.AnythingOfType("string")).
@@ -21,6 +22,7 @@ func TestParsingArgumentsWithEmptyPath(test *testing.T) {
 	parser.On("PositionalArguments").
 		Return([]string{"command"})
 	parser.On("ParseArguments", mock.AnythingOfType("[]string")).Return(nil)
+
 	service := services.NewCommandService(parser)
 	arguments := service.ParseArguments()
 
@@ -31,14 +33,15 @@ func TestParsingArgumentsWithEmptyName(test *testing.T) {
 	path := "/tmp"
 	name := ""
 	parser := &mocks.ArgumentParser{}
+	defer parser.AssertExpectations(test)
 	parser.On("OptionString", "path", mock.AnythingOfType("string")).
 		Return(&path)
 	parser.On("OptionString", "name", mock.AnythingOfType("string")).
 		Return(&name)
 	parser.On("PositionalArguments").
 		Return([]string{"command"})
-	parser.On("Parse").Return(nil)
 	parser.On("ParseArguments", mock.AnythingOfType("[]string")).Return(nil)
+
 	service := services.NewCommandService(parser)
 	arguments := service.ParseArguments()
 
@@ -49,6 +52,7 @@ func TestParsingArgumentsWithEmptyCommand(test *testing.T) {
 	path := "/tmp"
 	name := "name"
 	parser := &mocks.ArgumentParser{}
+	parser.AssertExpectations(test)
 	parser.On("OptionString", "path", mock.AnythingOfType("string")).
 		Return(&path)
 	parser.On("OptionString", "name", mock.AnythingOfType("string")).
@@ -58,6 +62,7 @@ func TestParsingArgumentsWithEmptyCommand(test *testing.T) {
 	parser.On("Parse").Return(nil)
 	service := services.NewCommandService(parser)
 	parser.On("ParseArguments", mock.AnythingOfType("[]string")).Return(nil)
+
 	arguments := service.ParseArguments()
 
 	assert.Equal(test, "migrate", arguments.Command)

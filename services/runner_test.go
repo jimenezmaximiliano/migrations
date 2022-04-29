@@ -16,8 +16,12 @@ func TestRunningMigrationsFailsIfTheDBConnectionDoesNotWork(test *testing.T) {
 	test.Parallel()
 
 	fetcher := &mocks.Fetcher{}
+	defer fetcher.AssertExpectations(test)
+
 	db := &mocks.DBRepository{}
+	defer db.AssertExpectations(test)
 	db.On("Ping").Return(fmt.Errorf("db connection error"))
+
 	service := services.NewRunnerService(fetcher, db, "/tmp")
 
 	_, err := service.RunMigrations()
@@ -30,8 +34,10 @@ func TestRunningMigrationsFailsIfAMigrationsTableCannotBeCreated(test *testing.T
 
 	fetcher := &mocks.Fetcher{}
 	db := &mocks.DBRepository{}
+	defer db.AssertExpectations(test)
 	db.On("Ping").Return(nil)
 	db.On("CreateMigrationsTableIfNeeded").Return(fmt.Errorf("cannot create table"))
+
 	service := services.NewRunnerService(fetcher, db, "/tmp")
 
 	_, err := service.RunMigrations()
@@ -43,10 +49,14 @@ func TestRunningMigrationsFailsIfItCannotFetchMigrationsFromFilesOrTheDB(test *t
 	test.Parallel()
 
 	db := &mocks.DBRepository{}
+	defer db.AssertExpectations(test)
 	db.On("Ping").Return(nil)
 	db.On("CreateMigrationsTableIfNeeded").Return(nil)
+
 	fetcher := &mocks.Fetcher{}
+	defer fetcher.AssertExpectations(test)
 	fetcher.On("GetMigrations", "/tmp/").Return(models.Collection{}, fmt.Errorf("cannot fetch migrations"))
+
 	service := services.NewRunnerService(fetcher, db, "/tmp")
 
 	_, err := service.RunMigrations()
@@ -58,10 +68,14 @@ func TestRunningMigrationsDoesNotFailIfThereAreNoMigratiosToRun(test *testing.T)
 	test.Parallel()
 
 	db := &mocks.DBRepository{}
+	defer db.AssertExpectations(test)
 	db.On("Ping").Return(nil)
 	db.On("CreateMigrationsTableIfNeeded").Return(nil)
+
 	fetcher := &mocks.Fetcher{}
+	defer fetcher.AssertExpectations(test)
 	fetcher.On("GetMigrations", "/tmp/").Return(models.Collection{}, nil)
+
 	service := services.NewRunnerService(fetcher, db, "/tmp")
 
 	_, err := service.RunMigrations()
@@ -73,10 +87,12 @@ func TestRunningAMigrationSuccessfully(test *testing.T) {
 	test.Parallel()
 
 	db := &mocks.DBRepository{}
+	defer db.AssertExpectations(test)
 	db.On("Ping").Return(nil)
 	db.On("CreateMigrationsTableIfNeeded").Return(nil)
 	db.On("RunMigrationQuery", "SELECT 1").Return(nil)
 	db.On("RegisterRunMigration", "1_a.sql").Return(nil)
+
 	fetcher := &mocks.Fetcher{}
 	collection := models.Collection{}
 	migration, _ := models.NewMigration("/tmp/1_a.sql", "SELECT 1", models.StatusNotRun)
@@ -84,6 +100,8 @@ func TestRunningAMigrationSuccessfully(test *testing.T) {
 	require.Nil(test, err)
 
 	fetcher.On("GetMigrations", "/tmp/").Return(collection, nil)
+	defer fetcher.AssertExpectations(test)
+
 	service := services.NewRunnerService(fetcher, db, "/tmp")
 
 	result, err := service.RunMigrations()
@@ -97,10 +115,14 @@ func TestRunningAMigrationThatFails(test *testing.T) {
 	test.Parallel()
 
 	db := &mocks.DBRepository{}
+	defer db.AssertExpectations(test)
 	db.On("Ping").Return(nil)
 	db.On("CreateMigrationsTableIfNeeded").Return(nil)
 	db.On("RunMigrationQuery", "SELECT 1").Return(fmt.Errorf("query failed"))
+
 	fetcher := &mocks.Fetcher{}
+	defer fetcher.AssertExpectations(test)
+
 	collection := models.Collection{}
 	migration, _ := models.NewMigration("/tmp/1_a.sql", "SELECT 1", models.StatusNotRun)
 	err := collection.Add(migration)
@@ -120,11 +142,13 @@ func TestRunningAMigrationSuccessfullyAndThenFailingToRegisterIt(test *testing.T
 	test.Parallel()
 
 	db := &mocks.DBRepository{}
+	defer db.AssertExpectations(test)
 	db.On("Ping").Return(nil)
 	db.On("CreateMigrationsTableIfNeeded").Return(nil)
 	db.On("RunMigrationQuery", "SELECT 1").Return(nil)
 	db.On("RegisterRunMigration", "1_a.sql").Return(fmt.Errorf("failed to register run migration"))
 	fetcher := &mocks.Fetcher{}
+	defer fetcher.AssertExpectations(test)
 	collection := models.Collection{}
 	migration, _ := models.NewMigration("/tmp/1_a.sql", "SELECT 1", models.StatusNotRun)
 	err := collection.Add(migration)

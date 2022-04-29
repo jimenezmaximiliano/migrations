@@ -13,6 +13,7 @@ Migrations is a minimalistic database migration tool that uses go's **database/s
 - we keep track of run migrations
 - minimal dependencies
 - customizable
+- support for environment variables
 
 ## Usage
 
@@ -24,9 +25,21 @@ Migrations is a minimalistic database migration tool that uses go's **database/s
 ./migrations create -name=createGophersTable -path=/app/migrations/
 ```
 
+or use environment variables:
+
+```bash
+MIGRATIONS_COMMAND="create" MIGRATIONS_PATH="/app/migrations/" MIGRATIONS_NEW_MIGRATION_NAME="createGophersTable" ./migrations
+```
+
 #### Run migrations
 ```bash
 ./migrations migrate -path=/app/migrations/
+```
+
+or use environment variables:
+
+```bash
+MIGRATIONS_COMMAND="migrate" MIGRATIONS_PATH="/app/migrations/" ./migrations
 ```
 
 ### create command

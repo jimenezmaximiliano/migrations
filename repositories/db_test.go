@@ -16,6 +16,7 @@ func TestCreatingTheMigrationsTable(test *testing.T) {
 	test.Parallel()
 
 	db := &mocks.DB{}
+	defer db.AssertExpectations(test)
 	db.On("Exec", mock.AnythingOfType("string")).Return(nil, nil)
 	repository := repositories.NewDBRepository(db)
 	err := repository.CreateMigrationsTableIfNeeded()
@@ -27,6 +28,7 @@ func TestCreatingTheMigrationsTableFailsIfThereWasAnError(test *testing.T) {
 	test.Parallel()
 
 	db := &mocks.DB{}
+	defer db.AssertExpectations(test)
 	db.On("Exec", mock.AnythingOfType("string")).Return(nil, fmt.Errorf("db exec error"))
 	repository := repositories.NewDBRepository(db)
 	err := repository.CreateMigrationsTableIfNeeded()
@@ -38,6 +40,7 @@ func TestPingingAnOkConnection(test *testing.T) {
 	test.Parallel()
 
 	db := &mocks.DB{}
+	defer db.AssertExpectations(test)
 	db.On("Ping").Return(nil)
 	repository := repositories.NewDBRepository(db)
 	err := repository.Ping()
@@ -49,6 +52,7 @@ func TestPingingAKOConnection(test *testing.T) {
 	test.Parallel()
 
 	db := &mocks.DB{}
+	defer db.AssertExpectations(test)
 	db.On("Ping").Return(fmt.Errorf("db ping error"))
 	repository := repositories.NewDBRepository(db)
 	err := repository.Ping()
@@ -60,6 +64,7 @@ func TestGettingAlreadyRunMigrationFilePaths(test *testing.T) {
 	test.Parallel()
 
 	rows := &mocks.DBRows{}
+	defer rows.AssertExpectations(test)
 	rows.On("Close").Return(nil).Once()
 	rows.On("Next").Return(true).Once()
 	rows.On("Next").Return(false).Once()
@@ -68,6 +73,7 @@ func TestGettingAlreadyRunMigrationFilePaths(test *testing.T) {
 		*thePath = "migrationAlreadyRun.sql"
 	})
 	db := &mocks.DB{}
+	defer db.AssertExpectations(test)
 	db.On("Query", mock.AnythingOfType("string")).Return(rows, nil)
 	repository := repositories.NewDBRepository(db)
 	filePaths, err := repository.GetAlreadyRunMigrationFilePaths("/tmp/")
@@ -80,6 +86,7 @@ func TestGettingAlreadyRunMigrationFilePathsFailsIfTheQueryFails(test *testing.T
 	test.Parallel()
 
 	db := &mocks.DB{}
+	defer db.AssertExpectations(test)
 	db.On("Query", mock.AnythingOfType("string")).Return(nil, fmt.Errorf("db query error"))
 	repository := repositories.NewDBRepository(db)
 	filePaths, err := repository.GetAlreadyRunMigrationFilePaths("/tmp/")
@@ -92,11 +99,12 @@ func TestGettingAlreadyRunMigrationFilePathsFailsIfRowsCannotBeScanned(test *tes
 	test.Parallel()
 
 	rows := &mocks.DBRows{}
+	defer rows.AssertExpectations(test)
 	rows.On("Close").Return(nil).Once()
 	rows.On("Next").Return(true).Once()
-	rows.On("Next").Return(false).Once()
 	rows.On("Scan", mock.AnythingOfType("*string")).Return(fmt.Errorf("rows scan error"))
 	db := &mocks.DB{}
+	defer db.AssertExpectations(test)
 	db.On("Query", mock.AnythingOfType("string")).Return(rows, nil)
 	repository := repositories.NewDBRepository(db)
 	filePaths, err := repository.GetAlreadyRunMigrationFilePaths("/tmp/")
@@ -110,6 +118,7 @@ func TestRunningASuccessfulMigrationQuery(test *testing.T) {
 
 	const query = "SELECT 1"
 	db := &mocks.DB{}
+	defer db.AssertExpectations(test)
 	db.On("Exec", query).Return(nil, nil)
 	repository := repositories.NewDBRepository(db)
 	err := repository.RunMigrationQuery(query)
@@ -122,6 +131,7 @@ func TestRunningABrokenMigrationQueryFails(test *testing.T) {
 
 	const query = "SELECT * FROM"
 	db := &mocks.DB{}
+	defer db.AssertExpectations(test)
 	db.On("Exec", query).Return(nil, fmt.Errorf("db query error"))
 	repository := repositories.NewDBRepository(db)
 	err := repository.RunMigrationQuery(query)
@@ -134,6 +144,7 @@ func TestRegisteringARunMigration(test *testing.T) {
 
 	const migrationName = ""
 	db := &mocks.DB{}
+	defer db.AssertExpectations(test)
 	db.On("Exec", mock.AnythingOfType("string"), migrationName).Return(nil, nil)
 	repository := repositories.NewDBRepository(db)
 	err := repository.RegisterRunMigration(migrationName)
@@ -146,6 +157,7 @@ func TestRegisteringARunMigrationFailsIfTheInsertFails(test *testing.T) {
 
 	const migrationName = ""
 	db := &mocks.DB{}
+	defer db.AssertExpectations(test)
 	db.On("Exec", mock.AnythingOfType("string"), migrationName).Return(nil, fmt.Errorf("db query error"))
 	repository := repositories.NewDBRepository(db)
 	err := repository.RegisterRunMigration(migrationName)

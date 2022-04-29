@@ -3,10 +3,10 @@
 ## Future versions
 
 - Add a verbose mode
-- Support env vars instead of params
 - Dry run mode
 - Add a help command
+- Document how to contribute to this package
 
-## Maybe
+## Probably not
 
 - Allow reverting migrations

@@ -22,15 +22,20 @@ func TestGettingMigrations(test *testing.T) {
 	test.Parallel()
 
 	dbRepository := &mocks.DBRepository{}
+	defer dbRepository.AssertExpectations(test)
 	dbRepository.On("GetAlreadyRunMigrationFilePaths", migrationsDir).
 		Return([]string{migrationPath1}, nil)
+
 	fileRepository := &mocks.FileRepository{}
+	defer fileRepository.AssertExpectations(test)
 	fileRepository.On("GetMigrationFilePaths", migrationsDir).
 		Return([]string{migrationPath1, migrationPath2}, nil)
 	fileRepository.On("GetMigrationQuery", migrationPath1).
 		Return(migrationQuery1, nil)
 	fileRepository.On("GetMigrationQuery", migrationPath2).
 		Return(migrationQuery2, nil)
+	defer fileRepository.AssertExpectations(test)
+
 	service := services.NewFetcherService(dbRepository, fileRepository)
 
 	migrations, err := service.GetMigrations(migrationsDir)
@@ -51,11 +56,15 @@ func TestGettingMigrationsFailsIfItCannotReadFromTheDB(test *testing.T) {
 
 	const migrationsDir = "/tmp/"
 	dbRepository := &mocks.DBRepository{}
+	defer dbRepository.AssertExpectations(test)
 	dbRepository.On("GetAlreadyRunMigrationFilePaths", migrationsDir).
 		Return(nil, fmt.Errorf("db error"))
+
 	fileRepository := &mocks.FileRepository{}
+	defer fileRepository.AssertExpectations(test)
 	fileRepository.On("GetMigrationFilePaths", migrationsDir).
 		Return(nil, nil)
+
 	service := services.NewFetcherService(dbRepository, fileRepository)
 
 	_, err := service.GetMigrations(migrationsDir)
@@ -68,9 +77,13 @@ func TestGettingMigrationsFailsIfItCannotReadFromTheFileSystem(test *testing.T) 
 
 	const migrationsDir = "/tmp/"
 	dbRepository := &mocks.DBRepository{}
+	defer dbRepository.AssertExpectations(test)
+
 	fileRepository := &mocks.FileRepository{}
+	defer fileRepository.AssertExpectations(test)
 	fileRepository.On("GetMigrationFilePaths", migrationsDir).
 		Return(nil, fmt.Errorf("some fs error"))
+
 	service := services.NewFetcherService(dbRepository, fileRepository)
 
 	_, err := service.GetMigrations(migrationsDir)
@@ -82,13 +95,17 @@ func TestGettingMigrationsFailsIfAMigrationPathCannotBeRead(test *testing.T) {
 	test.Parallel()
 
 	dbRepository := &mocks.DBRepository{}
+	defer dbRepository.AssertExpectations(test)
 	dbRepository.On("GetAlreadyRunMigrationFilePaths", migrationsDir).
 		Return(nil, nil)
+
 	fileRepository := &mocks.FileRepository{}
+	defer fileRepository.AssertExpectations(test)
 	fileRepository.On("GetMigrationFilePaths", migrationsDir).
 		Return([]string{migrationPath1}, nil)
 	fileRepository.On("GetMigrationQuery", migrationPath1).
 		Return("", fmt.Errorf("cannot read file"))
+
 	service := services.NewFetcherService(dbRepository, fileRepository)
 
 	_, err := service.GetMigrations(migrationsDir)
@@ -100,13 +117,17 @@ func TestGettingMigrationsFailsIfAMigrationPathAlreadyRunCannotBeRead(test *test
 	test.Parallel()
 
 	dbRepository := &mocks.DBRepository{}
+	defer dbRepository.AssertExpectations(test)
 	dbRepository.On("GetAlreadyRunMigrationFilePaths", migrationsDir).
 		Return([]string{migrationPath1}, nil)
+
 	fileRepository := &mocks.FileRepository{}
+	defer fileRepository.AssertExpectations(test)
 	fileRepository.On("GetMigrationFilePaths", migrationsDir).
 		Return([]string{migrationPath1}, nil)
 	fileRepository.On("GetMigrationQuery", migrationPath1).
 		Return("", fmt.Errorf("cannot read file"))
+
 	service := services.NewFetcherService(dbRepository, fileRepository)
 
 	_, err := service.GetMigrations(migrationsDir)
