@@ -14,12 +14,11 @@ import (
 // RunMigrations runs the migrations using the given DB connection and migrations directory path.
 // Returns a MigrationCollection, to be used programmatically.
 func RunMigrations(DB *sql.DB, migrationsDirectoryAbsolutePath string) (models.Collection, error) {
-	fileSystem := adapters.IOUtilAdapter{}
-	dbAdapter := adapters.NewDBAdapter(DB)
-	dbRepository := repositories.NewDBRepository(dbAdapter)
-	fileRepository := repositories.NewFileRepository(fileSystem)
-	migrationFetcher := services.NewFetcherService(dbRepository, fileRepository)
-	migrationRunner := services.NewRunnerService(migrationFetcher, dbRepository, migrationsDirectoryAbsolutePath)
+	arguments := services.Arguments{
+		MigrationsPath: migrationsDirectoryAbsolutePath,
+	}
+	fileRepository := repositories.NewFileRepository(adapters.IOUtilAdapter{})
+	migrationRunner := getMigrationRunner(DB, fileRepository, arguments)
 
 	return migrationRunner.RunMigrations()
 }
@@ -29,11 +28,8 @@ type SetupDB func() (*sql.DB, error)
 
 // RunMigrationsCommand runs migrations as a command (it will output the results to stdout).
 func RunMigrationsCommand(setupDB SetupDB) {
-	printerAdapter := adapters.PrinterAdapter{}
-	displayService := services.NewDisplayService(printerAdapter)
-	argumentService := services.NewCommandArgumentService(displayService, adapters.NewArgumentParser())
-
-	arguments, argumentsAreValid := argumentService.ParseAndValidate()
+	displayService := getDisplayService()
+	arguments, argumentsAreValid := getArgumentService(displayService).ParseAndValidate()
 	if !argumentsAreValid {
 		os.Exit(1)
 	}
@@ -44,12 +40,8 @@ func RunMigrationsCommand(setupDB SetupDB) {
 		os.Exit(1)
 	}
 
-	fileSystem := adapters.IOUtilAdapter{}
-	dbAdapter := adapters.NewDBAdapter(DB)
-	dbRepository := repositories.NewDBRepository(dbAdapter)
-	fileRepository := repositories.NewFileRepository(fileSystem)
-	migrationFetcher := services.NewFetcherService(dbRepository, fileRepository)
-	migrationRunner := services.NewRunnerService(migrationFetcher, dbRepository, arguments.MigrationsPath)
+	fileRepository := repositories.NewFileRepository(adapters.IOUtilAdapter{})
+	migrationRunner := getMigrationRunner(DB, fileRepository, arguments)
 
 	switch arguments.Command {
 	case "migrate":
@@ -64,4 +56,22 @@ func RunMigrationsCommand(setupDB SetupDB) {
 	}
 
 	os.Exit(0)
+}
+
+func getMigrationRunner(DB *sql.DB, fileRepository repositories.FileRepository, arguments services.Arguments) services.Runner {
+	dbAdapter := adapters.NewDBAdapter(DB)
+	dbRepository := repositories.NewDBRepository(dbAdapter)
+	migrationFetcher := services.NewFetcherService(dbRepository, fileRepository)
+
+	return services.NewRunnerService(migrationFetcher, dbRepository, arguments.MigrationsPath)
+}
+
+func getDisplayService() services.DisplayService {
+	printerAdapter := adapters.PrinterAdapter{}
+
+	return services.NewDisplayService(printerAdapter)
+}
+
+func getArgumentService(displayService services.Display) services.CommandArgumentService {
+	return services.NewCommandArgumentService(displayService, adapters.NewArgumentParser())
 }

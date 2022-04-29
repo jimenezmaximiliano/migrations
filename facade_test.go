@@ -16,6 +16,8 @@ func TestRunningMigrations(test *testing.T) {
 	db, err := sql.Open("mysql", "user:password@/db")
 	require.Nil(test, err)
 
+	assert.Nil(test, db.Ping())
+
 	_, err = db.Exec("DROP TABLE IF EXISTS gophers")
 	require.Nil(test, err)
 
@@ -34,6 +36,8 @@ func TestRunningMigrations(test *testing.T) {
 func TestRunningAMigrationWithTwoQueries(test *testing.T) {
 	db, err := sql.Open("mysql", "user:password@/db?multiStatements=true")
 	require.Nil(test, err)
+
+	assert.Nil(test, db.Ping())
 
 	_, err = db.Exec("DROP TABLE IF EXISTS gophers")
 	require.Nil(test, err)
@@ -55,6 +59,8 @@ func TestRunningMigrationsWhenAllMigrationsHaveAlreadyRun(test *testing.T) {
 	db, err := sql.Open("mysql", "user:password@/db")
 	require.Nil(test, err)
 
+	assert.Nil(test, db.Ping())
+
 	_, err = db.Exec("DROP TABLE IF EXISTS gophers")
 	require.Nil(test, err)
 
@@ -75,6 +81,8 @@ func TestRunningMigrationsWhenAllMigrationsHaveAlreadyRun(test *testing.T) {
 func TestRunningMigrationsStopsWhenAMigrationFails(test *testing.T) {
 	db, err := sql.Open("mysql", "user:password@/db")
 	require.Nil(test, err)
+
+	assert.Nil(test, db.Ping())
 
 	_, err = db.Exec("DROP TABLE IF EXISTS gophers")
 	require.Nil(test, err)
